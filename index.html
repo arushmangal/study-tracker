@@ -24,11 +24,10 @@
     .section-label { color: #555; font-size: 0.8rem; margin-bottom: 8px; }
     .session-item { background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
                     margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
-                    display: flex; justify-content: space-between; }
+                    display: flex; justify-content: space-between; align-items: center; }
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     .likes-tag { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     #last-change { margin-top: 6px; font-size: 0.82rem; color: #444; text-align: center; }
-    #last-change span { color: #777; }
     #admin-panel { display: none; margin-top: 30px; background: #1a1a1a;
                    border: 1px solid #333; border-radius: 12px; padding: 24px; width: 340px; }
     #admin-panel h3 { margin: 0 0 16px; color: #aaa; font-size: 0.95rem;
@@ -226,21 +225,25 @@
       document.getElementById("likes").textContent     = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
       document.getElementById("bar").style.width       = pct + "%";
 
-      // Last change
+      // Last change — now a clickable link
       const lc = workerData.lastChange;
       if (lc) {
         document.getElementById("last-change").innerHTML =
-          `Last like detected on <span>${lc.label}</span> — ${lc.detectedAt} IST`;
+          `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
       }
 
-      // Breakdown by comment
+      // Breakdown — labels are now clickable links
       const breakdown = workerData.breakdown || [];
       if (breakdown.length) {
         const box = document.getElementById("breakdown-box");
         box.innerHTML = `<div class="section-label">Like sources</div>` +
           breakdown.map(b =>
             `<div class="session-item">
-               <span>💬 ${b.label}</span>
+               <a href="${b.commentUrl}" target="_blank"
+                  style="color:#ccc; text-decoration:none; overflow:hidden;
+                         text-overflow:ellipsis; white-space:nowrap; max-width:200px;">
+                 💬 ${b.label}
+               </a>
                <span class="likes-tag">${b.likes} likes · ${b.hours}h</span>
              </div>`
           ).join("");
