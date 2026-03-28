@@ -320,12 +320,12 @@
     const GH_OWNER   = "arushmangal";
     const GH_REPO    = "study-tracker";
 
-    // Fade out loading disclaimer once page is fully loaded
-    window.addEventListener("load", () => {
-      const disclaimer = document.getElementById("loading-disclaimer");
-      disclaimer.style.opacity = "0";
-      setTimeout(() => disclaimer.style.display = "none", 1000);
-    });
+    // Show loading disclaimer for 10 seconds, then fade out
+  setTimeout(() => {
+    const disclaimer = document.getElementById("loading-disclaimer");
+    disclaimer.style.opacity = "0";
+    setTimeout(() => disclaimer.style.display = "none", 1000);
+  }, 10000);
 
     const ADMIN_SHORTCUT = new Set(["A", "D"]);
     let held = new Set();
