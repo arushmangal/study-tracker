@@ -106,6 +106,31 @@
       text-align: center;
     }
 
+    #clock-box {
+      width: 340px;
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 0.85rem;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    #clock-time {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #aaa;
+      letter-spacing: 1px;
+    }
+
+    #sleep-note {
+      font-size: 0.78rem;
+      color: #ff4444;
+      margin-top: 2px;
+    }
+
     #loading-disclaimer {
       width: 340px;
       background: #1a1200;
@@ -278,6 +303,13 @@
   <div class="sub" id="likes" style="margin-top:14px;"></div>
   <div id="last-change"></div>
 
+  <!-- IST Clock -->
+  <div id="clock-box">
+    <div id="clock-time">--:-- --</div>
+    <div>India Standard Time</div>
+    <div id="sleep-note"></div>
+  </div>
+
   <!-- Like sources breakdown -->
   <div class="sessions" id="breakdown-box"></div>
 
@@ -326,6 +358,24 @@
       disclaimer.style.opacity = "0";
       setTimeout(() => disclaimer.style.display = "none", 1000);
     }, 10000);
+
+    // IST clock — ticks every second
+    function updateClock() {
+      const now     = new Date();
+      const ist     = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      const hours   = ist.getHours();
+      const minutes = ist.getMinutes().toString().padStart(2, "0");
+      const ampm    = hours >= 12 ? "PM" : "AM";
+      const display = `${((hours % 12) || 12)}:${minutes} ${ampm}`;
+
+      document.getElementById("clock-time").textContent = display;
+      document.getElementById("sleep-note").textContent = hours < 8
+        ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!"
+        : "";
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
 
     const ADMIN_SHORTCUT = new Set(["A", "D"]);
     let held = new Set();
