@@ -1,4 +1,10 @@
 {
-  "hoursCompleted": 0,
-  "sessions": []
+  "hoursCompleted": 1,
+  "sessions": [
+    {
+      "date": "28 Mar 2026",
+      "topic": "developed this website and setup an auto updating interface",
+      "hours": 1
+    }
+  ]
 }
