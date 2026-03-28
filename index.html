@@ -6,53 +6,215 @@
   <title>Arush's Study Tracker</title>
   <style>
     * { box-sizing: border-box; }
-    body { font-family: sans-serif; display: flex; flex-direction: column;
-           align-items: center; justify-content: flex-start; min-height: 100vh;
-           background: #0f0f0f; color: white; margin: 0; padding: 40px 20px; gap: 10px; }
-    .big { font-size: 5rem; font-weight: bold; }
-    .red { color: #ff4444; }
+
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      background: #0f0f0f;
+      color: white;
+      margin: 0;
+      padding: 40px 20px;
+      gap: 10px;
+    }
+
+    .big   { font-size: 5rem; font-weight: bold; }
+    .red   { color: #ff4444; }
     .green { color: #44ff88; }
-    .label { color: #aaa; margin-top: -8px; font-size: 1.1rem; }
-    .bar-wrap { width: 320px; background: #222; border-radius: 20px; height: 14px; margin: 10px 0; }
-    .bar-fill { height: 14px; border-radius: 20px; background: #44ff88; transition: width 0.6s ease; }
-    .stats-row { display: flex; gap: 40px; margin-top: 10px; }
-    .stat { text-align: center; }
-    .stat .num { font-size: 2.5rem; font-weight: bold; }
+
+    .label {
+      color: #aaa;
+      margin-top: -8px;
+      font-size: 1.1rem;
+    }
+
+    .bar-wrap {
+      width: 320px;
+      background: #222;
+      border-radius: 20px;
+      height: 14px;
+      margin: 10px 0;
+    }
+
+    .bar-fill {
+      height: 14px;
+      border-radius: 20px;
+      background: #44ff88;
+      transition: width 0.6s ease;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 40px;
+      margin-top: 10px;
+    }
+
+    .stat          { text-align: center; }
+    .stat .num     { font-size: 2.5rem; font-weight: bold; }
+
     .sub { color: #555; font-size: 0.85rem; }
-    a { color: #777; }
-    .sessions { width: 340px; margin-top: 20px; }
-    .section-label { color: #555; font-size: 0.8rem; margin-bottom: 8px; }
-    .session-item { background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
-                    margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
-                    display: flex; justify-content: space-between; align-items: center; }
+    a    { color: #777; }
+
+    .sessions {
+      width: 340px;
+      margin-top: 20px;
+    }
+
+    .section-label {
+      color: #555;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+    }
+
+    .session-item {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      color: #ccc;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .session-item a {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    .session-item a:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
-    .likes-tag { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
-    #last-change { margin-top: 6px; font-size: 0.82rem; color: #444; text-align: center; }
-    #admin-panel { display: none; margin-top: 30px; background: #1a1a1a;
-                   border: 1px solid #333; border-radius: 12px; padding: 24px; width: 340px; }
-    #admin-panel h3 { margin: 0 0 16px; color: #aaa; font-size: 0.95rem;
-                      text-transform: uppercase; letter-spacing: 1px; }
-    #admin-panel input { width: 100%; background: #111; border: 1px solid #333; border-radius: 8px;
-                         color: white; padding: 10px 12px; font-size: 0.95rem;
-                         margin-bottom: 10px; outline: none; font-family: sans-serif; }
+    .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
+
+    #last-change {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: #444;
+      text-align: center;
+    }
+
+    #admin-panel {
+      display: none;
+      margin-top: 30px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      width: 340px;
+    }
+
+    #admin-panel h3 {
+      margin: 0 0 16px;
+      color: #aaa;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #admin-panel input {
+      width: 100%;
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: white;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      margin-bottom: 10px;
+      outline: none;
+      font-family: sans-serif;
+    }
+
     #admin-panel input:focus { border-color: #555; }
-    #admin-panel button { width: 100%; background: #44ff88; color: #000; font-weight: bold;
-                          border: none; border-radius: 8px; padding: 12px; font-size: 1rem;
-                          cursor: pointer; margin-top: 4px; }
-    #admin-panel button:hover { background: #33dd77; }
-    #admin-panel button:disabled { background: #333; color: #666; cursor: not-allowed; }
-    #status { font-size: 0.85rem; margin-top: 8px; text-align: center; color: #aaa; min-height: 20px; }
-    #setup-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
-                   align-items: center; justify-content: center; z-index: 100; }
+
+    #admin-panel button {
+      width: 100%;
+      background: #44ff88;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    #admin-panel button:hover     { background: #33dd77; }
+    #admin-panel button:disabled  { background: #333; color: #666; cursor: not-allowed; }
+
+    #status {
+      font-size: 0.85rem;
+      margin-top: 8px;
+      text-align: center;
+      color: #aaa;
+      min-height: 20px;
+    }
+
+    #setup-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
     #setup-modal.show { display: flex; }
-    #setup-box { background: #1a1a1a; border-radius: 12px; padding: 28px;
-                 width: 320px; display: flex; flex-direction: column; gap: 10px; }
-    #setup-box h3 { margin: 0; color: #aaa; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
-    #setup-box input { background: #111; border: 1px solid #333; border-radius: 8px;
-                       color: white; padding: 10px 12px; font-size: 0.9rem;
-                       outline: none; width: 100%; }
-    #setup-box button { background: #44ff88; color: #000; font-weight: bold;
-                        border: none; border-radius: 8px; padding: 10px; font-size: 0.95rem; cursor: pointer; }
+
+    #setup-box {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 28px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #setup-box h3 {
+      margin: 0;
+      color: #aaa;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #setup-box input {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: white;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      outline: none;
+      width: 100%;
+    }
+
+    #setup-box button {
+      background: #44ff88;
+      color: #000;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
     #setup-box p { color: #555; font-size: 0.8rem; margin: 0; }
   </style>
 </head>
@@ -61,11 +223,19 @@
   <div class="big red" id="remaining">...</div>
   <div class="label">hours remaining</div>
 
-  <div class="bar-wrap"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+  <div class="bar-wrap">
+    <div class="bar-fill" id="bar" style="width:0%"></div>
+  </div>
 
   <div class="stats-row">
-    <div class="stat"><div class="num red" id="owed">–</div><div class="label" style="font-size:0.9rem">hours owed</div></div>
-    <div class="stat"><div class="num green" id="done">–</div><div class="label" style="font-size:0.9rem">hours done</div></div>
+    <div class="stat">
+      <div class="num red" id="owed">–</div>
+      <div class="label" style="font-size:0.9rem">hours owed</div>
+    </div>
+    <div class="stat">
+      <div class="num green" id="done">–</div>
+      <div class="label" style="font-size:0.9rem">hours done</div>
+    </div>
   </div>
 
   <div class="sub" id="likes" style="margin-top:14px;"></div>
@@ -80,9 +250,10 @@
     <div id="sessions-list"></div>
   </div>
 
+  <!-- Admin panel -->
   <div id="admin-panel">
     <h3>🔒 Log a Session</h3>
-    <input type="text" id="inp-topic" placeholder="What did you study?" maxlength="80" />
+    <input type="text"   id="inp-topic" placeholder="What did you study?" maxlength="80" />
     <input type="number" id="inp-hours" placeholder="Hours spent" min="0.5" max="24" step="0.5" />
     <button id="submit-btn" onclick="logSession()">Add Session</button>
     <div id="status"></div>
@@ -90,13 +261,14 @@
          onclick="clearSetup()">Reset credentials</div>
   </div>
 
+  <!-- Setup modal -->
   <div id="setup-modal">
     <div id="setup-box">
       <h3>⚙️ One-time Setup</h3>
       <p>Saved only in your browser — never sent anywhere.</p>
       <input id="s-token" type="password" placeholder="GitHub Personal Access Token" />
-      <input id="s-owner" type="text" placeholder="GitHub username" />
-      <input id="s-repo"  type="text" placeholder="Repository name (study-tracker)" />
+      <input id="s-owner" type="text"     placeholder="GitHub username" />
+      <input id="s-repo"  type="text"     placeholder="Repository name (study-tracker)" />
       <input id="s-pass"  type="password" placeholder="Admin password (your choice)" />
       <button onclick="saveSetup()">Save & Continue</button>
     </div>
@@ -109,6 +281,7 @@
 
     const ADMIN_SHORTCUT = new Set(["A", "D"]);
     let held = new Set();
+
     document.addEventListener("keydown", e => {
       if (e.shiftKey) held.add(e.key.toUpperCase());
       if ([...ADMIN_SHORTCUT].every(k => held.has(k))) {
@@ -172,13 +345,13 @@
       const apiBase = `https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
 
       try {
-        const res     = await fetch(apiBase, { headers: { Authorization: `token ${token}` }});
+        const res     = await fetch(apiBase, { headers: { Authorization: `token ${token}` } });
         const meta    = await res.json();
         const current = JSON.parse(atob(meta.content));
 
         current.hoursCompleted = (current.hoursCompleted || 0) + hours;
         current.sessions.push({
-          date:  new Date().toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" }),
+          date:  new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
           topic,
           hours
         });
@@ -197,13 +370,16 @@
         document.getElementById("inp-topic").value = "";
         document.getElementById("inp-hours").value = "";
         setTimeout(() => { loadData(); setStatus(""); }, 1500);
-      } catch(e) {
+      } catch (e) {
         setStatus("❌ Error — check your token/repo.");
       }
+
       btn.disabled = false;
     }
 
-    function setStatus(msg) { document.getElementById("status").textContent = msg; }
+    function setStatus(msg) {
+      document.getElementById("status").textContent = msg;
+    }
 
     async function loadData() {
       const rawURL = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/data.json?t=${Date.now()}`;
@@ -225,25 +401,21 @@
       document.getElementById("likes").textContent     = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
       document.getElementById("bar").style.width       = pct + "%";
 
-      // Last change — now a clickable link
+      // Last change
       const lc = workerData.lastChange;
       if (lc) {
         document.getElementById("last-change").innerHTML =
           `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
       }
 
-      // Breakdown — labels are now clickable links
+      // Breakdown — clickable labels
       const breakdown = workerData.breakdown || [];
       if (breakdown.length) {
         const box = document.getElementById("breakdown-box");
         box.innerHTML = `<div class="section-label">Like sources</div>` +
           breakdown.map(b =>
             `<div class="session-item">
-               <a href="${b.commentUrl}" target="_blank"
-                  style="color:#ccc; text-decoration:none; overflow:hidden;
-                         text-overflow:ellipsis; white-space:nowrap; max-width:200px;">
-                 💬 ${b.label}
-               </a>
+               <a href="${b.commentUrl}" target="_blank">💬 ${b.label}</a>
                <span class="likes-tag">${b.likes} likes · ${b.hours}h</span>
              </div>`
           ).join("");
