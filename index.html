@@ -321,11 +321,11 @@
     const GH_REPO    = "study-tracker";
 
     // Show loading disclaimer for 10 seconds, then fade out
-  setTimeout(() => {
-    const disclaimer = document.getElementById("loading-disclaimer");
-    disclaimer.style.opacity = "0";
-    setTimeout(() => disclaimer.style.display = "none", 1000);
-  }, 10000);
+    setTimeout(() => {
+      const disclaimer = document.getElementById("loading-disclaimer");
+      disclaimer.style.opacity = "0";
+      setTimeout(() => disclaimer.style.display = "none", 1000);
+    }, 10000);
 
     const ADMIN_SHORTCUT = new Set(["A", "D"]);
     let held = new Set();
