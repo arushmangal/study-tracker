@@ -21,10 +21,14 @@
     .sub { color: #555; font-size: 0.85rem; }
     a { color: #777; }
     .sessions { width: 340px; margin-top: 20px; }
+    .section-label { color: #555; font-size: 0.8rem; margin-bottom: 8px; }
     .session-item { background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
                     margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
                     display: flex; justify-content: space-between; }
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
+    .likes-tag { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
+    #last-change { margin-top: 6px; font-size: 0.82rem; color: #444; text-align: center; }
+    #last-change span { color: #777; }
     #admin-panel { display: none; margin-top: 30px; background: #1a1a1a;
                    border: 1px solid #333; border-radius: 12px; padding: 24px; width: 340px; }
     #admin-panel h3 { margin: 0 0 16px; color: #aaa; font-size: 0.95rem;
@@ -66,10 +70,14 @@
   </div>
 
   <div class="sub" id="likes" style="margin-top:14px;"></div>
-  <div class="sub"><a href="https://www.youtube.com/watch?v=74cOUSKXMz0&lc=UgxF0KPvWWYwo7j94zB4AaABAg" target="_blank">based on this comment</a> · 3 hrs per like</div>
+  <div id="last-change"></div>
 
+  <!-- Like sources breakdown -->
+  <div class="sessions" id="breakdown-box"></div>
+
+  <!-- Study sessions -->
   <div class="sessions">
-    <div style="color:#555; font-size:0.8rem; margin-bottom:8px;" id="sessions-label"></div>
+    <div class="section-label" id="sessions-label"></div>
     <div id="sessions-list"></div>
   </div>
 
@@ -104,7 +112,10 @@
     let held = new Set();
     document.addEventListener("keydown", e => {
       if (e.shiftKey) held.add(e.key.toUpperCase());
-      if ([...ADMIN_SHORTCUT].every(k => held.has(k))) toggleAdmin();
+      if ([...ADMIN_SHORTCUT].every(k => held.has(k))) {
+        held.clear();
+        toggleAdmin();
+      }
     });
     document.addEventListener("keyup", () => held.clear());
 
@@ -195,38 +206,59 @@
 
     function setStatus(msg) { document.getElementById("status").textContent = msg; }
 
-async function loadData() {
-  const rawURL = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/data.json?t=${Date.now()}`;
+    async function loadData() {
+      const rawURL = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/data.json?t=${Date.now()}`;
 
-  const [workerData, myData] = await Promise.all([
-    fetch(WORKER_URL).then(r => r.json()),
-    fetch(rawURL).then(r => r.json())
-  ]);
+      const [workerData, myData] = await Promise.all([
+        fetch(WORKER_URL).then(r => r.json()),
+        fetch(rawURL).then(r => r.json())
+      ]);
 
-  const likes     = workerData.likes      || 0;
-  const done      = myData.hoursCompleted || 0;
-  const owed      = likes * 3;
-  const remaining = Math.max(0, owed - done);
-  const pct       = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
+      const totalLikes = workerData.totalLikes || 0;
+      const owed       = workerData.totalHours || 0;
+      const done       = myData.hoursCompleted || 0;
+      const remaining  = Math.max(0, owed - done);
+      const pct        = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
 
-  document.getElementById("remaining").textContent = remaining;
-  document.getElementById("owed").textContent      = owed;
-  document.getElementById("done").textContent      = done;
-  document.getElementById("likes").textContent     = `${likes} likes × 3 hrs`;
-  document.getElementById("bar").style.width       = pct + "%";
+      document.getElementById("remaining").textContent = remaining;
+      document.getElementById("owed").textContent      = owed;
+      document.getElementById("done").textContent      = done;
+      document.getElementById("likes").textContent     = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
+      document.getElementById("bar").style.width       = pct + "%";
 
-  const sessions = myData.sessions || [];
-  if (sessions.length) {
-    document.getElementById("sessions-label").textContent = "Recent sessions";
-    document.getElementById("sessions-list").innerHTML =
-      [...sessions].reverse().slice(0, 6).map(s =>
-        `<div class="session-item">
-           <span>📖 ${s.topic}</span>
-           <span class="session-hrs">${s.hours}h · ${s.date}</span>
-         </div>`
-      ).join("");
-  }
-}
+      // Last change
+      const lc = workerData.lastChange;
+      if (lc) {
+        document.getElementById("last-change").innerHTML =
+          `Last like detected on <span>${lc.label}</span> — ${lc.detectedAt} IST`;
+      }
+
+      // Breakdown by comment
+      const breakdown = workerData.breakdown || [];
+      if (breakdown.length) {
+        const box = document.getElementById("breakdown-box");
+        box.innerHTML = `<div class="section-label">Like sources</div>` +
+          breakdown.map(b =>
+            `<div class="session-item">
+               <span>💬 ${b.label}</span>
+               <span class="likes-tag">${b.likes} likes · ${b.hours}h</span>
+             </div>`
+          ).join("");
+      }
+
+      // Study sessions
+      const sessions = myData.sessions || [];
+      if (sessions.length) {
+        document.getElementById("sessions-label").textContent = "Recent sessions";
+        document.getElementById("sessions-list").innerHTML =
+          [...sessions].reverse().slice(0, 6).map(s =>
+            `<div class="session-item">
+               <span>📖 ${s.topic}</span>
+               <span class="session-hrs">${s.hours}h · ${s.date}</span>
+             </div>`
+          ).join("");
+      }
+    }
 
     loadData();
   </script>
