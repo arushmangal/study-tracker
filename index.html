@@ -195,43 +195,38 @@
 
     function setStatus(msg) { document.getElementById("status").textContent = msg; }
 
-    async function loadData() {
-      const { owner, repo } = getSetup();
-      if (!owner || !repo) return;
+async function loadData() {
+  const rawURL = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/data.json?t=${Date.now()}`;
 
-      const rawURL = `https://raw.githubusercontent.com/${owner}/${repo}/main/data.json?t=${Date.now()}`;
+  const [workerData, myData] = await Promise.all([
+    fetch(WORKER_URL).then(r => r.json()),
+    fetch(rawURL).then(r => r.json())
+  ]);
 
-      const [workerData, myData] = await Promise.all([
-        fetch(WORKER_URL).then(r => r.json()),
-        fetch(rawURL).then(r => r.json())
-      ]);
+  const likes     = workerData.likes      || 0;
+  const done      = myData.hoursCompleted || 0;
+  const owed      = likes * 3;
+  const remaining = Math.max(0, owed - done);
+  const pct       = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
 
-      const likes     = workerData.likes    || 0;
-      const done      = myData.hoursCompleted || 0;
-      const owed      = likes * 3;
-      const remaining = Math.max(0, owed - done);
-      const pct       = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
+  document.getElementById("remaining").textContent = remaining;
+  document.getElementById("owed").textContent      = owed;
+  document.getElementById("done").textContent      = done;
+  document.getElementById("likes").textContent     = `${likes} likes × 3 hrs`;
+  document.getElementById("bar").style.width       = pct + "%";
 
-      document.getElementById("remaining").textContent = remaining;
-      document.getElementById("owed").textContent      = owed;
-      document.getElementById("done").textContent      = done;
-      document.getElementById("likes").textContent     = `${likes} likes × 3 hrs`;
-      document.getElementById("bar").style.width       = pct + "%";
-
-      const sessions = myData.sessions || [];
-      if (sessions.length) {
-        document.getElementById("sessions-label").textContent = "Recent sessions";
-        document.getElementById("sessions-list").innerHTML =
-          [...sessions].reverse().slice(0, 6).map(s =>
-            `<div class="session-item">
-               <span>📖 ${s.topic}</span>
-               <span class="session-hrs">${s.hours}h · ${s.date}</span>
-             </div>`
-          ).join("");
-      }
-    }
-
-    loadData();
+  const sessions = myData.sessions || [];
+  if (sessions.length) {
+    document.getElementById("sessions-label").textContent = "Recent sessions";
+    document.getElementById("sessions-list").innerHTML =
+      [...sessions].reverse().slice(0, 6).map(s =>
+        `<div class="session-item">
+           <span>📖 ${s.topic}</span>
+           <span class="session-hrs">${s.hours}h · ${s.date}</span>
+         </div>`
+      ).join("");
+  }
+}
   </script>
 </body>
 </html>
