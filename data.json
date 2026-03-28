@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 7,
+  "hoursCompleted": 9,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -10,6 +10,11 @@
       "date": "28 Mar 2026",
       "topic": "gave a mock test and did its analysis",
       "hours": 6
+    },
+    {
+      "date": "29 Mar 2026",
+      "topic": "built multi comment likes system and developing the backend of webpage",
+      "hours": 2
     }
   ]
 }
