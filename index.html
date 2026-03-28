@@ -268,6 +268,33 @@
   </style>
 </head>
 <body>
+  <!-- Admin panel -->
+  <div id="admin-panel">
+    <h3>🔒 Log a Session</h3>
+    <input type="text"   id="inp-topic" placeholder="What did you study?" maxlength="80" />
+    <input type="number" id="inp-hours" placeholder="Hours spent" min="0.5" max="24" step="0.5" />
+    <button id="submit-btn" onclick="logSession()">Add Session</button>
+    <div id="status"></div>
+    <div
+      style="margin-top:14px; font-size:0.75rem; color:#444; text-align:center; cursor:pointer"
+      onclick="clearSetup()"
+    >
+      Reset credentials
+    </div>
+  </div>
+
+  <!-- Setup modal -->
+  <div id="setup-modal">
+    <div id="setup-box">
+      <h3>⚙️ One-time Setup</h3>
+      <p>Saved only in your browser — never sent anywhere.</p>
+      <input id="s-token" type="password" placeholder="GitHub Personal Access Token" />
+      <input id="s-owner" type="text"     placeholder="GitHub username" />
+      <input id="s-repo"  type="text"     placeholder="Repository name (study-tracker)" />
+      <input id="s-pass"  type="password" placeholder="Admin password (your choice)" />
+      <button onclick="saveSetup()">Save & Continue</button>
+    </div>
+  </div>
 
   <!-- Loading disclaimer -->
   <div id="loading-disclaimer">
@@ -303,13 +330,6 @@
   <div class="sub" id="likes" style="margin-top:14px;"></div>
   <div id="last-change"></div>
 
-  <!-- IST Clock -->
-  <div id="clock-box">
-    <div id="clock-time">--:-- --</div>
-    <div>India Standard Time</div>
-    <div id="sleep-note"></div>
-  </div>
-
   <!-- Like sources breakdown -->
   <div class="sessions" id="breakdown-box"></div>
 
@@ -319,32 +339,11 @@
     <div id="sessions-list"></div>
   </div>
 
-  <!-- Admin panel -->
-  <div id="admin-panel">
-    <h3>🔒 Log a Session</h3>
-    <input type="text"   id="inp-topic" placeholder="What did you study?" maxlength="80" />
-    <input type="number" id="inp-hours" placeholder="Hours spent" min="0.5" max="24" step="0.5" />
-    <button id="submit-btn" onclick="logSession()">Add Session</button>
-    <div id="status"></div>
-    <div
-      style="margin-top:14px; font-size:0.75rem; color:#444; text-align:center; cursor:pointer"
-      onclick="clearSetup()"
-    >
-      Reset credentials
-    </div>
-  </div>
-
-  <!-- Setup modal -->
-  <div id="setup-modal">
-    <div id="setup-box">
-      <h3>⚙️ One-time Setup</h3>
-      <p>Saved only in your browser — never sent anywhere.</p>
-      <input id="s-token" type="password" placeholder="GitHub Personal Access Token" />
-      <input id="s-owner" type="text"     placeholder="GitHub username" />
-      <input id="s-repo"  type="text"     placeholder="Repository name (study-tracker)" />
-      <input id="s-pass"  type="password" placeholder="Admin password (your choice)" />
-      <button onclick="saveSetup()">Save & Continue</button>
-    </div>
+    <!-- IST Clock -->
+  <div id="clock-box">
+    <div id="clock-time">--:-- --</div>
+    <div>India Standard Time</div>
+    <div id="sleep-note"></div>
   </div>
 
   <script>
