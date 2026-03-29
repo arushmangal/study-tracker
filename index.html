@@ -373,8 +373,9 @@
   <!-- Admin panel -->
   <div id="admin-panel">
     <h3>🔒 Log a Session</h3>
-    <input type="text"   id="inp-topic" placeholder="What did you study?" maxlength="80" />
-    <input type="number" id="inp-hours" placeholder="Hours spent" min="0.5" max="24" step="0.5" />
+    <input type="text"   id="inp-topic"   placeholder="What did you study?" maxlength="80" />
+    <input type="number" id="inp-hours"   placeholder="Hours spent" min="0" max="24" step="1" />
+    <input type="number" id="inp-minutes" placeholder="+ extra minutes (optional)" min="0" max="59" step="1" />
     <button id="submit-btn" onclick="logSession()">Add Session</button>
     <div id="status"></div>
     <div
@@ -427,6 +428,15 @@
 
     updateClock();
     setInterval(updateClock, 1000);
+
+    // Format decimal hours into e.g. "2h 30m", "45m", "3h"
+    function formatHours(h) {
+      const hrs  = Math.floor(h);
+      const mins = Math.round((h - hrs) * 60);
+      if (hrs === 0)  return `${mins}m`;
+      if (mins === 0) return `${hrs}h`;
+      return `${hrs}h ${mins}m`;
+    }
 
     // Toggle breakdown collapse
     function toggleBreakdown() {
@@ -495,8 +505,10 @@
 
     async function logSession() {
       const topic = document.getElementById("inp-topic").value.trim();
-      const hours = parseFloat(document.getElementById("inp-hours").value);
-      if (!topic || !hours || hours <= 0) return setStatus("Fill in both fields.");
+      const hrs   = parseFloat(document.getElementById("inp-hours").value)   || 0;
+      const mins  = parseInt(document.getElementById("inp-minutes").value)   || 0;
+      const hours = Math.round((hrs + mins / 60) * 100) / 100;
+      if (!topic || hours <= 0) return setStatus("Fill in topic and at least one of hours/minutes.");
 
       const btn = document.getElementById("submit-btn");
       btn.disabled = true;
@@ -521,15 +533,16 @@
           method: "PUT",
           headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            message: `log: ${hours}h — ${topic}`,
+            message: `log: ${formatHours(hours)} — ${topic}`,
             content: btoa(JSON.stringify(current, null, 2)),
             sha: meta.sha
           })
         });
 
         setStatus("✅ Session logged!");
-        document.getElementById("inp-topic").value = "";
-        document.getElementById("inp-hours").value = "";
+        document.getElementById("inp-topic").value   = "";
+        document.getElementById("inp-hours").value   = "";
+        document.getElementById("inp-minutes").value = "";
         setTimeout(() => { loadData(); setStatus(""); }, 1500);
       } catch (e) {
         setStatus("❌ Error — check your token/repo.");
@@ -556,9 +569,9 @@
       const remaining  = Math.max(0, owed - done);
       const pct        = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
 
-      document.getElementById("remaining").textContent = remaining;
-      document.getElementById("owed").textContent      = owed;
-      document.getElementById("done").textContent      = done;
+      document.getElementById("remaining").textContent = formatHours(remaining);
+      document.getElementById("owed").textContent      = formatHours(owed);
+      document.getElementById("done").textContent      = formatHours(done);
       document.getElementById("likes").textContent     = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
       document.getElementById("bar").style.width       = pct + "%";
 
@@ -569,25 +582,29 @@
           `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
       }
 
-      // Breakdown — collapsible with info icon
+      // Breakdown — sorted, collapsible, with h/like prefix and info icon
       const breakdown = workerData.breakdown || [];
       if (breakdown.length) {
         const box    = document.getElementById("breakdown-box");
         const isOpen = box.dataset.open !== "false";
+
+        const sorted = [...breakdown].sort((a, b) =>
+          b.likes !== a.likes ? b.likes - a.likes : b.hoursPerLike - a.hoursPerLike
+        );
 
         box.innerHTML = `
           <div class="section-label" onclick="toggleBreakdown()">
             <span id="breakdown-toggle" class="${isOpen ? "open" : ""}">▶</span>
             Like sources
             <span class="info-icon">i
-              <span class="info-tooltip">Click any link to watch & like — each like adds hours to my debt!</span>
+              <span class="info-tooltip">Like any comment below — each like adds more study hours for me! 🙌</span>
             </span>
           </div>
           <div id="breakdown-list" style="display: ${isOpen ? "block" : "none"}">
-            ${breakdown.map(b =>
+            ${sorted.map(b =>
               `<div class="session-item">
-                 <a href="${b.commentUrl}" target="_blank">💬 ${b.label}</a>
-                 <span class="likes-tag">${b.likes} likes · ${b.hours}h</span>
+                 <a href="${b.commentUrl}" target="_blank">💬 [${b.hoursPerLike}h/like] ${b.label}</a>
+                 <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
                </div>`
             ).join("")}
           </div>`;
@@ -601,7 +618,7 @@
           [...sessions].reverse().slice(0, 6).map(s =>
             `<div class="session-item">
                <span>📖 ${s.topic}</span>
-               <span class="session-hrs">${s.hours}h · ${s.date}</span>
+               <span class="session-hrs">${formatHours(s.hours)} · ${s.date}</span>
              </div>`
           ).join("");
       }
