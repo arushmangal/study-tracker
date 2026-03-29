@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 11,
+  "hoursCompleted": 13,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -14,6 +14,11 @@
     {
       "date": "29 Mar 2026",
       "topic": "built multi comment likes system and developing the backend of webpage",
+      "hours": 2
+    },
+    {
+      "date": "29 Mar 2026",
+      "topic": "revising my material on anki",
       "hours": 2
     }
   ]
