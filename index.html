@@ -155,6 +155,57 @@
       line-height: 1.5;
     }
 
+    #breakdown-box .section-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    #breakdown-box .section-label:hover { color: #888; }
+
+    #breakdown-toggle {
+      font-size: 0.75rem;
+      color: #444;
+      transition: transform 0.2s ease;
+    }
+
+    #breakdown-toggle.open { transform: rotate(90deg); }
+
+    .info-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid #444;
+      color: #555;
+      font-size: 0.65rem;
+      cursor: default;
+      position: relative;
+    }
+
+    .info-icon:hover .info-tooltip { display: block; }
+
+    .info-tooltip {
+      display: none;
+      position: absolute;
+      bottom: 120%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #222;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      color: #aaa;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+
     #admin-panel {
       display: none;
       margin-top: 30px;
@@ -268,33 +319,6 @@
   </style>
 </head>
 <body>
-  <!-- Admin panel -->
-  <div id="admin-panel">
-    <h3>🔒 Log a Session</h3>
-    <input type="text"   id="inp-topic" placeholder="What did you study?" maxlength="80" />
-    <input type="number" id="inp-hours" placeholder="Hours spent" min="0.5" max="24" step="0.5" />
-    <button id="submit-btn" onclick="logSession()">Add Session</button>
-    <div id="status"></div>
-    <div
-      style="margin-top:14px; font-size:0.75rem; color:#444; text-align:center; cursor:pointer"
-      onclick="clearSetup()"
-    >
-      Reset credentials
-    </div>
-  </div>
-
-  <!-- Setup modal -->
-  <div id="setup-modal">
-    <div id="setup-box">
-      <h3>⚙️ One-time Setup</h3>
-      <p>Saved only in your browser — never sent anywhere.</p>
-      <input id="s-token" type="password" placeholder="GitHub Personal Access Token" />
-      <input id="s-owner" type="text"     placeholder="GitHub username" />
-      <input id="s-repo"  type="text"     placeholder="Repository name (study-tracker)" />
-      <input id="s-pass"  type="password" placeholder="Admin password (your choice)" />
-      <button onclick="saveSetup()">Save & Continue</button>
-    </div>
-  </div>
 
   <!-- Loading disclaimer -->
   <div id="loading-disclaimer">
@@ -339,11 +363,39 @@
     <div id="sessions-list"></div>
   </div>
 
-    <!-- IST Clock -->
+  <!-- IST Clock -->
   <div id="clock-box">
     <div id="clock-time">--:-- --</div>
     <div>India Standard Time</div>
     <div id="sleep-note"></div>
+  </div>
+
+  <!-- Admin panel -->
+  <div id="admin-panel">
+    <h3>🔒 Log a Session</h3>
+    <input type="text"   id="inp-topic" placeholder="What did you study?" maxlength="80" />
+    <input type="number" id="inp-hours" placeholder="Hours spent" min="0.5" max="24" step="0.5" />
+    <button id="submit-btn" onclick="logSession()">Add Session</button>
+    <div id="status"></div>
+    <div
+      style="margin-top:14px; font-size:0.75rem; color:#444; text-align:center; cursor:pointer"
+      onclick="clearSetup()"
+    >
+      Reset credentials
+    </div>
+  </div>
+
+  <!-- Setup modal -->
+  <div id="setup-modal">
+    <div id="setup-box">
+      <h3>⚙️ One-time Setup</h3>
+      <p>Saved only in your browser — never sent anywhere.</p>
+      <input id="s-token" type="password" placeholder="GitHub Personal Access Token" />
+      <input id="s-owner" type="text"     placeholder="GitHub username" />
+      <input id="s-repo"  type="text"     placeholder="Repository name (study-tracker)" />
+      <input id="s-pass"  type="password" placeholder="Admin password (your choice)" />
+      <button onclick="saveSetup()">Save & Continue</button>
+    </div>
   </div>
 
   <script>
@@ -375,6 +427,18 @@
 
     updateClock();
     setInterval(updateClock, 1000);
+
+    // Toggle breakdown collapse
+    function toggleBreakdown() {
+      const list   = document.getElementById("breakdown-list");
+      const toggle = document.getElementById("breakdown-toggle");
+      const box    = document.getElementById("breakdown-box");
+      const isOpen = list.style.display !== "none";
+
+      list.style.display = isOpen ? "none" : "block";
+      box.dataset.open   = isOpen ? "false" : "true";
+      toggle.classList.toggle("open", !isOpen);
+    }
 
     const ADMIN_SHORTCUT = new Set(["A", "D"]);
     let held = new Set();
@@ -505,17 +569,28 @@
           `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
       }
 
-      // Breakdown — clickable labels
+      // Breakdown — collapsible with info icon
       const breakdown = workerData.breakdown || [];
       if (breakdown.length) {
-        const box = document.getElementById("breakdown-box");
-        box.innerHTML = `<div class="section-label">Like sources</div>` +
-          breakdown.map(b =>
-            `<div class="session-item">
-               <a href="${b.commentUrl}" target="_blank">💬 ${b.label}</a>
-               <span class="likes-tag">${b.likes} likes · ${b.hours}h</span>
-             </div>`
-          ).join("");
+        const box    = document.getElementById("breakdown-box");
+        const isOpen = box.dataset.open !== "false";
+
+        box.innerHTML = `
+          <div class="section-label" onclick="toggleBreakdown()">
+            <span id="breakdown-toggle" class="${isOpen ? "open" : ""}">▶</span>
+            Like sources
+            <span class="info-icon">i
+              <span class="info-tooltip">Click any link to watch & like — each like adds hours to my debt!</span>
+            </span>
+          </div>
+          <div id="breakdown-list" style="display: ${isOpen ? "block" : "none"}">
+            ${breakdown.map(b =>
+              `<div class="session-item">
+                 <a href="${b.commentUrl}" target="_blank">💬 ${b.label}</a>
+                 <span class="likes-tag">${b.likes} likes · ${b.hours}h</span>
+               </div>`
+            ).join("")}
+          </div>`;
       }
 
       // Study sessions
