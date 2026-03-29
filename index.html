@@ -101,14 +101,6 @@
       text-decoration: underline;
     }
 
-    /* Override flex:1 from .session-item a specifically for badges */
-    .session-item a.like-badge {
-      flex: none !important;
-      min-width: 20px;
-      width: auto;
-      overflow: visible;
-    }
-
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
 
@@ -232,7 +224,7 @@
       font-size: 0.75rem;
       font-weight: bold;
       white-space: nowrap;
-      flex-shrink: 0;
+      flex: none !important;
       margin-right: 8px;
       cursor: pointer;
       transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -606,8 +598,7 @@
       const apiURL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json?t=${Date.now()}`;
 
       const token = getSetup().token;
-      const ghHeaders = { "Cache-Control": "no-cache" };
-      if (token) ghHeaders["Authorization"] = `token ${token}`;
+      const ghHeaders = token ? { Authorization: `token ${token}` } : {};
 
       const [workerData, myData] = await Promise.all([
         fetch(WORKER_URL).then(r => r.json()),
