@@ -21,7 +21,7 @@
       gap: 10px;
     }
 
-    .big   { font-size: 5rem; font-weight: bold; }
+    .big   { font-weight: bold; }
     .red   { color: #ff4444; }
     .green { color: #44ff88; }
 
@@ -204,6 +204,32 @@
       white-space: nowrap;
       z-index: 10;
       pointer-events: none;
+    }
+
+    .like-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 36px;
+      padding: 2px 7px;
+      border-radius: 5px;
+      background: #1e3a2a;
+      border: 1px solid #2a5a3a;
+      color: #44ff88;
+      font-size: 0.75rem;
+      font-weight: bold;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-right: 8px;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      text-decoration: none;
+    }
+
+    .like-badge:hover {
+      background: #44ff88;
+      border-color: #44ff88;
+      color: #000;
     }
 
     #admin-panel {
@@ -438,6 +464,14 @@
       return `${hrs}h ${mins}m`;
     }
 
+    // Set big display with adaptive font size
+    function setBig(id, val) {
+      const el  = document.getElementById(id);
+      const str = formatHours(val);
+      el.textContent    = str;
+      el.style.fontSize = str.includes(" ") ? "3rem" : "5rem";
+    }
+
     // Toggle breakdown collapse
     function toggleBreakdown() {
       const list   = document.getElementById("breakdown-list");
@@ -569,11 +603,11 @@
       const remaining  = Math.max(0, owed - done);
       const pct        = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
 
-      document.getElementById("remaining").textContent = formatHours(remaining);
-      document.getElementById("owed").textContent      = formatHours(owed);
-      document.getElementById("done").textContent      = formatHours(done);
-      document.getElementById("likes").textContent     = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
-      document.getElementById("bar").style.width       = pct + "%";
+      setBig("remaining", remaining);
+      document.getElementById("owed").textContent  = formatHours(owed);
+      document.getElementById("done").textContent  = formatHours(done);
+      document.getElementById("likes").textContent = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
+      document.getElementById("bar").style.width   = pct + "%";
 
       // Last change
       const lc = workerData.lastChange;
@@ -582,7 +616,7 @@
           `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
       }
 
-      // Breakdown — sorted, collapsible, with h/like prefix and info icon
+      // Breakdown — sorted, collapsible, like badge + label
       const breakdown = workerData.breakdown || [];
       if (breakdown.length) {
         const box    = document.getElementById("breakdown-box");
@@ -603,7 +637,8 @@
           <div id="breakdown-list" style="display: ${isOpen ? "block" : "none"}">
             ${sorted.map(b =>
               `<div class="session-item">
-                 <a href="${b.commentUrl}" target="_blank">💬 [${b.hoursPerLike}h/like] ${b.label}</a>
+                 <a href="${b.commentUrl}" target="_blank" class="like-badge">+${b.hoursPerLike}h</a>
+                 <a href="${b.commentUrl}" target="_blank">💬 ${b.label}</a>
                  <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
                </div>`
             ).join("")}
