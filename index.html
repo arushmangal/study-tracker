@@ -61,12 +61,17 @@
     .sessions {
       width: 340px;
       margin-top: 20px;
+      border-top: 1px solid #1f1f1f;
+      padding-top: 16px;
     }
 
     .section-label {
-      color: #555;
-      font-size: 0.8rem;
-      margin-bottom: 8px;
+      color: #888;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 10px;
     }
 
     .session-item {
@@ -163,11 +168,11 @@
       user-select: none;
     }
 
-    #breakdown-box .section-label:hover { color: #888; }
+    #breakdown-box .section-label:hover { color: #aaa; }
 
     #breakdown-toggle {
       font-size: 0.75rem;
-      color: #444;
+      color: #555;
       transition: transform 0.2s ease;
     }
 
@@ -219,7 +224,7 @@
       font-size: 0.75rem;
       font-weight: bold;
       white-space: nowrap;
-      flex-shrink: 0;
+      flex: none;
       margin-right: 8px;
       cursor: pointer;
       transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -430,12 +435,17 @@
     const GH_OWNER   = "arushmangal";
     const GH_REPO    = "study-tracker";
 
-    // Show loading disclaimer for 10 seconds, then fade out
-    setTimeout(() => {
+    // Dismiss disclaimer as soon as data loads; 10s fallback
+    const disclaimerTimer = setTimeout(() => dismissDisclaimer(), 10000);
+
+    function dismissDisclaimer() {
+      clearTimeout(disclaimerTimer);
       const disclaimer = document.getElementById("loading-disclaimer");
-      disclaimer.style.opacity = "0";
-      setTimeout(() => disclaimer.style.display = "none", 1000);
-    }, 10000);
+      if (disclaimer && disclaimer.style.display !== "none") {
+        disclaimer.style.opacity = "0";
+        setTimeout(() => disclaimer.style.display = "none", 1000);
+      }
+    }
 
     // IST clock — ticks every second
     function updateClock() {
@@ -594,7 +604,9 @@
 
       const [workerData, myData] = await Promise.all([
         fetch(WORKER_URL).then(r => r.json()),
-        fetch(apiURL).then(r => r.json()).then(meta => JSON.parse(atob(meta.content)))
+        fetch(apiURL, {
+          headers: { Authorization: `token ${getSetup().token}` }
+        }).then(r => r.json()).then(meta => JSON.parse(atob(meta.content)))
       ]);
 
       const totalLikes = workerData.totalLikes || 0;
@@ -657,6 +669,8 @@
              </div>`
           ).join("");
       }
+
+      dismissDisclaimer();
     }
 
     loadData();
