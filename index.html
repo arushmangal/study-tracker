@@ -101,6 +101,14 @@
       text-decoration: underline;
     }
 
+    /* Override flex:1 from .session-item a specifically for badges */
+    .session-item a.like-badge {
+      flex: none !important;
+      min-width: 20px;
+      width: auto;
+      overflow: visible;
+    }
+
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
 
@@ -224,7 +232,7 @@
       font-size: 0.75rem;
       font-weight: bold;
       white-space: nowrap;
-      flex: none;
+      flex-shrink: 0;
       margin-right: 8px;
       cursor: pointer;
       transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
@@ -435,7 +443,6 @@
     const GH_OWNER   = "arushmangal";
     const GH_REPO    = "study-tracker";
 
-    // Dismiss disclaimer as soon as data loads; 10s fallback
     const disclaimerTimer = setTimeout(() => dismissDisclaimer(), 10000);
 
     function dismissDisclaimer() {
@@ -447,7 +454,6 @@
       }
     }
 
-    // IST clock — ticks every second
     function updateClock() {
       const now     = new Date();
       const ist     = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
@@ -465,7 +471,6 @@
     updateClock();
     setInterval(updateClock, 1000);
 
-    // Format decimal hours into e.g. "2h 30m", "45m", "3h"
     function formatHours(h) {
       const hrs  = Math.floor(h);
       const mins = Math.round((h - hrs) * 60);
@@ -474,7 +479,6 @@
       return `${hrs}h ${mins}m`;
     }
 
-    // Set big display with adaptive font size
     function setBig(id, val) {
       const el  = document.getElementById(id);
       const str = formatHours(val);
@@ -482,7 +486,6 @@
       el.style.fontSize = str.includes(" ") ? "3rem" : "5rem";
     }
 
-    // Toggle breakdown collapse
     function toggleBreakdown() {
       const list   = document.getElementById("breakdown-list");
       const toggle = document.getElementById("breakdown-toggle");
@@ -602,11 +605,15 @@
     async function loadData() {
       const apiURL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json?t=${Date.now()}`;
 
+      const token = getSetup().token;
+      const ghHeaders = { "Cache-Control": "no-cache" };
+      if (token) ghHeaders["Authorization"] = `token ${token}`;
+
       const [workerData, myData] = await Promise.all([
         fetch(WORKER_URL).then(r => r.json()),
-        fetch(apiURL, {
-          headers: { Authorization: `token ${getSetup().token}` }
-        }).then(r => r.json()).then(meta => JSON.parse(atob(meta.content)))
+        fetch(apiURL, { headers: ghHeaders })
+          .then(r => r.json())
+          .then(meta => JSON.parse(atob(meta.content)))
       ]);
 
       const totalLikes = workerData.totalLikes || 0;
@@ -621,14 +628,12 @@
       document.getElementById("likes").textContent = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
       document.getElementById("bar").style.width   = pct + "%";
 
-      // Last change
       const lc = workerData.lastChange;
       if (lc) {
         document.getElementById("last-change").innerHTML =
           `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
       }
 
-      // Breakdown — sorted, collapsible, like badge + label
       const breakdown = workerData.breakdown || [];
       if (breakdown.length) {
         const box    = document.getElementById("breakdown-box");
@@ -657,7 +662,6 @@
           </div>`;
       }
 
-      // Study sessions
       const sessions = myData.sessions || [];
       if (sessions.length) {
         document.getElementById("sessions-label").textContent = "Recent sessions";
