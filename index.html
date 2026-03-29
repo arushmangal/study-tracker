@@ -210,8 +210,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 36px;
-      padding: 2px 7px;
+      min-width: 20px;
+      padding: 4px 6px;
       border-radius: 5px;
       background: #1e3a2a;
       border: 1px solid #2a5a3a;
@@ -590,11 +590,11 @@
     }
 
     async function loadData() {
-      const rawURL = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/main/data.json?t=${Date.now()}`;
+      const apiURL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json?t=${Date.now()}`;
 
       const [workerData, myData] = await Promise.all([
         fetch(WORKER_URL).then(r => r.json()),
-        fetch(rawURL).then(r => r.json())
+        fetch(apiURL).then(r => r.json()).then(meta => JSON.parse(atob(meta.content)))
       ]);
 
       const totalLikes = workerData.totalLikes || 0;
@@ -660,6 +660,7 @@
     }
 
     loadData();
+    setInterval(loadData, 30000);
   </script>
 
 </body>
