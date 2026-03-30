@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 13,
+  "hoursCompleted": 16.5,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -20,6 +20,11 @@
       "date": "29 Mar 2026",
       "topic": "revising my material on anki",
       "hours": 2
+    },
+    {
+      "date": "30 Mar 2026",
+      "topic": "gave a mock test",
+      "hours": 3.5
     }
   ]
 }
