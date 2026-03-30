@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 16.5,
+  "hoursCompleted": 19.42,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -25,6 +25,11 @@
       "date": "30 Mar 2026",
       "topic": "gave a mock test",
       "hours": 3.5
+    },
+    {
+      "date": "30 Mar 2026",
+      "topic": "solved a set of top math problems",
+      "hours": 2.92
     }
   ]
 }
