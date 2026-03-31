@@ -236,117 +236,6 @@
       border-color: #44ff88;
       color: #000;
     }
-
-    #admin-panel {
-      display: none;
-      margin-top: 30px;
-      background: #1a1a1a;
-      border: 1px solid #333;
-      border-radius: 12px;
-      padding: 24px;
-      width: 340px;
-    }
-
-    #admin-panel h3 {
-      margin: 0 0 16px;
-      color: #aaa;
-      font-size: 0.95rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    #admin-panel input {
-      width: 100%;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: white;
-      padding: 10px 12px;
-      font-size: 0.95rem;
-      margin-bottom: 10px;
-      outline: none;
-      font-family: sans-serif;
-    }
-
-    #admin-panel input:focus { border-color: #555; }
-
-    #admin-panel button {
-      width: 100%;
-      background: #44ff88;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      padding: 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin-top: 4px;
-    }
-
-    #admin-panel button:hover     { background: #33dd77; }
-    #admin-panel button:disabled  { background: #333; color: #666; cursor: not-allowed; }
-
-    #status {
-      font-size: 0.85rem;
-      margin-top: 8px;
-      text-align: center;
-      color: #aaa;
-      min-height: 20px;
-    }
-
-    #setup-modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.85);
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-
-    #setup-modal.show { display: flex; }
-
-    #setup-box {
-      background: #1a1a1a;
-      border-radius: 12px;
-      padding: 28px;
-      width: 320px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    #setup-box h3 {
-      margin: 0;
-      color: #aaa;
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    #setup-box input {
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 8px;
-      color: white;
-      padding: 10px 12px;
-      font-size: 0.9rem;
-      outline: none;
-      width: 100%;
-    }
-
-    #setup-box button {
-      background: #44ff88;
-      color: #000;
-      font-weight: bold;
-      border: none;
-      border-radius: 8px;
-      padding: 10px;
-      font-size: 0.95rem;
-      cursor: pointer;
-    }
-
-    #setup-box p { color: #555; font-size: 0.8rem; margin: 0; }
   </style>
 </head>
 <body>
@@ -399,35 +288,6 @@
     <div id="clock-time">--:-- --</div>
     <div>India Standard Time</div>
     <div id="sleep-note"></div>
-  </div>
-
-  <!-- Admin panel -->
-  <div id="admin-panel">
-    <h3>🔒 Log a Session</h3>
-    <input type="text"   id="inp-topic"   placeholder="What did you study?" maxlength="80" />
-    <input type="number" id="inp-hours"   placeholder="Hours spent" min="0" max="24" step="1" />
-    <input type="number" id="inp-minutes" placeholder="+ extra minutes (optional)" min="0" max="59" step="1" />
-    <button id="submit-btn" onclick="logSession()">Add Session</button>
-    <div id="status"></div>
-    <div
-      style="margin-top:14px; font-size:0.75rem; color:#444; text-align:center; cursor:pointer"
-      onclick="clearSetup()"
-    >
-      Reset credentials
-    </div>
-  </div>
-
-  <!-- Setup modal -->
-  <div id="setup-modal">
-    <div id="setup-box">
-      <h3>⚙️ One-time Setup</h3>
-      <p>Saved only in your browser — never sent anywhere.</p>
-      <input id="s-token" type="password" placeholder="GitHub Personal Access Token" />
-      <input id="s-owner" type="text"     placeholder="GitHub username" />
-      <input id="s-repo"  type="text"     placeholder="Repository name (study-tracker)" />
-      <input id="s-pass"  type="password" placeholder="Admin password (your choice)" />
-      <button onclick="saveSetup()">Save & Continue</button>
-    </div>
   </div>
 
   <script>
@@ -489,127 +349,35 @@
       toggle.classList.toggle("open", !isOpen);
     }
 
-    const ADMIN_SHORTCUT = new Set(["A", "D"]);
-    let held = new Set();
-
-    document.addEventListener("keydown", e => {
-      if (e.shiftKey) held.add(e.key.toUpperCase());
-      if ([...ADMIN_SHORTCUT].every(k => held.has(k))) {
-        held.clear();
-        toggleAdmin();
-      }
-    });
-    document.addEventListener("keyup", () => held.clear());
-
-    function getSetup() {
-      return {
-        token: localStorage.getItem("gh_token"),
-        owner: localStorage.getItem("gh_owner"),
-        repo:  localStorage.getItem("gh_repo"),
-        pass:  localStorage.getItem("gh_pass"),
-      };
-    }
-
-    function toggleAdmin() {
-      const { token, owner, repo } = getSetup();
-      if (!token || !owner || !repo) {
-        document.getElementById("setup-modal").classList.add("show");
-        return;
-      }
-      const input = prompt("Admin password:");
-      if (input !== getSetup().pass) return alert("Wrong password.");
-      const panel = document.getElementById("admin-panel");
-      panel.style.display = panel.style.display === "block" ? "none" : "block";
-    }
-
-    function saveSetup() {
-      const t = document.getElementById("s-token").value.trim();
-      const o = document.getElementById("s-owner").value.trim();
-      const r = document.getElementById("s-repo").value.trim();
-      const p = document.getElementById("s-pass").value.trim();
-      if (!t || !o || !r || !p) return alert("Fill in all fields.");
-      localStorage.setItem("gh_token", t);
-      localStorage.setItem("gh_owner", o);
-      localStorage.setItem("gh_repo",  r);
-      localStorage.setItem("gh_pass",  p);
-      document.getElementById("setup-modal").classList.remove("show");
-      document.getElementById("admin-panel").style.display = "block";
-    }
-
-    function clearSetup() {
-      ["gh_token", "gh_owner", "gh_repo", "gh_pass"].forEach(k => localStorage.removeItem(k));
-      document.getElementById("admin-panel").style.display = "none";
-      alert("Credentials cleared.");
-    }
-
-    async function logSession() {
-      const topic = document.getElementById("inp-topic").value.trim();
-      const hrs   = parseFloat(document.getElementById("inp-hours").value)   || 0;
-      const mins  = parseInt(document.getElementById("inp-minutes").value)   || 0;
-      const hours = Math.round((hrs + mins / 60) * 100) / 100;
-      if (!topic || hours <= 0) return setStatus("Fill in topic and at least one of hours/minutes.");
-
-      const btn = document.getElementById("submit-btn");
-      btn.disabled = true;
-      setStatus("Saving...");
-
-      const { token, owner, repo } = getSetup();
-      const apiBase = `https://api.github.com/repos/${owner}/${repo}/contents/data.json`;
-
-      try {
-        const res     = await fetch(apiBase, { headers: { Authorization: `token ${token}` } });
-        const meta    = await res.json();
-        const current = JSON.parse(atob(meta.content));
-
-        current.hoursCompleted = (current.hoursCompleted || 0) + hours;
-        current.sessions.push({
-          date:  new Date().toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }),
-          topic,
-          hours
-        });
-
-        await fetch(apiBase, {
-          method: "PUT",
-          headers: { Authorization: `token ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: `log: ${formatHours(hours)} — ${topic}`,
-            content: btoa(JSON.stringify(current, null, 2)),
-            sha: meta.sha
-          })
-        });
-
-        setStatus("✅ Session logged!");
-        document.getElementById("inp-topic").value   = "";
-        document.getElementById("inp-hours").value   = "";
-        document.getElementById("inp-minutes").value = "";
-        setTimeout(() => { loadData(); setStatus(""); }, 1500);
-      } catch (e) {
-        setStatus("❌ Error — check your token/repo.");
-      }
-
-      btn.disabled = false;
-    }
-
-    function setStatus(msg) {
-      document.getElementById("status").textContent = msg;
-    }
-
     async function loadData() {
       const apiURL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json?t=${Date.now()}`;
 
-      const token = getSetup().token;
-      const ghHeaders = token ? { Authorization: `token ${token}` } : {};
+      let workerData = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
+      let hoursCompleted = 0;
+      let sessions = [];
 
-      const [workerData, myData] = await Promise.all([
-        fetch(WORKER_URL).then(r => r.json()),
-        fetch(apiURL, { headers: ghHeaders })
-          .then(r => r.json())
-          .then(meta => JSON.parse(atob(meta.content)))
-      ]);
+      try {
+        const workerRes = await fetch(WORKER_URL);
+        if (workerRes.ok) {
+          workerData = await workerRes.json();
+        }
+      } catch (e) {}
+
+      try {
+        const dataRes = await fetch(apiURL);
+        if (dataRes.ok) {
+          const meta = await dataRes.json();
+          if (meta && meta.content) {
+            const content = JSON.parse(atob(meta.content));
+            hoursCompleted = content.hoursCompleted || 0;
+            sessions = Array.isArray(content.sessions) ? content.sessions : [];
+          }
+        }
+      } catch (e) {}
 
       const totalLikes = workerData.totalLikes || 0;
       const owed       = workerData.totalHours || 0;
-      const done       = myData.hoursCompleted || 0;
+      const done       = hoursCompleted;
       const remaining  = Math.max(0, owed - done);
       const pct        = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
 
@@ -620,16 +388,15 @@
       document.getElementById("bar").style.width   = pct + "%";
 
       const lc = workerData.lastChange;
-      if (lc) {
-        document.getElementById("last-change").innerHTML =
-          `Last like detected on <a href="${lc.commentUrl}" target="_blank" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`;
-      }
+      document.getElementById("last-change").innerHTML = lc
+        ? `Last like detected on <a href="${lc.commentUrl}" target="_blank" rel="noopener noreferrer" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`
+        : null;
 
-      const breakdown = workerData.breakdown || [];
+      const breakdown = Array.isArray(workerData.breakdown) ? workerData.breakdown : [];
+      const box = document.getElementById("breakdown-box");
+
       if (breakdown.length) {
-        const box    = document.getElementById("breakdown-box");
         const isOpen = box.dataset.open !== "false";
-
         const sorted = [...breakdown].sort((a, b) =>
           b.likes !== a.likes ? b.likes - a.likes : b.hoursPerLike - a.hoursPerLike
         );
@@ -645,25 +412,28 @@
           <div id="breakdown-list" style="display: ${isOpen ? "block" : "none"}">
             ${sorted.map(b =>
               `<div class="session-item">
-                 <a href="${b.commentUrl}" target="_blank" class="like-badge">+${b.hoursPerLike}h</a>
-                 <a href="${b.commentUrl}" target="_blank">💬 ${b.label}</a>
+                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer" class="like-badge">+${b.hoursPerLike}h</a>
+                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer">💬 ${b.label}</a>
                  <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
                </div>`
             ).join("")}
           </div>`;
+      } else {
+        box.innerHTML = `
+          <div class="section-label">Like sources</div>
+          <div class="session-item"><span>No comments loaded yet.</span></div>
+        `;
       }
 
-      const sessions = myData.sessions || [];
-      if (sessions.length) {
-        document.getElementById("sessions-label").textContent = "Recent sessions";
-        document.getElementById("sessions-list").innerHTML =
-          [...sessions].reverse().slice(0, 6).map(s =>
+      document.getElementById("sessions-label").textContent = "Recent sessions";
+      document.getElementById("sessions-list").innerHTML = sessions.length
+        ? [...sessions].reverse().slice(0, 6).map(s =>
             `<div class="session-item">
                <span>📖 ${s.topic}</span>
                <span class="session-hrs">${formatHours(s.hours)} · ${s.date}</span>
              </div>`
-          ).join("");
-      }
+          ).join("")
+        : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
 
       dismissDisclaimer();
     }
@@ -671,6 +441,5 @@
     loadData();
     setInterval(loadData, 30000);
   </script>
-
 </body>
 </html>
