@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 29.97,
+  "hoursCompleted": 30.97,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -50,6 +50,11 @@
       "date": "1 Apr 2026",
       "topic": "biomolecules lecture",
       "hours": 3.75
+    },
+    {
+      "date": "1 Apr 2026",
+      "topic": "revising physical chemistry",
+      "hours": 1
     }
   ]
 }
