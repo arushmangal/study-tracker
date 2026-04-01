@@ -1,6 +1,6 @@
 # 📚 Arush's Study Tracker
 
-A live accountability page that turns YouTube likes into study hours. Every time someone likes one of my comments on a study-with-me video, hours get added to my queue — and I have to sit down and clear them.
+A live accountability page that turns YouTube likes into study hours made for personal use as a passion project. Every time someone likes one of my comments on a study-with-me video, hours get added to my queue — and I have to sit down and clear them.
 
 **Live → [arushmangal.github.io/study-tracker](https://arushmangal.github.io/study-tracker)**
 
