@@ -21,6 +21,73 @@
       gap: 10px;
     }
 
+    /* ── Maintenance overlay ── */
+    #maintenance-screen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #0f0f0f;
+      z-index: 9999;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      text-align: center;
+      padding: 32px;
+    }
+
+    .maint-icon {
+      font-size: 2.8rem;
+      animation: wrench-rock 2s ease-in-out infinite;
+    }
+
+    @keyframes wrench-rock {
+      0%, 100% { transform: rotate(-15deg); }
+      50%       { transform: rotate(15deg);  }
+    }
+
+    .maint-title {
+      font-size: 1.4rem;
+      font-weight: bold;
+      color: #ddd;
+      letter-spacing: 0.5px;
+    }
+
+    .maint-sub {
+      font-size: 0.9rem;
+      color: #555;
+      max-width: 280px;
+      line-height: 1.6;
+    }
+
+    .maint-dots span {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin: 0 3px;
+      border-radius: 50%;
+      background: #44ff88;
+      animation: bounce-dot 1.2s infinite ease-in-out;
+    }
+
+    .maint-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .maint-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce-dot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+      40%            { transform: scale(1);   opacity: 1;   }
+    }
+
+    .maint-pill {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 20px;
+      padding: 8px 18px;
+      font-size: 0.78rem;
+      color: #666;
+    }
+
+    /* ── Core layout ── */
     .big   { font-weight: bold; }
     .red   { color: #ff4444; }
     .green { color: #44ff88; }
@@ -368,7 +435,34 @@
 </head>
 <body>
 
-  <!-- Clock at top -->
+  <!-- =================================================================
+       MAINTENANCE MODE
+       To turn ON:  remove the  <!--  and  -->  around the script below
+       To turn OFF: put them back
+       ================================================================= -->
+  <!--
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      document.getElementById("maintenance-screen").style.display = "flex";
+      document.body.style.overflow = "hidden";
+    });
+  </script>
+  -->
+
+  <!-- Maintenance overlay — always in DOM, hidden until activated above -->
+  <div id="maintenance-screen">
+    <div class="maint-icon">🔧</div>
+    <div class="maint-title">Just a moment!</div>
+    <div class="maint-dots">
+      <span></span><span></span><span></span>
+    </div>
+    <div class="maint-sub">
+      I'm fixing something on this page. It'll be back up shortly — thanks for your patience! 💚
+    </div>
+    <div class="maint-pill">Back soon · Arush</div>
+  </div>
+
+  <!-- Clock -->
   <div id="clock-box">
     <div class="clock-row">
       <div>
@@ -414,7 +508,7 @@
   <div class="sub" id="likes" style="margin-top:14px;"></div>
   <div id="last-change"></div>
 
-  <!-- Study insights: today, week, heatmap -->
+  <!-- Study insights -->
   <div id="study-insights">
     <div class="section-label">Study rhythm</div>
     <div class="mini-stats">
@@ -459,10 +553,15 @@
   </div>
 
   <script>
-    const WORKER_URL  = "https://study-tracker-likes.mangalarush.workers.dev/";
-    const GH_OWNER    = "arushmangal";
-    const GH_REPO     = "study-tracker";
-    const DEPLOY_DATE = "2026-03-29";
+    const WORKER_URL = "https://study-tracker-likes.mangalarush.workers.dev/";
+    const GH_OWNER   = "arushmangal";
+    const GH_REPO    = "study-tracker";
+    const GH_BRANCH  = "main";
+
+    // raw.githubusercontent.com — no API rate limit, no base64, plain JSON
+    function rawDataURL() {
+      return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json?t=${Date.now()}`;
+    }
 
     const disclaimerTimer = setTimeout(dismissDisclaimer, 10000);
 
@@ -476,33 +575,33 @@
     }
 
     /* ── IST helpers ── */
-    function getIST(date = new Date()) {
-      return new Date(date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    function getIST(date) {
+      return new Date((date || new Date()).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     }
 
     function formatKey(d) {
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     }
 
     function keyToLocalDate(key) {
-      const [y,m,d] = key.split("-").map(Number);
-      return new Date(y, m-1, d, 12, 0, 0);
+      const [y, m, d] = key.split("-").map(Number);
+      return new Date(y, m - 1, d, 12, 0, 0);
     }
 
     function niceDate(d) {
-      return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+      return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
     }
 
     /* ── Clock ── */
     function updateClock() {
       const ist  = getIST();
       const h    = ist.getHours();
-      const mins = String(ist.getMinutes()).padStart(2,"0");
+      const mins = String(ist.getMinutes()).padStart(2, "0");
       const ampm = h >= 12 ? "PM" : "AM";
       document.getElementById("clock-time").textContent =
-        `${((h%12)||12)}:${mins} ${ampm}`;
+        `${((h % 12) || 12)}:${mins} ${ampm}`;
       document.getElementById("clock-date").textContent =
-        ist.toLocaleDateString("en-IN", { weekday:"short", day:"2-digit", month:"short", year:"numeric" });
+        ist.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
       document.getElementById("sleep-note").textContent =
         h < 8 ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!" : "";
     }
@@ -514,7 +613,7 @@
       const safe = Math.max(0, Number(h) || 0);
       const hrs  = Math.floor(safe);
       const mins = Math.round((safe - hrs) * 60);
-      if (mins === 60) return `${hrs+1}h`;
+      if (mins === 60) return `${hrs + 1}h`;
       if (hrs === 0)   return `${mins}m`;
       if (mins === 0)  return `${hrs}h`;
       return `${hrs}h ${mins}m`;
@@ -539,32 +638,34 @@
     }
 
     /* ── Parse "1 Apr 2026" → "2026-04-01" ── */
-    const MONTHS = { Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",
-                     Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12" };
+    const MONTHS = {
+      Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
+      Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12"
+    };
 
     function parseDateKey(str) {
       if (!str) return null;
       const m = String(str).trim().match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
       if (!m) return null;
       const mo = MONTHS[m[2]];
-      return mo ? `${m[3]}-${mo}-${String(Number(m[1])).padStart(2,"0")}` : null;
+      return mo ? `${m[3]}-${mo}-${String(Number(m[1])).padStart(2, "0")}` : null;
     }
 
-    /* ── Study-day key: 2 AM IST resets day ── */
+    /* ── Study-day key: midnight–2 AM IST still counts as previous day ── */
     function studyDayKey(dateInput) {
-      const ist = getIST(dateInput ? new Date(dateInput) : new Date());
+      const ist = getIST(dateInput ? new Date(dateInput) : undefined);
       if (ist.getHours() < 2) ist.setDate(ist.getDate() - 1);
       return formatKey(ist);
     }
 
     function sessionKey(s) {
-      if (s.loggedAt)  return studyDayKey(s.loggedAt);
-      if (s.dateISO)   return studyDayKey(s.dateISO);
-      if (s.date)      return parseDateKey(s.date);
+      if (s.loggedAt) return studyDayKey(s.loggedAt);
+      if (s.dateISO)  return studyDayKey(s.dateISO);
+      if (s.date)     return parseDateKey(s.date);
       return null;
     }
 
-    /* ── Aggregate hours by day ── */
+    /* ── Aggregate hours by calendar day ── */
     function byDay(sessions) {
       const map = {};
       for (const s of (sessions || [])) {
@@ -574,22 +675,22 @@
       return map;
     }
 
-    /* ── Day-of-year ── */
+    /* ── Day-of-year helpers ── */
     function dayOfYear(d) {
-      return Math.floor((d - new Date(d.getFullYear(),0,1)) / 86400000) + 1;
+      return Math.floor((d - new Date(d.getFullYear(), 0, 1)) / 86400000) + 1;
     }
 
     function daysInYear(y) {
-      return new Date(y,1,29).getMonth()===1 ? 366 : 365;
+      return new Date(y, 1, 29).getMonth() === 1 ? 366 : 365;
     }
 
-    /* ── ISO week ── */
+    /* ── ISO week helpers ── */
     function isoWeek(d) {
       const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       const day = (tmp.getDay() + 6) % 7;
       tmp.setDate(tmp.getDate() - day + 3);
       const thu = new Date(tmp.getFullYear(), 0, 4);
-      thu.setDate(thu.getDate() - (thu.getDay()+6)%7 + 3);
+      thu.setDate(thu.getDate() - (thu.getDay() + 6) % 7 + 3);
       return { week: 1 + Math.round((tmp - thu) / 604800000), year: tmp.getFullYear() };
     }
 
@@ -597,7 +698,7 @@
       return isoWeek(new Date(y, 11, 28)).week;
     }
 
-    /* ── Heat level ── */
+    /* ── Heatmap intensity ── */
     function heatLevel(h) {
       if (h <= 0) return 0;
       if (h < 1)  return 1;
@@ -606,36 +707,32 @@
       return 4;
     }
 
-    /* ── Render study insights ── */
+    /* ── Study insights + heatmap ── */
     function renderInsights(sessions) {
       const map = byDay(sessions);
 
-      // Today
-      const todayKey  = studyDayKey();
-      const todayIST  = getIST();
+      const todayIST = getIST();
       if (todayIST.getHours() < 2) todayIST.setDate(todayIST.getDate() - 1);
-      const todayHrs  = map[todayKey] || 0;
-      const dayNo     = dayOfYear(todayIST);
+      const todayKey = formatKey(todayIST);
+      const todayHrs = map[todayKey] || 0;
 
       document.getElementById("today-hours").textContent = formatHours(todayHrs);
       document.getElementById("today-meta").textContent  =
-        `${niceDate(todayIST)} · Day ${dayNo} / ${daysInYear(todayIST.getFullYear())}`;
+        `${niceDate(todayIST)} · Day ${dayOfYear(todayIST)} / ${daysInYear(todayIST.getFullYear())}`;
 
-      // This week
-      const wi       = isoWeek(todayIST);
-      let   weekHrs  = 0;
+      const wi     = isoWeek(todayIST);
+      let weekHrs  = 0;
       for (const [k, h] of Object.entries(map)) {
         const w = isoWeek(keyToLocalDate(k));
         if (w.week === wi.week && w.year === wi.year) weekHrs += h;
       }
-
       document.getElementById("week-hours").textContent = formatHours(weekHrs);
       document.getElementById("week-meta").textContent  =
         `Week ${wi.week} / ${isoWeeksInYear(wi.year)} · ${wi.year}`;
 
-      // Heatmap: rolling 90 days from deploy date or last 90 days
-      const deploy = new Date(2026, 2, 29);   // 29 Mar 2026
-      const endIST = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate());
+      // Heatmap window: 90 days back from today, but not before deploy date
+      const deploy   = new Date(2026, 2, 29);
+      const endIST   = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate());
       const startIST = new Date(endIST);
       startIST.setDate(startIST.getDate() - 89);
       if (startIST < deploy) startIST.setTime(deploy.getTime());
@@ -643,63 +740,65 @@
       document.getElementById("heatmap-range").textContent =
         `${niceDate(startIST)} → ${niceDate(endIST)}`;
 
-      // Align grid to Monday
+      // Align to Monday so columns are full weeks
       const gridStart = new Date(startIST);
-      gridStart.setDate(gridStart.getDate() - (gridStart.getDay()+6)%7);
+      gridStart.setDate(gridStart.getDate() - (gridStart.getDay() + 6) % 7);
       const gridEnd = new Date(endIST);
-      gridEnd.setDate(gridEnd.getDate() + (6-(gridEnd.getDay()+6)%7));
+      gridEnd.setDate(gridEnd.getDate() + (6 - (gridEnd.getDay() + 6) % 7));
 
       const grid = document.getElementById("heatmap-grid");
       grid.innerHTML = "";
 
-      for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate()+1)) {
-        const cell = document.createElement("div");
-        const k    = formatKey(d);
-        if (d < startIST || d > endIST) {
-          cell.className = "heat-cell heat-empty";
-        } else {
-          cell.className = `heat-cell heat-${heatLevel(map[k]||0)}`;
-          cell.title     = `${niceDate(d)} — ${formatHours(map[k]||0)}`;
-        }
+      for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate() + 1)) {
+        const cell    = document.createElement("div");
+        const k       = formatKey(d);
+        const inRange = d >= startIST && d <= endIST;
+        cell.className = inRange
+          ? `heat-cell heat-${heatLevel(map[k] || 0)}`
+          : "heat-cell heat-empty";
+        if (inRange) cell.title = `${niceDate(new Date(d))} — ${formatHours(map[k] || 0)}`;
         grid.appendChild(cell);
       }
     }
 
-    /* ── Main data load ── */
+    /* ── Main data loader ── */
     async function loadData() {
-      const apiURL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json?t=${Date.now()}`;
-
-      let workerData     = { totalLikes:0, totalHours:0, breakdown:[], lastChange:null };
+      let workerData     = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
       let hoursCompleted = 0;
       let sessions       = [];
 
-      try {
-        const r = await fetch(WORKER_URL);
-        if (r.ok) workerData = await r.json();
-      } catch(e) {}
+      // Fetch worker (like counts + hours owed) and raw data.json in parallel
+      const [workerResult, dataResult] = await Promise.allSettled([
+        fetch(WORKER_URL).then(r => {
+          if (!r.ok) throw new Error(`Worker ${r.status}`);
+          return r.json();
+        }),
+        fetch(rawDataURL()).then(r => {
+          if (!r.ok) throw new Error(`data.json ${r.status}`);
+          return r.json();
+        })
+      ]);
 
-      try {
-        const r = await fetch(apiURL);
-        if (r.ok) {
-          const meta = await r.json();
-          if (meta?.content) {
-            const c    = JSON.parse(atob(meta.content));
-            hoursCompleted = c.hoursCompleted || 0;
-            sessions       = Array.isArray(c.sessions) ? c.sessions : [];
-          }
-        }
-      } catch(e) {}
+      if (workerResult.status === "fulfilled") {
+        workerData = workerResult.value;
+      }
+
+      if (dataResult.status === "fulfilled") {
+        const c    = dataResult.value;
+        hoursCompleted = c.hoursCompleted || 0;
+        sessions       = Array.isArray(c.sessions) ? c.sessions : [];
+      }
 
       const owed      = workerData.totalHours || 0;
       const done      = hoursCompleted;
       const remaining = Math.max(0, owed - done);
-      const pct       = owed > 0 ? Math.min(100, (done/owed)*100) : 0;
+      const pct       = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
 
       setBig("remaining", remaining);
       document.getElementById("owed").textContent  = formatHours(owed);
       document.getElementById("done").textContent  = formatHours(done);
       document.getElementById("likes").textContent =
-        `${workerData.totalLikes||0} total likes across ${(workerData.breakdown||[]).length} comments`;
+        `${workerData.totalLikes || 0} total likes across ${(workerData.breakdown || []).length} comments`;
       document.getElementById("bar").style.width   = pct + "%";
 
       const lc = workerData.lastChange;
@@ -715,18 +814,18 @@
 
       if (breakdown.length) {
         const isOpen = box.dataset.open !== "false";
-        const sorted = [...breakdown].sort((a,b) =>
-          b.likes !== a.likes ? b.likes-a.likes : b.hoursPerLike-a.hoursPerLike);
+        const sorted = [...breakdown].sort((a, b) =>
+          b.likes !== a.likes ? b.likes - a.likes : b.hoursPerLike - a.hoursPerLike);
 
         box.innerHTML = `
           <div class="section-label" onclick="toggleBreakdown()">
-            <span id="breakdown-toggle" class="${isOpen?"open":""}">▶</span>
+            <span id="breakdown-toggle" class="${isOpen ? "open" : ""}">▶</span>
             Like sources
             <span class="info-icon">i
               <span class="info-tooltip">Like any comment below — each like adds more study hours for me! 🙌</span>
             </span>
           </div>
-          <div id="breakdown-list" style="display:${isOpen?"block":"none"}">
+          <div id="breakdown-list" style="display:${isOpen ? "block" : "none"}">
             ${sorted.map(b => `
               <div class="session-item">
                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer" class="like-badge">+${b.hoursPerLike}h</a>
@@ -740,13 +839,13 @@
           <div class="session-item"><span>No comments loaded yet.</span></div>`;
       }
 
-      // Sessions
+      // Recent sessions
       document.getElementById("sessions-label").textContent = "Recent sessions";
       document.getElementById("sessions-list").innerHTML = sessions.length
-        ? [...sessions].reverse().slice(0,6).map(s => `
+        ? [...sessions].reverse().slice(0, 6).map(s => `
             <div class="session-item">
               <span>📖 ${s.topic}</span>
-              <span class="session-hrs">${formatHours(s.hours)} · ${s.date||""}</span>
+              <span class="session-hrs">${formatHours(s.hours)} · ${s.date || ""}</span>
             </div>`).join("")
         : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
 
@@ -754,7 +853,7 @@
     }
 
     loadData();
-    setInterval(loadData, 30000);
+    setInterval(loadData, 60000);
   </script>
 </body>
 </html>
