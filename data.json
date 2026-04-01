@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 31,
+  "hoursCompleted": 31.75,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -54,7 +54,7 @@
     {
       "date": "1 Apr 2026",
       "topic": "revising physical chemistry",
-      "hours": 1
+      "hours": 1.75
     }
   ]
 }
