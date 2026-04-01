@@ -402,14 +402,15 @@
       width: 11px;
       height: 11px;
       border-radius: 2px;
+      cursor: default;
     }
 
     .heat-empty { background: transparent; }
-    .heat-0     { background: #1e1e1e; }
-    .heat-1     { background: #183823; }
-    .heat-2     { background: #23653c; }
-    .heat-3     { background: #2f9254; }
-    .heat-4     { background: #44ff88; }
+    .heat-0     { background: #1e1e1e; cursor: pointer; }
+    .heat-1     { background: #183823; cursor: pointer; }
+    .heat-2     { background: #23653c; cursor: pointer; }
+    .heat-3     { background: #2f9254; cursor: pointer; }
+    .heat-4     { background: #44ff88; cursor: pointer; }
 
     .heat-legend {
       display: flex;
@@ -430,6 +431,37 @@
       width: 11px;
       height: 11px;
       border-radius: 2px;
+    }
+
+    /* ── Heatmap custom tooltip ── */
+    #heat-tooltip {
+      display: none;
+      position: fixed;
+      background: #0a0a0a;
+      border: 1px solid #2a2a2a;
+      border-radius: 8px;
+      padding: 8px 13px;
+      pointer-events: none;
+      z-index: 1000;
+      text-align: center;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
+      transform: translateY(-4px);
+    }
+
+    #heat-tooltip-date {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      letter-spacing: 0.3px;
+    }
+
+    #heat-tooltip-hours {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #44ff88;
+      white-space: nowrap;
+      margin-top: 3px;
     }
   </style>
 </head>
@@ -460,6 +492,12 @@
       I'm fixing something on this page. It'll be back up shortly — thanks for your patience! 💚
     </div>
     <div class="maint-pill">Back soon · Arush</div>
+  </div>
+
+  <!-- Custom heatmap tooltip -->
+  <div id="heat-tooltip">
+    <div id="heat-tooltip-date"></div>
+    <div id="heat-tooltip-hours"></div>
   </div>
 
   <!-- Clock -->
@@ -558,7 +596,6 @@
     const GH_REPO    = "study-tracker";
     const GH_BRANCH  = "main";
 
-    // raw.githubusercontent.com — no API rate limit, no base64, plain JSON
     function rawDataURL() {
       return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json?t=${Date.now()}`;
     }
@@ -651,7 +688,7 @@
       return mo ? `${m[3]}-${mo}-${String(Number(m[1])).padStart(2, "0")}` : null;
     }
 
-    /* ── Study-day key: midnight–2 AM IST still counts as previous day ── */
+    /* ── Study-day key: midnight–2 AM IST counts as previous day ── */
     function studyDayKey(dateInput) {
       const ist = getIST(dateInput ? new Date(dateInput) : undefined);
       if (ist.getHours() < 2) ist.setDate(ist.getDate() - 1);
@@ -707,6 +744,23 @@
       return 4;
     }
 
+    /* ── Custom heatmap tooltip ── */
+    const heatTip      = document.getElementById("heat-tooltip");
+    const heatTipDate  = document.getElementById("heat-tooltip-date");
+    const heatTipHours = document.getElementById("heat-tooltip-hours");
+
+    function positionTip(e) {
+      const margin = 14;
+      const tw     = heatTip.offsetWidth;
+      const th     = heatTip.offsetHeight;
+      let x = e.clientX + margin;
+      let y = e.clientY - th - margin;
+      if (x + tw > window.innerWidth  - 8) x = e.clientX - tw - margin;
+      if (y < 8)                           y = e.clientY + margin;
+      heatTip.style.left = x + "px";
+      heatTip.style.top  = y + "px";
+    }
+
     /* ── Study insights + heatmap ── */
     function renderInsights(sessions) {
       const map = byDay(sessions);
@@ -720,8 +774,8 @@
       document.getElementById("today-meta").textContent  =
         `${niceDate(todayIST)} · Day ${dayOfYear(todayIST)} / ${daysInYear(todayIST.getFullYear())}`;
 
-      const wi     = isoWeek(todayIST);
-      let weekHrs  = 0;
+      const wi    = isoWeek(todayIST);
+      let weekHrs = 0;
       for (const [k, h] of Object.entries(map)) {
         const w = isoWeek(keyToLocalDate(k));
         if (w.week === wi.week && w.year === wi.year) weekHrs += h;
@@ -730,7 +784,6 @@
       document.getElementById("week-meta").textContent  =
         `Week ${wi.week} / ${isoWeeksInYear(wi.year)} · ${wi.year}`;
 
-      // Heatmap window: 90 days back from today, but not before deploy date
       const deploy   = new Date(2026, 2, 29);
       const endIST   = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate());
       const startIST = new Date(endIST);
@@ -740,7 +793,6 @@
       document.getElementById("heatmap-range").textContent =
         `${niceDate(startIST)} → ${niceDate(endIST)}`;
 
-      // Align to Monday so columns are full weeks
       const gridStart = new Date(startIST);
       gridStart.setDate(gridStart.getDate() - (gridStart.getDay() + 6) % 7);
       const gridEnd = new Date(endIST);
@@ -753,10 +805,30 @@
         const cell    = document.createElement("div");
         const k       = formatKey(d);
         const inRange = d >= startIST && d <= endIST;
-        cell.className = inRange
-          ? `heat-cell heat-${heatLevel(map[k] || 0)}`
-          : "heat-cell heat-empty";
-        if (inRange) cell.title = `${niceDate(new Date(d))} — ${formatHours(map[k] || 0)}`;
+
+        if (!inRange) {
+          cell.className = "heat-cell heat-empty";
+        } else {
+          cell.className = `heat-cell heat-${heatLevel(map[k] || 0)}`;
+
+          // Store data for custom tooltip (snapshot values — d mutates each iteration)
+          const dateSnap  = niceDate(new Date(d));
+          const hoursSnap = map[k] || 0;
+
+          cell.addEventListener("mouseover", function (e) {
+            heatTipDate.textContent  = dateSnap;
+            heatTipHours.textContent = hoursSnap > 0 ? formatHours(hoursSnap) : "No study";
+            heatTip.style.display    = "block";
+            positionTip(e);
+          });
+
+          cell.addEventListener("mousemove", positionTip);
+
+          cell.addEventListener("mouseout", function () {
+            heatTip.style.display = "none";
+          });
+        }
+
         grid.appendChild(cell);
       }
     }
@@ -767,7 +839,6 @@
       let hoursCompleted = 0;
       let sessions       = [];
 
-      // Fetch worker (like counts + hours owed) and raw data.json in parallel
       const [workerResult, dataResult] = await Promise.allSettled([
         fetch(WORKER_URL).then(r => {
           if (!r.ok) throw new Error(`Worker ${r.status}`);
@@ -779,14 +850,10 @@
         })
       ]);
 
-      if (workerResult.status === "fulfilled") {
-        workerData = workerResult.value;
-      }
-
-      if (dataResult.status === "fulfilled") {
-        const c    = dataResult.value;
-        hoursCompleted = c.hoursCompleted || 0;
-        sessions       = Array.isArray(c.sessions) ? c.sessions : [];
+      if (workerResult.status === "fulfilled") workerData     = workerResult.value;
+      if (dataResult.status   === "fulfilled") {
+        hoursCompleted = dataResult.value.hoursCompleted || 0;
+        sessions       = Array.isArray(dataResult.value.sessions) ? dataResult.value.sessions : [];
       }
 
       const owed      = workerData.totalHours || 0;
@@ -808,7 +875,6 @@
 
       renderInsights(sessions);
 
-      // Breakdown
       const breakdown = Array.isArray(workerData.breakdown) ? workerData.breakdown : [];
       const box       = document.getElementById("breakdown-box");
 
@@ -839,7 +905,6 @@
           <div class="session-item"><span>No comments loaded yet.</span></div>`;
       }
 
-      // Recent sessions
       document.getElementById("sessions-label").textContent = "Recent sessions";
       document.getElementById("sessions-list").innerHTML = sessions.length
         ? [...sessions].reverse().slice(0, 6).map(s => `
