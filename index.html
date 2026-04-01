@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Arush's Study Tracker</title>
   <style>
     * { box-sizing: border-box; }
@@ -17,7 +17,7 @@
       background: #0f0f0f;
       color: white;
       margin: 0;
-      padding: 40px 20px;
+      padding: 24px 20px 48px;
       gap: 10px;
     }
 
@@ -32,7 +32,7 @@
     }
 
     .bar-wrap {
-      width: 320px;
+      width: 340px;
       background: #222;
       border-radius: 20px;
       height: 14px;
@@ -52,11 +52,11 @@
       margin-top: 10px;
     }
 
-    .stat          { text-align: center; }
-    .stat .num     { font-size: 2.5rem; font-weight: bold; }
+    .stat { text-align: center; }
+    .stat .num { font-size: 2.5rem; font-weight: bold; }
 
     .sub { color: #555; font-size: 0.85rem; }
-    a    { color: #777; }
+    a { color: #777; }
 
     .sessions {
       width: 340px;
@@ -84,6 +84,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
 
     .session-item a {
@@ -96,10 +97,7 @@
       text-decoration: none;
     }
 
-    .session-item a:hover {
-      color: #fff;
-      text-decoration: underline;
-    }
+    .session-item a:hover { color: #fff; text-decoration: underline; }
 
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
@@ -109,33 +107,52 @@
       font-size: 0.82rem;
       color: #444;
       text-align: center;
+      width: 340px;
     }
 
+    /* ── Clock ── */
     #clock-box {
       width: 340px;
       background: #111;
       border: 1px solid #222;
-      border-radius: 8px;
-      padding: 10px 16px;
-      text-align: center;
-      font-size: 0.85rem;
-      color: #555;
-      line-height: 1.6;
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+
+    .clock-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     #clock-time {
-      font-size: 1.2rem;
+      font-size: 1.35rem;
       font-weight: bold;
-      color: #aaa;
+      color: #ddd;
       letter-spacing: 1px;
+      line-height: 1.1;
+    }
+
+    #clock-date {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    #clock-tag {
+      font-size: 0.8rem;
+      color: #555;
+      padding-top: 3px;
+      text-align: right;
     }
 
     #sleep-note {
       font-size: 0.78rem;
       color: #ff4444;
-      margin-top: 2px;
+      margin-top: 8px;
     }
 
+    /* ── Notices ── */
     #loading-disclaimer {
       width: 340px;
       background: #1a1200;
@@ -160,6 +177,7 @@
       line-height: 1.5;
     }
 
+    /* ── Breakdown toggle ── */
     #breakdown-box .section-label {
       display: flex;
       align-items: center;
@@ -227,22 +245,144 @@
       flex: none !important;
       margin-right: 8px;
       cursor: pointer;
-      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
       text-decoration: none;
     }
 
-    .like-badge:hover {
-      background: #44ff88;
-      border-color: #44ff88;
-      color: #000;
+    .like-badge:hover { background: #44ff88; border-color: #44ff88; color: #000; }
+
+    /* ── Study Insights ── */
+    #study-insights {
+      width: 340px;
+      margin-top: 20px;
+      border-top: 1px solid #1f1f1f;
+      padding-top: 16px;
+    }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .mini-card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .mini-kicker {
+      color: #666;
+      font-size: 0.65rem;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+
+    .mini-number {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #44ff88;
+      line-height: 1.1;
+    }
+
+    .mini-meta {
+      color: #555;
+      font-size: 0.72rem;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+
+    /* ── Heatmap ── */
+    .heatmap-wrap {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .heatmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .heatmap-title {
+      color: #aaa;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .heatmap-sub {
+      color: #555;
+      font-size: 0.68rem;
+    }
+
+    .heatmap-grid {
+      display: grid;
+      grid-auto-flow: column;
+      grid-template-rows: repeat(7, 11px);
+      grid-auto-columns: 11px;
+      gap: 3px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+
+    .heat-cell {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
+    }
+
+    .heat-empty { background: transparent; }
+    .heat-0     { background: #1e1e1e; }
+    .heat-1     { background: #183823; }
+    .heat-2     { background: #23653c; }
+    .heat-3     { background: #2f9254; }
+    .heat-4     { background: #44ff88; }
+
+    .heat-legend {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .heat-legend-text { color: #555; font-size: 0.68rem; }
+
+    .legend-boxes {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .legend-box {
+      width: 11px;
+      height: 11px;
+      border-radius: 2px;
     }
   </style>
 </head>
 <body>
 
+  <!-- Clock at top -->
+  <div id="clock-box">
+    <div class="clock-row">
+      <div>
+        <div id="clock-time">--:-- --</div>
+        <div id="clock-date">--</div>
+      </div>
+      <div id="clock-tag">— Time for me</div>
+    </div>
+    <div id="sleep-note"></div>
+  </div>
+
   <!-- Loading disclaimer -->
   <div id="loading-disclaimer">
-    ⏳ If the page doesn't show any hours, please wait 5-10 seconds —
+    ⏳ If the page doesn't show any hours, please wait 5–10 seconds —
     I'm a beginner at development, so it takes time for the page to load!
   </div>
 
@@ -274,6 +414,41 @@
   <div class="sub" id="likes" style="margin-top:14px;"></div>
   <div id="last-change"></div>
 
+  <!-- Study insights: today, week, heatmap -->
+  <div id="study-insights">
+    <div class="section-label">Study rhythm</div>
+    <div class="mini-stats">
+      <div class="mini-card">
+        <div class="mini-kicker">Today</div>
+        <div class="mini-number" id="today-hours">–</div>
+        <div class="mini-meta" id="today-meta">Day – / –</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-kicker">This week</div>
+        <div class="mini-number" id="week-hours">–</div>
+        <div class="mini-meta" id="week-meta">Week – / –</div>
+      </div>
+    </div>
+    <div class="heatmap-wrap">
+      <div class="heatmap-head">
+        <div class="heatmap-title">Last 90 study days</div>
+        <div class="heatmap-sub" id="heatmap-range"></div>
+      </div>
+      <div class="heatmap-grid" id="heatmap-grid"></div>
+      <div class="heat-legend">
+        <div class="heat-legend-text">Less</div>
+        <div class="legend-boxes">
+          <div class="legend-box heat-0"></div>
+          <div class="legend-box heat-1"></div>
+          <div class="legend-box heat-2"></div>
+          <div class="legend-box heat-3"></div>
+          <div class="legend-box heat-4"></div>
+        </div>
+        <div class="heat-legend-text">More</div>
+      </div>
+    </div>
+  </div>
+
   <!-- Like sources breakdown -->
   <div class="sessions" id="breakdown-box"></div>
 
@@ -283,51 +458,65 @@
     <div id="sessions-list"></div>
   </div>
 
-  <!-- IST Clock -->
-  <div id="clock-box">
-    <div id="clock-time">--:-- --</div>
-    <div>India Standard Time</div>
-    <div id="sleep-note"></div>
-  </div>
-
   <script>
-    const WORKER_URL = "https://study-tracker-likes.mangalarush.workers.dev/";
-    const GH_OWNER   = "arushmangal";
-    const GH_REPO    = "study-tracker";
+    const WORKER_URL  = "https://study-tracker-likes.mangalarush.workers.dev/";
+    const GH_OWNER    = "arushmangal";
+    const GH_REPO     = "study-tracker";
+    const DEPLOY_DATE = "2026-03-29";
 
-    const disclaimerTimer = setTimeout(() => dismissDisclaimer(), 10000);
+    const disclaimerTimer = setTimeout(dismissDisclaimer, 10000);
 
     function dismissDisclaimer() {
       clearTimeout(disclaimerTimer);
-      const disclaimer = document.getElementById("loading-disclaimer");
-      if (disclaimer && disclaimer.style.display !== "none") {
-        disclaimer.style.opacity = "0";
-        setTimeout(() => disclaimer.style.display = "none", 1000);
+      const el = document.getElementById("loading-disclaimer");
+      if (el && el.style.display !== "none") {
+        el.style.opacity = "0";
+        setTimeout(() => el.style.display = "none", 1000);
       }
     }
 
-    function updateClock() {
-      const now     = new Date();
-      const ist     = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-      const hours   = ist.getHours();
-      const minutes = ist.getMinutes().toString().padStart(2, "0");
-      const ampm    = hours >= 12 ? "PM" : "AM";
-      const display = `${((hours % 12) || 12)}:${minutes} ${ampm}`;
-
-      document.getElementById("clock-time").textContent = display;
-      document.getElementById("sleep-note").textContent = hours < 8
-        ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!"
-        : "";
+    /* ── IST helpers ── */
+    function getIST(date = new Date()) {
+      return new Date(date.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     }
 
+    function formatKey(d) {
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    }
+
+    function keyToLocalDate(key) {
+      const [y,m,d] = key.split("-").map(Number);
+      return new Date(y, m-1, d, 12, 0, 0);
+    }
+
+    function niceDate(d) {
+      return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
+    }
+
+    /* ── Clock ── */
+    function updateClock() {
+      const ist  = getIST();
+      const h    = ist.getHours();
+      const mins = String(ist.getMinutes()).padStart(2,"0");
+      const ampm = h >= 12 ? "PM" : "AM";
+      document.getElementById("clock-time").textContent =
+        `${((h%12)||12)}:${mins} ${ampm}`;
+      document.getElementById("clock-date").textContent =
+        ist.toLocaleDateString("en-IN", { weekday:"short", day:"2-digit", month:"short", year:"numeric" });
+      document.getElementById("sleep-note").textContent =
+        h < 8 ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!" : "";
+    }
     updateClock();
     setInterval(updateClock, 1000);
 
+    /* ── Formatting ── */
     function formatHours(h) {
-      const hrs  = Math.floor(h);
-      const mins = Math.round((h - hrs) * 60);
-      if (hrs === 0)  return `${mins}m`;
-      if (mins === 0) return `${hrs}h`;
+      const safe = Math.max(0, Number(h) || 0);
+      const hrs  = Math.floor(safe);
+      const mins = Math.round((safe - hrs) * 60);
+      if (mins === 60) return `${hrs+1}h`;
+      if (hrs === 0)   return `${mins}m`;
+      if (mins === 0)  return `${hrs}h`;
       return `${hrs}h ${mins}m`;
     }
 
@@ -338,101 +527,227 @@
       el.style.fontSize = str.includes(" ") ? "3rem" : "5rem";
     }
 
+    /* ── Breakdown toggle ── */
     function toggleBreakdown() {
       const list   = document.getElementById("breakdown-list");
       const toggle = document.getElementById("breakdown-toggle");
       const box    = document.getElementById("breakdown-box");
       const isOpen = list.style.display !== "none";
-
       list.style.display = isOpen ? "none" : "block";
       box.dataset.open   = isOpen ? "false" : "true";
       toggle.classList.toggle("open", !isOpen);
     }
 
+    /* ── Parse "1 Apr 2026" → "2026-04-01" ── */
+    const MONTHS = { Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",
+                     Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12" };
+
+    function parseDateKey(str) {
+      if (!str) return null;
+      const m = String(str).trim().match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+      if (!m) return null;
+      const mo = MONTHS[m[2]];
+      return mo ? `${m[3]}-${mo}-${String(Number(m[1])).padStart(2,"0")}` : null;
+    }
+
+    /* ── Study-day key: 2 AM IST resets day ── */
+    function studyDayKey(dateInput) {
+      const ist = getIST(dateInput ? new Date(dateInput) : new Date());
+      if (ist.getHours() < 2) ist.setDate(ist.getDate() - 1);
+      return formatKey(ist);
+    }
+
+    function sessionKey(s) {
+      if (s.loggedAt)  return studyDayKey(s.loggedAt);
+      if (s.dateISO)   return studyDayKey(s.dateISO);
+      if (s.date)      return parseDateKey(s.date);
+      return null;
+    }
+
+    /* ── Aggregate hours by day ── */
+    function byDay(sessions) {
+      const map = {};
+      for (const s of (sessions || [])) {
+        const k = sessionKey(s);
+        if (k) map[k] = (map[k] || 0) + (Number(s.hours) || 0);
+      }
+      return map;
+    }
+
+    /* ── Day-of-year ── */
+    function dayOfYear(d) {
+      return Math.floor((d - new Date(d.getFullYear(),0,1)) / 86400000) + 1;
+    }
+
+    function daysInYear(y) {
+      return new Date(y,1,29).getMonth()===1 ? 366 : 365;
+    }
+
+    /* ── ISO week ── */
+    function isoWeek(d) {
+      const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      const day = (tmp.getDay() + 6) % 7;
+      tmp.setDate(tmp.getDate() - day + 3);
+      const thu = new Date(tmp.getFullYear(), 0, 4);
+      thu.setDate(thu.getDate() - (thu.getDay()+6)%7 + 3);
+      return { week: 1 + Math.round((tmp - thu) / 604800000), year: tmp.getFullYear() };
+    }
+
+    function isoWeeksInYear(y) {
+      return isoWeek(new Date(y, 11, 28)).week;
+    }
+
+    /* ── Heat level ── */
+    function heatLevel(h) {
+      if (h <= 0) return 0;
+      if (h < 1)  return 1;
+      if (h < 2)  return 2;
+      if (h < 4)  return 3;
+      return 4;
+    }
+
+    /* ── Render study insights ── */
+    function renderInsights(sessions) {
+      const map = byDay(sessions);
+
+      // Today
+      const todayKey  = studyDayKey();
+      const todayIST  = getIST();
+      if (todayIST.getHours() < 2) todayIST.setDate(todayIST.getDate() - 1);
+      const todayHrs  = map[todayKey] || 0;
+      const dayNo     = dayOfYear(todayIST);
+
+      document.getElementById("today-hours").textContent = formatHours(todayHrs);
+      document.getElementById("today-meta").textContent  =
+        `${niceDate(todayIST)} · Day ${dayNo} / ${daysInYear(todayIST.getFullYear())}`;
+
+      // This week
+      const wi       = isoWeek(todayIST);
+      let   weekHrs  = 0;
+      for (const [k, h] of Object.entries(map)) {
+        const w = isoWeek(keyToLocalDate(k));
+        if (w.week === wi.week && w.year === wi.year) weekHrs += h;
+      }
+
+      document.getElementById("week-hours").textContent = formatHours(weekHrs);
+      document.getElementById("week-meta").textContent  =
+        `Week ${wi.week} / ${isoWeeksInYear(wi.year)} · ${wi.year}`;
+
+      // Heatmap: rolling 90 days from deploy date or last 90 days
+      const deploy = new Date(2026, 2, 29);   // 29 Mar 2026
+      const endIST = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate());
+      const startIST = new Date(endIST);
+      startIST.setDate(startIST.getDate() - 89);
+      if (startIST < deploy) startIST.setTime(deploy.getTime());
+
+      document.getElementById("heatmap-range").textContent =
+        `${niceDate(startIST)} → ${niceDate(endIST)}`;
+
+      // Align grid to Monday
+      const gridStart = new Date(startIST);
+      gridStart.setDate(gridStart.getDate() - (gridStart.getDay()+6)%7);
+      const gridEnd = new Date(endIST);
+      gridEnd.setDate(gridEnd.getDate() + (6-(gridEnd.getDay()+6)%7));
+
+      const grid = document.getElementById("heatmap-grid");
+      grid.innerHTML = "";
+
+      for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate()+1)) {
+        const cell = document.createElement("div");
+        const k    = formatKey(d);
+        if (d < startIST || d > endIST) {
+          cell.className = "heat-cell heat-empty";
+        } else {
+          cell.className = `heat-cell heat-${heatLevel(map[k]||0)}`;
+          cell.title     = `${niceDate(d)} — ${formatHours(map[k]||0)}`;
+        }
+        grid.appendChild(cell);
+      }
+    }
+
+    /* ── Main data load ── */
     async function loadData() {
       const apiURL = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/data.json?t=${Date.now()}`;
 
-      let workerData = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
+      let workerData     = { totalLikes:0, totalHours:0, breakdown:[], lastChange:null };
       let hoursCompleted = 0;
-      let sessions = [];
+      let sessions       = [];
 
       try {
-        const workerRes = await fetch(WORKER_URL);
-        if (workerRes.ok) {
-          workerData = await workerRes.json();
-        }
-      } catch (e) {}
+        const r = await fetch(WORKER_URL);
+        if (r.ok) workerData = await r.json();
+      } catch(e) {}
 
       try {
-        const dataRes = await fetch(apiURL);
-        if (dataRes.ok) {
-          const meta = await dataRes.json();
-          if (meta && meta.content) {
-            const content = JSON.parse(atob(meta.content));
-            hoursCompleted = content.hoursCompleted || 0;
-            sessions = Array.isArray(content.sessions) ? content.sessions : [];
+        const r = await fetch(apiURL);
+        if (r.ok) {
+          const meta = await r.json();
+          if (meta?.content) {
+            const c    = JSON.parse(atob(meta.content));
+            hoursCompleted = c.hoursCompleted || 0;
+            sessions       = Array.isArray(c.sessions) ? c.sessions : [];
           }
         }
-      } catch (e) {}
+      } catch(e) {}
 
-      const totalLikes = workerData.totalLikes || 0;
-      const owed       = workerData.totalHours || 0;
-      const done       = hoursCompleted;
-      const remaining  = Math.max(0, owed - done);
-      const pct        = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
+      const owed      = workerData.totalHours || 0;
+      const done      = hoursCompleted;
+      const remaining = Math.max(0, owed - done);
+      const pct       = owed > 0 ? Math.min(100, (done/owed)*100) : 0;
 
       setBig("remaining", remaining);
       document.getElementById("owed").textContent  = formatHours(owed);
       document.getElementById("done").textContent  = formatHours(done);
-      document.getElementById("likes").textContent = `${totalLikes} total likes across ${(workerData.breakdown || []).length} comments`;
+      document.getElementById("likes").textContent =
+        `${workerData.totalLikes||0} total likes across ${(workerData.breakdown||[]).length} comments`;
       document.getElementById("bar").style.width   = pct + "%";
 
       const lc = workerData.lastChange;
       document.getElementById("last-change").innerHTML = lc
-        ? `Last like detected on <a href="${lc.commentUrl}" target="_blank" rel="noopener noreferrer" style="color:#777">${lc.label}</a> — ${lc.detectedAt} IST`
-        : null;
+        ? `Last like on <a href="${lc.commentUrl}" target="_blank" rel="noopener noreferrer" style="color:#555">${lc.label}</a> — ${lc.detectedAt} IST`
+        : "";
 
+      renderInsights(sessions);
+
+      // Breakdown
       const breakdown = Array.isArray(workerData.breakdown) ? workerData.breakdown : [];
-      const box = document.getElementById("breakdown-box");
+      const box       = document.getElementById("breakdown-box");
 
       if (breakdown.length) {
         const isOpen = box.dataset.open !== "false";
-        const sorted = [...breakdown].sort((a, b) =>
-          b.likes !== a.likes ? b.likes - a.likes : b.hoursPerLike - a.hoursPerLike
-        );
+        const sorted = [...breakdown].sort((a,b) =>
+          b.likes !== a.likes ? b.likes-a.likes : b.hoursPerLike-a.hoursPerLike);
 
         box.innerHTML = `
           <div class="section-label" onclick="toggleBreakdown()">
-            <span id="breakdown-toggle" class="${isOpen ? "open" : ""}">▶</span>
+            <span id="breakdown-toggle" class="${isOpen?"open":""}">▶</span>
             Like sources
             <span class="info-icon">i
               <span class="info-tooltip">Like any comment below — each like adds more study hours for me! 🙌</span>
             </span>
           </div>
-          <div id="breakdown-list" style="display: ${isOpen ? "block" : "none"}">
-            ${sorted.map(b =>
-              `<div class="session-item">
-                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer" class="like-badge">+${b.hoursPerLike}h</a>
-                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer">💬 ${b.label}</a>
-                 <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
-               </div>`
-            ).join("")}
+          <div id="breakdown-list" style="display:${isOpen?"block":"none"}">
+            ${sorted.map(b => `
+              <div class="session-item">
+                <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer" class="like-badge">+${b.hoursPerLike}h</a>
+                <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer">💬 ${b.label}</a>
+                <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
+              </div>`).join("")}
           </div>`;
       } else {
         box.innerHTML = `
           <div class="section-label">Like sources</div>
-          <div class="session-item"><span>No comments loaded yet.</span></div>
-        `;
+          <div class="session-item"><span>No comments loaded yet.</span></div>`;
       }
 
+      // Sessions
       document.getElementById("sessions-label").textContent = "Recent sessions";
       document.getElementById("sessions-list").innerHTML = sessions.length
-        ? [...sessions].reverse().slice(0, 6).map(s =>
-            `<div class="session-item">
-               <span>📖 ${s.topic}</span>
-               <span class="session-hrs">${formatHours(s.hours)} · ${s.date}</span>
-             </div>`
-          ).join("")
+        ? [...sessions].reverse().slice(0,6).map(s => `
+            <div class="session-item">
+              <span>📖 ${s.topic}</span>
+              <span class="session-hrs">${formatHours(s.hours)} · ${s.date||""}</span>
+            </div>`).join("")
         : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
 
       dismissDisclaimer();
