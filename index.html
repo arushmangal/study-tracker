@@ -932,10 +932,11 @@
         ? `Last like on <a href="${lc.commentUrl}" target="_blank" rel="noopener noreferrer" style="color:#555">${lc.label}</a> — ${lc.detectedAt} IST`
         : "";
 
-      // Start countdown using cachedAt from worker if available, else now
-      const cachedAt = workerData.cachedAt || Date.now();
-      window._lastCachedAt = cachedAt;
-      startCountdown(cachedAt);
+      // ✅ AFTER — only start if worker actually sent cachedAt
+      if (workerData.cachedAt) {
+      window._lastCachedAt = workerData.cachedAt;
+      startCountdown(workerData.cachedAt);    
+      }
 
       renderInsights(sessions);
 
