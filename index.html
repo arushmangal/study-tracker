@@ -428,6 +428,7 @@
     .heat-2     { background: #23653c; cursor: pointer; }
     .heat-3     { background: #2f9254; cursor: pointer; }
     .heat-4     { background: #44ff88; cursor: pointer; }
+    .heat-5     { background: #afffce; cursor: pointer; } 
 
     .heat-legend {
       display: flex;
@@ -598,6 +599,7 @@
           <div class="legend-box heat-2"></div>
           <div class="legend-box heat-3"></div>
           <div class="legend-box heat-4"></div>
+          <div class="legend-box heat-5"></div>
         </div>
         <div class="heat-legend-text">More</div>
       </div>
@@ -795,13 +797,13 @@
 
     /* ── Heatmap intensity ── */
     function heatLevel(h) {
-      if (h <= 0) return 0;
-      if (h < 1)  return 1;
-      if (h < 2)  return 2;
-      if (h < 4)  return 3;
-      return 4;
+      if (h <= 0)  return 0;
+      if (h < 2)   return 1;
+      if (h < 5)   return 2;
+      if (h < 9)   return 3;
+      if (h < 12)  return 4;
+      return 5;
     }
-
     /* ── Custom heatmap tooltip ── */
     const heatTip      = document.getElementById("heat-tooltip");
     const heatTipDate  = document.getElementById("heat-tooltip-date");
