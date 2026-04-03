@@ -177,6 +177,23 @@
       width: 340px;
     }
 
+    /* ── Countdown ── */
+    #update-countdown-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 6px;
+      font-size: 0.75rem;
+      color: #333;
+    }
+
+    #update-countdown {
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      transition: color 0.3s ease;
+    }
+
     /* ── Clock ── */
     #clock-box {
       width: 340px;
@@ -469,7 +486,7 @@
 
   <!-- =================================================================
        MAINTENANCE MODE
-       To turn ON:  remove the  <!--  and  --> <!-- around the script below
+       To turn ON:  remove the  <!--  and  -->  around the script below
        To turn OFF: put them back
        ================================================================= -->
   <!--
@@ -481,7 +498,7 @@
   </script>
   -->
 
-  <!-- Maintenance overlay — always in DOM, hidden until activated above -->
+  <!-- Maintenance overlay -->
   <div id="maintenance-screen">
     <div class="maint-icon">🔧</div>
     <div class="maint-title">Just a moment!</div>
@@ -544,7 +561,13 @@
   </div>
 
   <div class="sub" id="likes" style="margin-top:14px;"></div>
+
   <div id="last-change"></div>
+  <div id="update-countdown-wrap">
+    <span style="color:#2a2a2a;">⏱</span>
+    <span style="color:#2a2a2a;">next update in</span>
+    <span id="update-countdown" style="color:#333;">--:--</span>
+  </div>
 
   <!-- Study insights -->
   <div id="study-insights">
@@ -591,10 +614,11 @@
   </div>
 
   <script>
-    const WORKER_URL = "https://study-tracker-likes.mangalarush.workers.dev/";
-    const GH_OWNER   = "arushmangal";
-    const GH_REPO    = "study-tracker";
-    const GH_BRANCH  = "main";
+    const WORKER_URL    = "https://study-tracker-likes.mangalarush.workers.dev/";
+    const GH_OWNER      = "arushmangal";
+    const GH_REPO       = "study-tracker";
+    const GH_BRANCH     = "main";
+    const CACHE_TTL_MS  = 5 * 60 * 1000;
 
     function rawDataURL() {
       return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json?t=${Date.now()}`;
@@ -644,6 +668,40 @@
     }
     updateClock();
     setInterval(updateClock, 1000);
+
+    /* ── Countdown timer ── */
+    function startCountdown(cachedAt) {
+      if (window._countdownInterval) clearInterval(window._countdownInterval);
+
+      const refreshAt = (cachedAt || Date.now()) + CACHE_TTL_MS;
+      const el        = document.getElementById("update-countdown");
+      const wrap      = document.getElementById("update-countdown-wrap");
+
+      function tick() {
+        if (!el) return;
+        const left = Math.max(0, refreshAt - Date.now());
+        if (left === 0) {
+          el.textContent = "checking now...";
+          el.style.color = "#44ff88";
+          Array.from(wrap.children).forEach(c => { if (c !== el) c.style.color = "#44ff88"; });
+          return;
+        }
+        const m = Math.floor(left / 60000);
+        const s = Math.floor((left % 60000) / 1000);
+        el.textContent = `${m}:${String(s).padStart(2, "0")}`;
+
+        if (left < 60000) {
+          el.style.color = "#ff9944";
+          Array.from(wrap.children).forEach(c => { if (c !== el) c.style.color = "#554433"; });
+        } else {
+          el.style.color = "#333";
+          Array.from(wrap.children).forEach(c => { if (c !== el) c.style.color = "#2a2a2a"; });
+        }
+      }
+
+      tick();
+      window._countdownInterval = setInterval(tick, 1000);
+    }
 
     /* ── Formatting ── */
     function formatHours(h) {
@@ -811,7 +869,6 @@
         } else {
           cell.className = `heat-cell heat-${heatLevel(map[k] || 0)}`;
 
-          // Store data for custom tooltip (snapshot values — d mutates each iteration)
           const dateSnap  = niceDate(new Date(d));
           const hoursSnap = map[k] || 0;
 
@@ -869,12 +926,12 @@
       document.getElementById("bar").style.width   = pct + "%";
 
       const lc = workerData.lastChange;
-      document.getElementById("last-change").innerHTML = (lc
+      document.getElementById("last-change").innerHTML = lc
         ? `Last like on <a href="${lc.commentUrl}" target="_blank" rel="noopener noreferrer" style="color:#555">${lc.label}</a> — ${lc.detectedAt} IST`
-        : "")
-        + `<div style="margin-top:6px; font-size:0.75rem; color:#444;">
-       ⏱ New likes are detected every 5 min — it may take a moment to show up
-       </div>`;
+        : "";
+
+      // Start countdown using cachedAt from worker if available, else now
+      startCountdown(workerData.cachedAt || Date.now());
 
       renderInsights(sessions);
 
