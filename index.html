@@ -933,7 +933,9 @@
         : "";
 
       // Start countdown using cachedAt from worker if available, else now
-      startCountdown(workerData.cachedAt || Date.now());
+      const cachedAt = workerData.cachedAt || Date.now();
+      window._lastCachedAt = cachedAt;
+      startCountdown(cachedAt);
 
       renderInsights(sessions);
 
@@ -979,8 +981,18 @@
       dismissDisclaimer();
     }
 
-    loadData();
-    setInterval(loadData, 60000);
+    async function loadAndSchedule() {
+      await loadData();
+
+      // Schedule next call for exactly when the worker cache expires
+      const cachedAt  = window._lastCachedAt || Date.now();
+      const refreshAt = cachedAt + CACHE_TTL_MS;
+      const delay     = Math.max(5000, refreshAt - Date.now()); // min 5s safety floor
+
+      setTimeout(loadAndSchedule, delay);
+    }
+
+    loadAndSchedule();
   </script>
 </body>
 </html>
