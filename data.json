@@ -75,6 +75,11 @@
       "date": "5 Apr 2026",
       "topic": "final exam",
       "hours": 6
+    },
+    {
+      "date": "6 Apr 2026",
+      "topic": "bitsat mock test and analysis",
+      "hours": 6
     }
   ]
 }
