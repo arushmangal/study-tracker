@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 52.78,
+  "hoursCompleted": 56.78,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -67,7 +67,7 @@
       "hours": 2
     },
     {
-      "date": "4 Apr 2026",
+      "date": "4 Apr 2026"
       "topic": "physics revisions",
       "hours": 4
     },
@@ -85,7 +85,16 @@
       "date": "7 Apr 2026",
       "topic": "strategizing and creating a study plan for next finals",
       "hours": 2
+    },
+    {
+      "date": "7 Apr 2026",
+      "topic": "solving JEE Advanced Physics Assignments",
+      "hours": 3
+    },
+    {
+      "date": "8 Apr 2026",
+      "topic": "studying Linear Programming",
+      "hours": 1
     }
-    
   ]
 }
