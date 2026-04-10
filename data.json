@@ -23,15 +23,8 @@
     { "date": "8 Apr 2026", "topic": "BITSAT Mock Test", "hours": 3 },
     { "date": "8 Apr 2026", "topic": "Revisions", "hours": 2 },
     { "date": "9 Apr 2026", "topic": "Practicing tough JEE Adv level problems", "hours": 3 },
-    { "date": "10 Apr 2026", "topic": "Revising POM, Waves and SHM", "hours": 2 },
-    { "date": "10 Apr 2026", "topic": "Attending Advanced Revision Lecture", "hours": 4.5 },
-    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Lecture 1", "hours": 3.5 },
-    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Lecture 2", "hours": 1.5 },
-    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Notes Review", "hours": 2 },
-    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Problem Solving Lecture", "hours": 1.5 },
-    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Problem Solving Lecture Imp Problems add to Notes", "hours": 0.5 },
-    { "date": "10 Apr 2026", "topic": "Logical Reasoning Maths Lecture", "hours": 1 },
-    { "date": "10 Apr 2026", "topic": "Logical Reasoning and LPP Anki Cards Making", "hours": 1.5 },
-    { "date": "10 Apr 2026", "topic": "Analyze BITSAT Mock Test taken on 8th April & add mistakes to notes", "hours": 2 }
+    { "date": "10 Apr 2026", "topic": "Revising POM", "hours": 2 },
+    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Lecture 1", "hours": 1.5 },
+    { "date": "10 Apr 2026", "topic": "Qua and Quant Estimation of Elements", "hours": 1 }
   ]
 }
