@@ -25,6 +25,8 @@
     { "date": "9 Apr 2026", "topic": "Practicing tough JEE Adv level problems", "hours": 3 },
     { "date": "10 Apr 2026", "topic": "Revising POM", "hours": 2 },
     { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Lecture 1", "hours": 1.5 },
-    { "date": "10 Apr 2026", "topic": "Qua and Quant Estimation of Elements", "hours": 1 }
+    { "date": "10 Apr 2026", "topic": "Qua and Quant Estimation of Elements", "hours": 1 },
+    { "date": "11 Apr 2026", "topic": "Revisions", "hours": 5 },
+    { "date": "12 Apr 2026", "topic": "Revisions", "hours": 5 }
   ]
 }
