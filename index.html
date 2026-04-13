@@ -428,7 +428,7 @@
     .heat-2     { background: #23653c; cursor: pointer; }
     .heat-3     { background: #2f9254; cursor: pointer; }
     .heat-4     { background: #44ff88; cursor: pointer; }
-    .heat-5     { background: #afffce; cursor: pointer; } 
+    .heat-5     { background: #afffce; cursor: pointer; }
 
     .heat-legend {
       display: flex;
@@ -481,13 +481,55 @@
       white-space: nowrap;
       margin-top: 3px;
     }
+
+    /* ── Todoist Section ── */
+    #todoist-section {
+      width: 340px;
+      margin-top: 20px;
+      border-top: 1px solid #1f1f1f;
+      padding-top: 16px;
+    }
+
+    .todoist-item {
+      background: #1a1a1a;
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 6px;
+      font-size: 0.88rem;
+      color: #ccc;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+    .todoist-item:hover { background: #222; }
+
+    .p-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .p-dot-4 { background: #ff4444; }
+    .p-dot-3 { background: #ff9944; }
+    .p-dot-2 { background: #4499ff; }
+    .p-dot-1 { background: #444;    }
+
+    .todoist-text    { flex: 1; min-width: 0; }
+    .todoist-content { color: #ccc; word-break: break-word; }
+    .todoist-meta    { display: flex; gap: 8px; margin-top: 4px; font-size: 0.72rem; }
+    .todoist-project { color: #555; }
+    .todoist-due     { color: #ff9944; }
+    .todoist-due.overdue { color: #ff4444; }
   </style>
 </head>
 <body>
 
   <!-- =================================================================
        MAINTENANCE MODE
-       To turn ON:  remove the  <!--  and  -->  <!--around the script below
+       To turn ON:  remove the comment tags around the script below
        To turn OFF: put them back
        ================================================================= -->
   <!--
@@ -603,6 +645,14 @@
         </div>
         <div class="heat-legend-text">More</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Todoist active tasks -->
+  <div id="todoist-section">
+    <div class="section-label">Active tasks</div>
+    <div id="todoist-list">
+      <div class="session-item" style="color:#3a3a3a;font-size:0.82rem">Loading…</div>
     </div>
   </div>
 
@@ -804,6 +854,7 @@
       if (h < 12)  return 4;
       return 5;
     }
+
     /* ── Custom heatmap tooltip ── */
     const heatTip      = document.getElementById("heat-tooltip");
     const heatTipDate  = document.getElementById("heat-tooltip-date");
@@ -932,10 +983,9 @@
         ? `Last like on <a href="${lc.commentUrl}" target="_blank" rel="noopener noreferrer" style="color:#555">${lc.label}</a> — ${lc.detectedAt} IST`
         : "";
 
-      // ✅ AFTER — only start if worker actually sent cachedAt
       if (workerData.cachedAt) {
-      window._lastCachedAt = workerData.cachedAt;
-      startCountdown(workerData.cachedAt);    
+        window._lastCachedAt = workerData.cachedAt;
+        startCountdown(workerData.cachedAt);
       }
 
       renderInsights(sessions);
@@ -984,16 +1034,62 @@
 
     async function loadAndSchedule() {
       await loadData();
-
-      // Schedule next call for exactly when the worker cache expires
       const cachedAt  = window._lastCachedAt || Date.now();
       const refreshAt = cachedAt + CACHE_TTL_MS;
-      const delay     = Math.max(5000, refreshAt - Date.now()); // min 5s safety floor
-
+      const delay     = Math.max(5000, refreshAt - Date.now());
       setTimeout(loadAndSchedule, delay);
     }
 
     loadAndSchedule();
+
+    /* ── Todoist ── */
+    async function loadTodoistTasks() {
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=getTodoistTasks`);
+        const data = await res.json();
+        if (!data.ok || !data.tasks) return;
+        renderTodoistTasks(data.tasks);
+      } catch(e) {}
+    }
+
+    function renderTodoistTasks(tasks) {
+      const list = document.getElementById("todoist-list");
+      if (!tasks.length) {
+        list.innerHTML = `<div class="session-item" style="color:#3a3a3a;font-size:0.82rem">No active tasks.</div>`;
+        return;
+      }
+      const now = new Date();
+      list.innerHTML = tasks.map(t => {
+        const overdue = t.due && new Date(t.due) < now;
+        return `
+          <a class="todoist-item" href="${t.url}" target="_blank" rel="noopener noreferrer">
+            <div class="p-dot p-dot-${t.priority}"></div>
+            <div class="todoist-text">
+              <div class="todoist-content">${t.content.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>
+              <div class="todoist-meta">
+                <span class="todoist-project">${t.project}</span>
+                ${t.due ? `<span class="todoist-due ${overdue ? "overdue" : ""}">${t.due}</span>` : ""}
+              </div>
+            </div>
+          </a>`;
+      }).join("");
+    }
+
+    async function syncTodoist() {
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=syncTodoistCompleted`);
+        const data = await res.json();
+        if (data.synced > 0) {
+          console.log(`Todoist: synced ${data.synced} session(s), new total: ${data.newTotal}h`);
+          await loadData();
+        }
+      } catch(e) {}
+    }
+
+    loadTodoistTasks();
+    syncTodoist();
+    setInterval(loadTodoistTasks, 3 * 60 * 1000);
+    setInterval(syncTodoist,      5 * 60 * 1000);
   </script>
 </body>
 </html>
