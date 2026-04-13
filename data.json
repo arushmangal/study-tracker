@@ -1,32 +1,145 @@
 {
-  "hoursCompleted": 95.88,
+  "hoursCompleted": 81.38,
   "sessions": [
-    { "date": "28 Mar 2026", "topic": "developed this website and setup an auto updating interface", "hours": 2 },
-    { "date": "28 Mar 2026", "topic": "gave a mock test and did its analysis", "hours": 7 },
-    { "date": "29 Mar 2026", "topic": "built multi comment likes system and developing the backend of webpage", "hours": 2 },
-    { "date": "29 Mar 2026", "topic": "revising my material on anki", "hours": 2 },
-    { "date": "30 Mar 2026", "topic": "gave a mock test", "hours": 3.5 },
-    { "date": "30 Mar 2026", "topic": "solved a set of top math problems", "hours": 2.92 },
-    { "date": "31 Mar 2026", "topic": "revising", "hours": 3.4 },
-    { "date": "31 Mar 2026", "topic": "studying biomolecules from a lecture and doing practice problems", "hours": 1.5 },
-    { "date": "1 Apr 2026", "topic": "renewing backend and frontend of website to work smarter and better", "hours": 2.03 },
-    { "date": "1 Apr 2026", "topic": "biomolecules lecture", "hours": 3.75 },
-    { "date": "1 Apr 2026", "topic": "revising physical chemistry", "hours": 1.78 },
-    { "date": "1 Apr 2026", "topic": "revising", "hours": 2 },
-    { "date": "2 Apr 2026", "topic": "revising chemical equilibriums", "hours": 2 },
-    { "date": "4 Apr 2026", "topic": "physics revisions", "hours": 4 },
-    { "date": "5 Apr 2026", "topic": "final exam", "hours": 6 },
-    { "date": "6 Apr 2026", "topic": "bitsat mock test and analysis", "hours": 6 },
-    { "date": "7 Apr 2026", "topic": "strategizing and creating a study plan for next finals", "hours": 2 },
-    { "date": "7 Apr 2026", "topic": "solving JEE Advanced Physics Assignments", "hours": 3 },
-    { "date": "8 Apr 2026", "topic": "studying Linear Programming", "hours": 1 },
-    { "date": "8 Apr 2026", "topic": "BITSAT Mock Test", "hours": 3 },
-    { "date": "8 Apr 2026", "topic": "Revisions", "hours": 2 },
-    { "date": "9 Apr 2026", "topic": "Practicing tough JEE Adv level problems", "hours": 3 },
-    { "date": "10 Apr 2026", "topic": "Revising POM", "hours": 2 },
-    { "date": "10 Apr 2026", "topic": "Chemistry in Everyday Life Lecture 1", "hours": 1.5 },
-    { "date": "10 Apr 2026", "topic": "Qua and Quant Estimation of Elements", "hours": 1 },
-    { "date": "11 Apr 2026", "topic": "Revisions", "hours": 5 },
-    { "date": "12 Apr 2026", "topic": "Revisions", "hours": 5 }
+    {
+      "date": "28 Mar 2026",
+      "topic": "developed this website and setup an auto updating interface",
+      "hours": 2
+    },
+    {
+      "date": "28 Mar 2026",
+      "topic": "gave a mock test and did its analysis",
+      "hours": 7
+    },
+    {
+      "date": "29 Mar 2026",
+      "topic": "built multi comment likes system and developing the backend of webpage",
+      "hours": 2
+    },
+    {
+      "date": "29 Mar 2026",
+      "topic": "revising my material on anki",
+      "hours": 2
+    },
+    {
+      "date": "30 Mar 2026",
+      "topic": "gave a mock test",
+      "hours": 3.5
+    },
+    {
+      "date": "30 Mar 2026",
+      "topic": "solved a set of top math problems",
+      "hours": 2.92
+    },
+    {
+      "date": "31 Mar 2026",
+      "topic": "revising",
+      "hours": 3.4
+    },
+    {
+      "date": "31 Mar 2026",
+      "topic": "studying biomolecules from a lecture and doing practice problems",
+      "hours": 1.5
+    },
+    {
+      "date": "1 Apr 2026",
+      "topic": "renewing backend and frontend of website to work smarter and better",
+      "hours": 2.03
+    },
+    {
+      "date": "1 Apr 2026",
+      "topic": "biomolecules lecture",
+      "hours": 3.75
+    },
+    {
+      "date": "1 Apr 2026",
+      "topic": "revising physical chemistry",
+      "hours": 1.78
+    },
+    {
+      "date": "1 Apr 2026",
+      "topic": "revising",
+      "hours": 2
+    },
+    {
+      "date": "2 Apr 2026",
+      "topic": "revising chemical equilibriums",
+      "hours": 2
+    },
+    {
+      "date": "4 Apr 2026",
+      "topic": "physics revisions",
+      "hours": 4
+    },
+    {
+      "date": "5 Apr 2026",
+      "topic": "final exam",
+      "hours": 6
+    },
+    {
+      "date": "6 Apr 2026",
+      "topic": "bitsat mock test and analysis",
+      "hours": 6
+    },
+    {
+      "date": "7 Apr 2026",
+      "topic": "strategizing and creating a study plan for next finals",
+      "hours": 2
+    },
+    {
+      "date": "7 Apr 2026",
+      "topic": "solving JEE Advanced Physics Assignments",
+      "hours": 3
+    },
+    {
+      "date": "8 Apr 2026",
+      "topic": "studying Linear Programming",
+      "hours": 1
+    },
+    {
+      "date": "8 Apr 2026",
+      "topic": "BITSAT Mock Test",
+      "hours": 3
+    },
+    {
+      "date": "8 Apr 2026",
+      "topic": "Revisions",
+      "hours": 2
+    },
+    {
+      "date": "9 Apr 2026",
+      "topic": "Practicing tough JEE Adv level problems",
+      "hours": 3
+    },
+    {
+      "date": "10 Apr 2026",
+      "topic": "Revising POM",
+      "hours": 2
+    },
+    {
+      "date": "10 Apr 2026",
+      "topic": "Chemistry in Everyday Life Lecture 1",
+      "hours": 1.5
+    },
+    {
+      "date": "10 Apr 2026",
+      "topic": "Qua and Quant Estimation of Elements",
+      "hours": 1
+    },
+    {
+      "date": "11 Apr 2026",
+      "topic": "Revisions",
+      "hours": 5
+    },
+    {
+      "date": "12 Apr 2026",
+      "topic": "Revisions",
+      "hours": 5
+    },
+    {
+      "date": "13 Apr 2026",
+      "topic": "site dev",
+      "hours": 1
+    }
   ]
 }
