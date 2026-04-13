@@ -36,89 +36,39 @@
       padding: 32px;
     }
 
-    .maint-icon {
-      font-size: 2.8rem;
-      animation: wrench-rock 2s ease-in-out infinite;
-    }
-
+    .maint-icon { font-size: 2.8rem; animation: wrench-rock 2s ease-in-out infinite; }
     @keyframes wrench-rock {
       0%, 100% { transform: rotate(-15deg); }
       50%       { transform: rotate(15deg);  }
     }
-
-    .maint-title {
-      font-size: 1.4rem;
-      font-weight: bold;
-      color: #ddd;
-      letter-spacing: 0.5px;
-    }
-
-    .maint-sub {
-      font-size: 0.9rem;
-      color: #555;
-      max-width: 280px;
-      line-height: 1.6;
-    }
-
+    .maint-title { font-size: 1.4rem; font-weight: bold; color: #ddd; letter-spacing: 0.5px; }
+    .maint-sub   { font-size: 0.9rem; color: #555; max-width: 280px; line-height: 1.6; }
     .maint-dots span {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      margin: 0 3px;
-      border-radius: 50%;
-      background: #44ff88;
+      display: inline-block; width: 7px; height: 7px; margin: 0 3px;
+      border-radius: 50%; background: #44ff88;
       animation: bounce-dot 1.2s infinite ease-in-out;
     }
-
     .maint-dots span:nth-child(2) { animation-delay: 0.2s; }
     .maint-dots span:nth-child(3) { animation-delay: 0.4s; }
-
     @keyframes bounce-dot {
       0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
       40%            { transform: scale(1);   opacity: 1;   }
     }
-
     .maint-pill {
-      background: #1a1a1a;
-      border: 1px solid #2e2e2e;
-      border-radius: 20px;
-      padding: 8px 18px;
-      font-size: 0.78rem;
-      color: #666;
+      background: #1a1a1a; border: 1px solid #2e2e2e; border-radius: 20px;
+      padding: 8px 18px; font-size: 0.78rem; color: #666;
     }
 
     /* ── Core layout ── */
     .big   { font-weight: bold; }
     .red   { color: #ff4444; }
     .green { color: #44ff88; }
+    .label { color: #aaa; margin-top: -8px; font-size: 1.1rem; }
 
-    .label {
-      color: #aaa;
-      margin-top: -8px;
-      font-size: 1.1rem;
-    }
+    .bar-wrap { width: 340px; background: #222; border-radius: 20px; height: 14px; margin: 10px 0; }
+    .bar-fill { height: 14px; border-radius: 20px; background: #44ff88; transition: width 0.6s ease; }
 
-    .bar-wrap {
-      width: 340px;
-      background: #222;
-      border-radius: 20px;
-      height: 14px;
-      margin: 10px 0;
-    }
-
-    .bar-fill {
-      height: 14px;
-      border-radius: 20px;
-      background: #44ff88;
-      transition: width 0.6s ease;
-    }
-
-    .stats-row {
-      display: flex;
-      gap: 40px;
-      margin-top: 10px;
-    }
-
+    .stats-row { display: flex; gap: 40px; margin-top: 10px; }
     .stat { text-align: center; }
     .stat .num { font-size: 2.5rem; font-weight: bold; }
 
@@ -126,302 +76,104 @@
     a { color: #777; }
 
     .sessions {
-      width: 340px;
-      margin-top: 20px;
-      border-top: 1px solid #1f1f1f;
-      padding-top: 16px;
+      width: 340px; margin-top: 20px;
+      border-top: 1px solid #1f1f1f; padding-top: 16px;
     }
 
     .section-label {
-      color: #888;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      margin-bottom: 10px;
+      color: #888; font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;
     }
 
     .session-item {
-      background: #1a1a1a;
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-      color: #ccc;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
+      background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
+      margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
 
     .session-item a {
-      flex: 1;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      color: #ccc;
-      text-decoration: none;
+      flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
+      white-space: nowrap; color: #ccc; text-decoration: none;
     }
-
     .session-item a:hover { color: #fff; text-decoration: underline; }
 
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
 
-    #last-change {
-      margin-top: 6px;
-      font-size: 0.82rem;
-      color: #444;
-      text-align: center;
-      width: 340px;
-    }
+    #last-change { margin-top: 6px; font-size: 0.82rem; color: #444; text-align: center; width: 340px; }
 
-    /* ── Countdown ── */
     #update-countdown-wrap {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      margin-top: 6px;
-      font-size: 0.75rem;
-      color: #333;
+      display: flex; align-items: center; justify-content: center;
+      gap: 6px; margin-top: 6px; font-size: 0.75rem; color: #333;
     }
-
-    #update-countdown {
-      font-variant-numeric: tabular-nums;
-      font-weight: 700;
-      transition: color 0.3s ease;
-    }
+    #update-countdown { font-variant-numeric: tabular-nums; font-weight: 700; transition: color 0.3s ease; }
 
     /* ── Clock ── */
-    #clock-box {
-      width: 340px;
-      background: #111;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 12px 16px;
-    }
-
-    .clock-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-    }
-
-    #clock-time {
-      font-size: 1.35rem;
-      font-weight: bold;
-      color: #ddd;
-      letter-spacing: 1px;
-      line-height: 1.1;
-    }
-
-    #clock-date {
-      font-size: 0.8rem;
-      color: #888;
-      margin-top: 4px;
-    }
-
-    #clock-tag {
-      font-size: 0.8rem;
-      color: #555;
-      padding-top: 3px;
-      text-align: right;
-    }
-
-    #sleep-note {
-      font-size: 0.78rem;
-      color: #ff4444;
-      margin-top: 8px;
-    }
+    #clock-box { width: 340px; background: #111; border: 1px solid #222; border-radius: 10px; padding: 12px 16px; }
+    .clock-row { display: flex; justify-content: space-between; align-items: flex-start; }
+    #clock-time { font-size: 1.35rem; font-weight: bold; color: #ddd; letter-spacing: 1px; line-height: 1.1; }
+    #clock-date { font-size: 0.8rem; color: #888; margin-top: 4px; }
+    #clock-tag  { font-size: 0.8rem; color: #555; padding-top: 3px; text-align: right; }
+    #sleep-note { font-size: 0.78rem; color: #ff4444; margin-top: 8px; }
 
     /* ── Notices ── */
     #loading-disclaimer {
-      width: 340px;
-      background: #1a1200;
-      border: 1px solid #ffc107;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 0.85rem;
-      color: #ffc107;
-      text-align: center;
-      transition: opacity 1s ease;
+      width: 340px; background: #1a1200; border: 1px solid #ffc107;
+      border-radius: 8px; padding: 12px 16px; font-size: 0.85rem;
+      color: #ffc107; text-align: center; transition: opacity 1s ease;
     }
-
     #gratitude-note {
-      width: 340px;
-      background: #0a1f0e;
-      border: 1px solid #2e7d32;
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-size: 0.85rem;
-      color: #81c784;
-      text-align: center;
-      line-height: 1.5;
+      width: 340px; background: #0a1f0e; border: 1px solid #2e7d32;
+      border-radius: 8px; padding: 12px 16px; font-size: 0.85rem;
+      color: #81c784; text-align: center; line-height: 1.5;
     }
 
     /* ── Breakdown toggle ── */
-    #breakdown-box .section-label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      user-select: none;
-    }
-
+    #breakdown-box .section-label { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
     #breakdown-box .section-label:hover { color: #aaa; }
-
-    #breakdown-toggle {
-      font-size: 0.75rem;
-      color: #555;
-      transition: transform 0.2s ease;
-    }
-
+    #breakdown-toggle { font-size: 0.75rem; color: #555; transition: transform 0.2s ease; }
     #breakdown-toggle.open { transform: rotate(90deg); }
 
     .info-icon {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 1px solid #444;
-      color: #555;
-      font-size: 0.65rem;
-      cursor: default;
-      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 50%; border: 1px solid #444;
+      color: #555; font-size: 0.65rem; cursor: default; position: relative;
     }
-
     .info-icon:hover .info-tooltip { display: block; }
-
     .info-tooltip {
-      display: none;
-      position: absolute;
-      bottom: 120%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #222;
-      border: 1px solid #333;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-size: 0.75rem;
-      color: #aaa;
-      white-space: nowrap;
-      z-index: 10;
-      pointer-events: none;
+      display: none; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%);
+      background: #222; border: 1px solid #333; border-radius: 6px; padding: 8px 10px;
+      font-size: 0.75rem; color: #aaa; white-space: nowrap; z-index: 10; pointer-events: none;
     }
 
     .like-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 20px;
-      padding: 4px 6px;
-      border-radius: 5px;
-      background: #1e3a2a;
-      border: 1px solid #2a5a3a;
-      color: #44ff88;
-      font-size: 0.75rem;
-      font-weight: bold;
-      white-space: nowrap;
-      flex: none !important;
-      margin-right: 8px;
-      cursor: pointer;
-      transition: background 0.2s, border-color 0.2s, color 0.2s;
-      text-decoration: none;
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; padding: 4px 6px; border-radius: 5px;
+      background: #1e3a2a; border: 1px solid #2a5a3a; color: #44ff88;
+      font-size: 0.75rem; font-weight: bold; white-space: nowrap;
+      flex: none !important; margin-right: 8px; cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, color 0.2s; text-decoration: none;
     }
-
     .like-badge:hover { background: #44ff88; border-color: #44ff88; color: #000; }
 
     /* ── Study Insights ── */
-    #study-insights {
-      width: 340px;
-      margin-top: 20px;
-      border-top: 1px solid #1f1f1f;
-      padding-top: 16px;
-    }
-
-    .mini-stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 12px;
-    }
-
-    .mini-card {
-      background: #141414;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 12px;
-    }
-
-    .mini-kicker {
-      color: #666;
-      font-size: 0.65rem;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-    }
-
-    .mini-number {
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #44ff88;
-      line-height: 1.1;
-    }
-
-    .mini-meta {
-      color: #555;
-      font-size: 0.72rem;
-      margin-top: 6px;
-      line-height: 1.5;
-    }
+    #study-insights { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
+    .mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .mini-card  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
+    .mini-kicker { color: #666; font-size: 0.65rem; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 7px; }
+    .mini-number { font-size: 1.5rem; font-weight: bold; color: #44ff88; line-height: 1.1; }
+    .mini-meta   { color: #555; font-size: 0.72rem; margin-top: 6px; line-height: 1.5; }
 
     /* ── Heatmap ── */
-    .heatmap-wrap {
-      background: #141414;
-      border: 1px solid #222;
-      border-radius: 10px;
-      padding: 12px;
+    .heatmap-wrap  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
+    .heatmap-head  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .heatmap-title { color: #aaa; font-size: 0.78rem; font-weight: 600; }
+    .heatmap-sub   { color: #555; font-size: 0.68rem; }
+    .heatmap-grid  {
+      display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px);
+      grid-auto-columns: 11px; gap: 3px; overflow-x: auto; padding-bottom: 2px;
     }
-
-    .heatmap-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .heatmap-title {
-      color: #aaa;
-      font-size: 0.78rem;
-      font-weight: 600;
-    }
-
-    .heatmap-sub {
-      color: #555;
-      font-size: 0.68rem;
-    }
-
-    .heatmap-grid {
-      display: grid;
-      grid-auto-flow: column;
-      grid-template-rows: repeat(7, 11px);
-      grid-auto-columns: 11px;
-      gap: 3px;
-      overflow-x: auto;
-      padding-bottom: 2px;
-    }
-
-    .heat-cell {
-      width: 11px;
-      height: 11px;
-      border-radius: 2px;
-      cursor: default;
-    }
-
+    .heat-cell  { width: 11px; height: 11px; border-radius: 2px; cursor: default; }
     .heat-empty { background: transparent; }
     .heat-0     { background: #1e1e1e; cursor: pointer; }
     .heat-1     { background: #183823; cursor: pointer; }
@@ -429,93 +181,34 @@
     .heat-3     { background: #2f9254; cursor: pointer; }
     .heat-4     { background: #44ff88; cursor: pointer; }
     .heat-5     { background: #afffce; cursor: pointer; }
-
-    .heat-legend {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 8px;
-    }
-
+    .heat-legend { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
     .heat-legend-text { color: #555; font-size: 0.68rem; }
+    .legend-boxes { display: flex; align-items: center; gap: 3px; }
+    .legend-box   { width: 11px; height: 11px; border-radius: 2px; }
 
-    .legend-boxes {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .legend-box {
-      width: 11px;
-      height: 11px;
-      border-radius: 2px;
-    }
-
-    /* ── Heatmap custom tooltip ── */
+    /* ── Heatmap tooltip ── */
     #heat-tooltip {
-      display: none;
-      position: fixed;
-      background: #0a0a0a;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 8px 13px;
-      pointer-events: none;
-      z-index: 1000;
-      text-align: center;
-      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.7);
-      transform: translateY(-4px);
+      display: none; position: fixed; background: #0a0a0a; border: 1px solid #2a2a2a;
+      border-radius: 8px; padding: 8px 13px; pointer-events: none; z-index: 1000;
+      text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,0.7); transform: translateY(-4px);
     }
-
-    #heat-tooltip-date {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #ffffff;
-      white-space: nowrap;
-      letter-spacing: 0.3px;
-    }
-
-    #heat-tooltip-hours {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: #44ff88;
-      white-space: nowrap;
-      margin-top: 3px;
-    }
+    #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
+    #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
 
     /* ── Todoist Section ── */
-    #todoist-section {
-      width: 340px;
-      margin-top: 20px;
-      border-top: 1px solid #1f1f1f;
-      padding-top: 16px;
-    }
+    #todoist-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
 
     .todoist-item {
-      background: #1a1a1a;
-      border-radius: 8px;
-      padding: 10px 14px;
-      margin-bottom: 6px;
-      font-size: 0.88rem;
-      color: #ccc;
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      text-decoration: none;
-      transition: background 0.2s;
+      background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
+      margin-bottom: 6px; font-size: 0.88rem; color: #ccc;
+      display: flex; align-items: flex-start; gap: 10px;
     }
-    .todoist-item:hover { background: #222; }
 
-    .p-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      margin-top: 5px;
-    }
-    .p-dot-4 { background: #ff4444; }
-    .p-dot-3 { background: #ff9944; }
-    .p-dot-2 { background: #4499ff; }
-    .p-dot-1 { background: #444;    }
+    .p-dot       { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .p-dot-4     { background: #ff4444; }
+    .p-dot-3     { background: #ff9944; }
+    .p-dot-2     { background: #4499ff; }
+    .p-dot-1     { background: #444;    }
 
     .todoist-text    { flex: 1; min-width: 0; }
     .todoist-content { color: #ccc; word-break: break-word; }
@@ -527,11 +220,6 @@
 </head>
 <body>
 
-  <!-- =================================================================
-       MAINTENANCE MODE
-       To turn ON:  remove the comment tags around the script below
-       To turn OFF: put them back
-       ================================================================= -->
   <!--
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -541,26 +229,19 @@
   </script>
   -->
 
-  <!-- Maintenance overlay -->
   <div id="maintenance-screen">
     <div class="maint-icon">🔧</div>
     <div class="maint-title">Just a moment!</div>
-    <div class="maint-dots">
-      <span></span><span></span><span></span>
-    </div>
-    <div class="maint-sub">
-      I'm fixing something on this page. It'll be back up shortly — thanks for your patience! 💚
-    </div>
+    <div class="maint-dots"><span></span><span></span><span></span></div>
+    <div class="maint-sub">I'm fixing something on this page. It'll be back up shortly — thanks for your patience! 💚</div>
     <div class="maint-pill">Back soon · Arush</div>
   </div>
 
-  <!-- Custom heatmap tooltip -->
   <div id="heat-tooltip">
     <div id="heat-tooltip-date"></div>
     <div id="heat-tooltip-hours"></div>
   </div>
 
-  <!-- Clock -->
   <div id="clock-box">
     <div class="clock-row">
       <div>
@@ -572,13 +253,11 @@
     <div id="sleep-note"></div>
   </div>
 
-  <!-- Loading disclaimer -->
   <div id="loading-disclaimer">
     ⏳ If the page doesn't show any hours, please wait 5–10 seconds —
     I'm a beginner at development, so it takes time for the page to load!
   </div>
 
-  <!-- Gratitude note -->
   <div id="gratitude-note">
     💚 <strong>Hey! Thanks for liking my comment!</strong><br>
     I tend to struggle with binge watching and wasting time on YouTube,
@@ -604,7 +283,6 @@
   </div>
 
   <div class="sub" id="likes" style="margin-top:14px;"></div>
-
   <div id="last-change"></div>
   <div id="update-countdown-wrap">
     <span style="color:#2a2a2a;">⏱</span>
@@ -612,7 +290,6 @@
     <span id="update-countdown" style="color:#333;">--:--</span>
   </div>
 
-  <!-- Study insights -->
   <div id="study-insights">
     <div class="section-label">Study rhythm</div>
     <div class="mini-stats">
@@ -648,7 +325,6 @@
     </div>
   </div>
 
-  <!-- Todoist active tasks -->
   <div id="todoist-section">
     <div class="section-label">Active tasks</div>
     <div id="todoist-list">
@@ -656,28 +332,25 @@
     </div>
   </div>
 
-  <!-- Like sources breakdown -->
   <div class="sessions" id="breakdown-box"></div>
 
-  <!-- Study sessions -->
   <div class="sessions">
     <div class="section-label" id="sessions-label"></div>
     <div id="sessions-list"></div>
   </div>
 
   <script>
-    const WORKER_URL    = "https://study-tracker-likes.mangalarush.workers.dev/";
-    const GH_OWNER      = "arushmangal";
-    const GH_REPO       = "study-tracker";
-    const GH_BRANCH     = "main";
-    const CACHE_TTL_MS  = 5 * 60 * 1000;
+    const WORKER_URL   = "https://study-tracker-likes.mangalarush.workers.dev/";
+    const GH_OWNER     = "arushmangal";
+    const GH_REPO      = "study-tracker";
+    const GH_BRANCH    = "main";
+    const CACHE_TTL_MS = 5 * 60 * 1000;
 
     function rawDataURL() {
       return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json?t=${Date.now()}`;
     }
 
     const disclaimerTimer = setTimeout(dismissDisclaimer, 10000);
-
     function dismissDisclaimer() {
       clearTimeout(disclaimerTimer);
       const el = document.getElementById("loading-disclaimer");
@@ -687,48 +360,37 @@
       }
     }
 
-    /* ── IST helpers ── */
     function getIST(date) {
       return new Date((date || new Date()).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
     }
-
     function formatKey(d) {
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     }
-
     function keyToLocalDate(key) {
-      const [y, m, d] = key.split("-").map(Number);
-      return new Date(y, m - 1, d, 12, 0, 0);
+      const [y,m,d] = key.split("-").map(Number);
+      return new Date(y, m-1, d, 12, 0, 0);
     }
-
     function niceDate(d) {
-      return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+      return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
     }
 
-    /* ── Clock ── */
     function updateClock() {
       const ist  = getIST();
       const h    = ist.getHours();
-      const mins = String(ist.getMinutes()).padStart(2, "0");
+      const mins = String(ist.getMinutes()).padStart(2,"0");
       const ampm = h >= 12 ? "PM" : "AM";
-      document.getElementById("clock-time").textContent =
-        `${((h % 12) || 12)}:${mins} ${ampm}`;
-      document.getElementById("clock-date").textContent =
-        ist.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
-      document.getElementById("sleep-note").textContent =
-        h < 8 ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!" : "";
+      document.getElementById("clock-time").textContent = `${((h%12)||12)}:${mins} ${ampm}`;
+      document.getElementById("clock-date").textContent = ist.toLocaleDateString("en-IN", { weekday:"short", day:"2-digit", month:"short", year:"numeric" });
+      document.getElementById("sleep-note").textContent = h < 8 ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!" : "";
     }
     updateClock();
     setInterval(updateClock, 1000);
 
-    /* ── Countdown timer ── */
     function startCountdown(cachedAt) {
       if (window._countdownInterval) clearInterval(window._countdownInterval);
-
       const refreshAt = (cachedAt || Date.now()) + CACHE_TTL_MS;
-      const el        = document.getElementById("update-countdown");
-      const wrap      = document.getElementById("update-countdown-wrap");
-
+      const el   = document.getElementById("update-countdown");
+      const wrap = document.getElementById("update-countdown-wrap");
       function tick() {
         if (!el) return;
         const left = Math.max(0, refreshAt - Date.now());
@@ -740,8 +402,7 @@
         }
         const m = Math.floor(left / 60000);
         const s = Math.floor((left % 60000) / 1000);
-        el.textContent = `${m}:${String(s).padStart(2, "0")}`;
-
+        el.textContent = `${m}:${String(s).padStart(2,"0")}`;
         if (left < 60000) {
           el.style.color = "#ff9944";
           Array.from(wrap.children).forEach(c => { if (c !== el) c.style.color = "#554433"; });
@@ -750,17 +411,15 @@
           Array.from(wrap.children).forEach(c => { if (c !== el) c.style.color = "#2a2a2a"; });
         }
       }
-
       tick();
       window._countdownInterval = setInterval(tick, 1000);
     }
 
-    /* ── Formatting ── */
     function formatHours(h) {
       const safe = Math.max(0, Number(h) || 0);
       const hrs  = Math.floor(safe);
       const mins = Math.round((safe - hrs) * 60);
-      if (mins === 60) return `${hrs + 1}h`;
+      if (mins === 60) return `${hrs+1}h`;
       if (hrs === 0)   return `${mins}m`;
       if (mins === 0)  return `${hrs}h`;
       return `${hrs}h ${mins}m`;
@@ -773,7 +432,6 @@
       el.style.fontSize = str.includes(" ") ? "3rem" : "5rem";
     }
 
-    /* ── Breakdown toggle ── */
     function toggleBreakdown() {
       const list   = document.getElementById("breakdown-list");
       const toggle = document.getElementById("breakdown-toggle");
@@ -784,35 +442,26 @@
       toggle.classList.toggle("open", !isOpen);
     }
 
-    /* ── Parse "1 Apr 2026" → "2026-04-01" ── */
-    const MONTHS = {
-      Jan: "01", Feb: "02", Mar: "03", Apr: "04", May: "05", Jun: "06",
-      Jul: "07", Aug: "08", Sep: "09", Oct: "10", Nov: "11", Dec: "12"
-    };
-
+    const MONTHS = { Jan:"01",Feb:"02",Mar:"03",Apr:"04",May:"05",Jun:"06",Jul:"07",Aug:"08",Sep:"09",Oct:"10",Nov:"11",Dec:"12" };
     function parseDateKey(str) {
       if (!str) return null;
       const m = String(str).trim().match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
       if (!m) return null;
       const mo = MONTHS[m[2]];
-      return mo ? `${m[3]}-${mo}-${String(Number(m[1])).padStart(2, "0")}` : null;
+      return mo ? `${m[3]}-${mo}-${String(Number(m[1])).padStart(2,"0")}` : null;
     }
 
-    /* ── Study-day key: midnight–2 AM IST counts as previous day ── */
     function studyDayKey(dateInput) {
       const ist = getIST(dateInput ? new Date(dateInput) : undefined);
       if (ist.getHours() < 2) ist.setDate(ist.getDate() - 1);
       return formatKey(ist);
     }
-
     function sessionKey(s) {
       if (s.loggedAt) return studyDayKey(s.loggedAt);
       if (s.dateISO)  return studyDayKey(s.dateISO);
       if (s.date)     return parseDateKey(s.date);
       return null;
     }
-
-    /* ── Aggregate hours by calendar day ── */
     function byDay(sessions) {
       const map = {};
       for (const s of (sessions || [])) {
@@ -822,145 +471,104 @@
       return map;
     }
 
-    /* ── Day-of-year helpers ── */
     function dayOfYear(d) {
-      return Math.floor((d - new Date(d.getFullYear(), 0, 1)) / 86400000) + 1;
+      return Math.floor((d - new Date(d.getFullYear(),0,1)) / 86400000) + 1;
     }
-
     function daysInYear(y) {
-      return new Date(y, 1, 29).getMonth() === 1 ? 366 : 365;
+      return new Date(y,1,29).getMonth() === 1 ? 366 : 365;
     }
-
-    /* ── ISO week helpers ── */
     function isoWeek(d) {
       const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-      const day = (tmp.getDay() + 6) % 7;
+      const day = (tmp.getDay()+6) % 7;
       tmp.setDate(tmp.getDate() - day + 3);
       const thu = new Date(tmp.getFullYear(), 0, 4);
-      thu.setDate(thu.getDate() - (thu.getDay() + 6) % 7 + 3);
+      thu.setDate(thu.getDate() - (thu.getDay()+6) % 7 + 3);
       return { week: 1 + Math.round((tmp - thu) / 604800000), year: tmp.getFullYear() };
     }
-
-    function isoWeeksInYear(y) {
-      return isoWeek(new Date(y, 11, 28)).week;
-    }
-
-    /* ── Heatmap intensity ── */
+    function isoWeeksInYear(y) { return isoWeek(new Date(y,11,28)).week; }
     function heatLevel(h) {
-      if (h <= 0)  return 0;
-      if (h < 2)   return 1;
-      if (h < 5)   return 2;
-      if (h < 9)   return 3;
-      if (h < 12)  return 4;
-      return 5;
+      if (h <= 0) return 0; if (h < 2)  return 1; if (h < 5)  return 2;
+      if (h < 9)  return 3; if (h < 12) return 4; return 5;
     }
 
-    /* ── Custom heatmap tooltip ── */
     const heatTip      = document.getElementById("heat-tooltip");
     const heatTipDate  = document.getElementById("heat-tooltip-date");
     const heatTipHours = document.getElementById("heat-tooltip-hours");
-
     function positionTip(e) {
-      const margin = 14;
-      const tw     = heatTip.offsetWidth;
-      const th     = heatTip.offsetHeight;
-      let x = e.clientX + margin;
-      let y = e.clientY - th - margin;
-      if (x + tw > window.innerWidth  - 8) x = e.clientX - tw - margin;
-      if (y < 8)                           y = e.clientY + margin;
+      const margin = 14, tw = heatTip.offsetWidth, th = heatTip.offsetHeight;
+      let x = e.clientX + margin, y = e.clientY - th - margin;
+      if (x + tw > window.innerWidth - 8) x = e.clientX - tw - margin;
+      if (y < 8) y = e.clientY + margin;
       heatTip.style.left = x + "px";
       heatTip.style.top  = y + "px";
     }
 
-    /* ── Study insights + heatmap ── */
     function renderInsights(sessions) {
-      const map = byDay(sessions);
-
+      const map      = byDay(sessions);
       const todayIST = getIST();
       if (todayIST.getHours() < 2) todayIST.setDate(todayIST.getDate() - 1);
       const todayKey = formatKey(todayIST);
       const todayHrs = map[todayKey] || 0;
-
       document.getElementById("today-hours").textContent = formatHours(todayHrs);
-      document.getElementById("today-meta").textContent  =
-        `${niceDate(todayIST)} · Day ${dayOfYear(todayIST)} / ${daysInYear(todayIST.getFullYear())}`;
+      document.getElementById("today-meta").textContent  = `${niceDate(todayIST)} · Day ${dayOfYear(todayIST)} / ${daysInYear(todayIST.getFullYear())}`;
 
-      const wi    = isoWeek(todayIST);
+      const wi = isoWeek(todayIST);
       let weekHrs = 0;
       for (const [k, h] of Object.entries(map)) {
         const w = isoWeek(keyToLocalDate(k));
         if (w.week === wi.week && w.year === wi.year) weekHrs += h;
       }
       document.getElementById("week-hours").textContent = formatHours(weekHrs);
-      document.getElementById("week-meta").textContent  =
-        `Week ${wi.week} / ${isoWeeksInYear(wi.year)} · ${wi.year}`;
+      document.getElementById("week-meta").textContent  = `Week ${wi.week} / ${isoWeeksInYear(wi.year)} · ${wi.year}`;
 
       const deploy   = new Date(2026, 2, 29);
       const endIST   = new Date(todayIST.getFullYear(), todayIST.getMonth(), todayIST.getDate());
       const startIST = new Date(endIST);
       startIST.setDate(startIST.getDate() - 89);
       if (startIST < deploy) startIST.setTime(deploy.getTime());
-
-      document.getElementById("heatmap-range").textContent =
-        `${niceDate(startIST)} → ${niceDate(endIST)}`;
+      document.getElementById("heatmap-range").textContent = `${niceDate(startIST)} → ${niceDate(endIST)}`;
 
       const gridStart = new Date(startIST);
-      gridStart.setDate(gridStart.getDate() - (gridStart.getDay() + 6) % 7);
+      gridStart.setDate(gridStart.getDate() - (gridStart.getDay()+6) % 7);
       const gridEnd = new Date(endIST);
-      gridEnd.setDate(gridEnd.getDate() + (6 - (gridEnd.getDay() + 6) % 7));
+      gridEnd.setDate(gridEnd.getDate() + (6 - (gridEnd.getDay()+6) % 7));
 
       const grid = document.getElementById("heatmap-grid");
       grid.innerHTML = "";
-
-      for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(gridStart); d <= gridEnd; d.setDate(d.getDate()+1)) {
         const cell    = document.createElement("div");
         const k       = formatKey(d);
         const inRange = d >= startIST && d <= endIST;
-
         if (!inRange) {
           cell.className = "heat-cell heat-empty";
         } else {
           cell.className = `heat-cell heat-${heatLevel(map[k] || 0)}`;
-
           const dateSnap  = niceDate(new Date(d));
           const hoursSnap = map[k] || 0;
-
-          cell.addEventListener("mouseover", function (e) {
+          cell.addEventListener("mouseover", function(e) {
             heatTipDate.textContent  = dateSnap;
             heatTipHours.textContent = hoursSnap > 0 ? formatHours(hoursSnap) : "No study";
             heatTip.style.display    = "block";
             positionTip(e);
           });
-
           cell.addEventListener("mousemove", positionTip);
-
-          cell.addEventListener("mouseout", function () {
-            heatTip.style.display = "none";
-          });
+          cell.addEventListener("mouseout",  function() { heatTip.style.display = "none"; });
         }
-
         grid.appendChild(cell);
       }
     }
 
-    /* ── Main data loader ── */
     async function loadData() {
       let workerData     = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
       let hoursCompleted = 0;
       let sessions       = [];
 
       const [workerResult, dataResult] = await Promise.allSettled([
-        fetch(WORKER_URL).then(r => {
-          if (!r.ok) throw new Error(`Worker ${r.status}`);
-          return r.json();
-        }),
-        fetch(rawDataURL()).then(r => {
-          if (!r.ok) throw new Error(`data.json ${r.status}`);
-          return r.json();
-        })
+        fetch(WORKER_URL).then(r => { if (!r.ok) throw new Error(`Worker ${r.status}`); return r.json(); }),
+        fetch(rawDataURL()).then(r => { if (!r.ok) throw new Error(`data.json ${r.status}`); return r.json(); })
       ]);
 
-      if (workerResult.status === "fulfilled") workerData     = workerResult.value;
+      if (workerResult.status === "fulfilled") workerData = workerResult.value;
       if (dataResult.status   === "fulfilled") {
         hoursCompleted = dataResult.value.hoursCompleted || 0;
         sessions       = Array.isArray(dataResult.value.sessions) ? dataResult.value.sessions : [];
@@ -974,8 +582,7 @@
       setBig("remaining", remaining);
       document.getElementById("owed").textContent  = formatHours(owed);
       document.getElementById("done").textContent  = formatHours(done);
-      document.getElementById("likes").textContent =
-        `${workerData.totalLikes || 0} total likes across ${(workerData.breakdown || []).length} comments`;
+      document.getElementById("likes").textContent = `${workerData.totalLikes || 0} total likes across ${(workerData.breakdown || []).length} comments`;
       document.getElementById("bar").style.width   = pct + "%";
 
       const lc = workerData.lastChange;
@@ -992,19 +599,14 @@
 
       const breakdown = Array.isArray(workerData.breakdown) ? workerData.breakdown : [];
       const box       = document.getElementById("breakdown-box");
-
       if (breakdown.length) {
         const isOpen = box.dataset.open !== "false";
-        const sorted = [...breakdown].sort((a, b) =>
-          b.likes !== a.likes ? b.likes - a.likes : b.hoursPerLike - a.hoursPerLike);
-
+        const sorted = [...breakdown].sort((a,b) => b.likes !== a.likes ? b.likes - a.likes : b.hoursPerLike - a.hoursPerLike);
         box.innerHTML = `
           <div class="section-label" onclick="toggleBreakdown()">
             <span id="breakdown-toggle" class="${isOpen ? "open" : ""}">▶</span>
             Like sources
-            <span class="info-icon">i
-              <span class="info-tooltip">Like any comment below — each like adds more study hours for me! 🙌</span>
-            </span>
+            <span class="info-icon">i<span class="info-tooltip">Like any comment below — each like adds more study hours for me! 🙌</span></span>
           </div>
           <div id="breakdown-list" style="display:${isOpen ? "block" : "none"}">
             ${sorted.map(b => `
@@ -1015,14 +617,12 @@
               </div>`).join("")}
           </div>`;
       } else {
-        box.innerHTML = `
-          <div class="section-label">Like sources</div>
-          <div class="session-item"><span>No comments loaded yet.</span></div>`;
+        box.innerHTML = `<div class="section-label">Like sources</div><div class="session-item"><span>No comments loaded yet.</span></div>`;
       }
 
       document.getElementById("sessions-label").textContent = "Recent sessions";
       document.getElementById("sessions-list").innerHTML = sessions.length
-        ? [...sessions].reverse().slice(0, 6).map(s => `
+        ? [...sessions].reverse().slice(0,6).map(s => `
             <div class="session-item">
               <span>📖 ${s.topic}</span>
               <span class="session-hrs">${formatHours(s.hours)} · ${s.date || ""}</span>
@@ -1058,11 +658,11 @@
         list.innerHTML = `<div class="session-item" style="color:#3a3a3a;font-size:0.82rem">No active tasks.</div>`;
         return;
       }
-      const now = new Date();
+      const todayISO = new Date().toISOString().slice(0, 10);
       list.innerHTML = tasks.map(t => {
-        const overdue = t.due && new Date(t.due) < now;
+        const overdue = t.dueDate && t.dueDate < todayISO;
         return `
-          <a class="todoist-item" href="${t.url}" target="_blank" rel="noopener noreferrer">
+          <div class="todoist-item">
             <div class="p-dot p-dot-${t.priority}"></div>
             <div class="todoist-text">
               <div class="todoist-content">${t.content.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>
@@ -1071,7 +671,7 @@
                 ${t.due ? `<span class="todoist-due ${overdue ? "overdue" : ""}">${t.due}</span>` : ""}
               </div>
             </div>
-          </a>`;
+          </div>`;
       }).join("");
     }
 
