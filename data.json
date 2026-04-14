@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 86.5,
+  "hoursCompleted": 90,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -150,6 +150,11 @@
       "date": "13 Apr 2026",
       "topic": "site development",
       "hours": 3
+    },
+    {
+      "date": "14 Apr 2026",
+      "topic": "JEE ADV Mock Test Paper 1",
+      "hours": 3.5
     }
   ]
 }
