@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 96,
+  "hoursCompleted": 98,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -160,6 +160,11 @@
       "date": "16 Apr 2026",
       "topic": "BITSAT Attempt 1",
       "hours": 6
+    },
+    {
+      "date": "17 Apr 2026",
+      "topic": "Review JEE Adv Mock test",
+      "hours": 2
     }
   ]
 }
