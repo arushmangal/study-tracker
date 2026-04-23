@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 108,
+  "hoursCompleted": 117,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -170,6 +170,26 @@
       "date": "18 Apr 2026",
       "topic": "Jee Advanced Mock Test",
       "hours": 10
+    },
+    {
+      "date": "23 Apr 2026",
+      "topic": "Part JEE ADVANCED test",
+      "hours": 3
+    },
+    {
+      "date": "23 Apr 2026",
+      "topic": "Probability, PNC, Binomial class",
+      "hours": 4
+    },
+    {
+      "date": "23 Apr 2026",
+      "topic": "Probability revisions",
+      "hours": 1
+    },
+    {
+      "date": "23 Apr 2026",
+      "topic": "Making a testimonial video for test series",
+      "hours": 1
     }
   ]
 }
