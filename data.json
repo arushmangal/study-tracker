@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 117,
+  "hoursCompleted": 118.5,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -190,6 +190,16 @@
       "date": "23 Apr 2026",
       "topic": "Making a testimonial video for test series",
       "hours": 1
+    },
+    {
+      "date": "24 Apr 2026",
+      "topic": "PnC PYQs",
+      "hours": 1
+    },
+    {
+      "date": "24 Apr 2026",
+      "topic": "Coordination Compounds PYQs",
+      "hours": 0.5
     }
   ]
 }
