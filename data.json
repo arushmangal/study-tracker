@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 118.5,
+  "hoursCompleted": 122.5,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -200,6 +200,11 @@
       "date": "24 Apr 2026",
       "topic": "Coordination Compounds PYQs",
       "hours": 0.5
+    },
+    {
+      "date": "25 Apr 2026",
+      "topic": "Analyze all tests",
+      "hours": 4
     }
   ]
 }
