@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 122.5,
+  "hoursCompleted": 129.5,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -205,6 +205,11 @@
       "date": "25 Apr 2026",
       "topic": "Analyze all tests",
       "hours": 4
+    },
+    {
+      "date": "29 Apr 2026",
+      "topic": "jee advanced mock test",
+      "hours": 7
     }
   ]
 }
