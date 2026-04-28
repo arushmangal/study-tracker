@@ -35,7 +35,6 @@
       text-align: center;
       padding: 32px;
     }
-
     .maint-icon { font-size: 2.8rem; animation: wrench-rock 2s ease-in-out infinite; }
     @keyframes wrench-rock {
       0%, 100% { transform: rotate(-15deg); }
@@ -90,13 +89,11 @@
       margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
       display: flex; justify-content: space-between; align-items: center; gap: 8px;
     }
-
     .session-item a {
       flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
       white-space: nowrap; color: #ccc; text-decoration: none;
     }
     .session-item a:hover { color: #fff; text-decoration: underline; }
-
     .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
     .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
 
@@ -115,6 +112,32 @@
     #clock-date { font-size: 0.8rem; color: #888; margin-top: 4px; }
     #clock-tag  { font-size: 0.8rem; color: #555; padding-top: 3px; text-align: right; }
     #sleep-note { font-size: 0.78rem; color: #ff4444; margin-top: 8px; }
+
+    /* ── Focus status ── */
+    #focus-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid #1c1c1c;
+    }
+    #focus-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #2a2a2a; flex-shrink: 0;
+      transition: background 0.5s ease, box-shadow 0.5s ease;
+    }
+    #focus-dot.active {
+      background: #44ff88;
+      box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.35);
+      animation: focus-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes focus-pulse {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.3); }
+      50%       { box-shadow: 0 0 0 5px rgba(68,255,136,0.08), 0 0 14px rgba(68,255,136,0.5); }
+    }
+    #focus-text {
+      font-size: 0.78rem; color: #444;
+      transition: color 0.4s ease;
+    }
+    #focus-text.active { color: #aaa; }
 
     /* ── Notices ── */
     #loading-disclaimer {
@@ -197,19 +220,16 @@
 
     /* ── Todoist Section ── */
     #todoist-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
-
     .todoist-item {
       background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
       margin-bottom: 6px; font-size: 0.88rem; color: #ccc;
       display: flex; align-items: flex-start; gap: 10px;
     }
-
     .p-dot       { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
     .p-dot-4     { background: #ff4444; }
     .p-dot-3     { background: #ff9944; }
     .p-dot-2     { background: #4499ff; }
     .p-dot-1     { background: #444;    }
-
     .todoist-text    { flex: 1; min-width: 0; }
     .todoist-content { color: #ccc; word-break: break-word; }
     .todoist-meta    { display: flex; gap: 8px; margin-top: 4px; font-size: 0.72rem; }
@@ -251,6 +271,11 @@
       <div id="clock-tag">— Time for me</div>
     </div>
     <div id="sleep-note"></div>
+    <!-- Focus status row — lives inside the clock card -->
+    <div id="focus-row">
+      <div id="focus-dot"></div>
+      <span id="focus-text">—</span>
+    </div>
   </div>
 
   <div id="loading-disclaimer">
@@ -642,7 +667,7 @@
 
     loadAndSchedule();
 
-    /* ── Todoist ── */
+    /* ── Todoist tasks ── */
     async function loadTodoistTasks() {
       try {
         const res  = await fetch(`${WORKER_URL}?action=getTodoistTasks`);
@@ -690,6 +715,52 @@
     syncTodoist();
     setInterval(loadTodoistTasks, 3 * 60 * 1000);
     setInterval(syncTodoist,      5 * 60 * 1000);
+
+    /* ── Focus status ── */
+    function formatElapsed(fromISO) {
+      const diffMs = Date.now() - new Date(fromISO).getTime();
+      const totalM = Math.floor(diffMs / 60000);
+      const h      = Math.floor(totalM / 60);
+      const m      = totalM % 60;
+      if (h > 0 && m > 0) return `${h}h ${m}m`;
+      if (h > 0)          return `${h}h`;
+      if (m > 0)          return `${m}m`;
+      return "just now";
+    }
+
+    function renderFocusState(data) {
+      const dot  = document.getElementById("focus-dot");
+      const text = document.getElementById("focus-text");
+      if (!dot || !text) return;
+      if (data.active) {
+        dot.classList.add("active");
+        text.classList.add("active");
+        const dur        = data.since ? formatElapsed(data.since) : "";
+        text.textContent = dur ? `Focusing · ${dur}` : "Focusing now";
+      } else {
+        dot.classList.remove("active");
+        text.classList.remove("active");
+        const ago        = data.lastSeen ? formatElapsed(data.lastSeen) : null;
+        text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
+      }
+    }
+
+    async function pollFocusState() {
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=getFocusState`);
+        const data = await res.json();
+        if (data.ok !== false) renderFocusState(data);
+      } catch(e) {}
+    }
+
+    pollFocusState();
+    // Re-poll every 60s for fresh state, and every 30s if active to keep elapsed timer live
+    setInterval(pollFocusState, 60 * 1000);
+    // Tick the elapsed timer locally every 30s without a network call
+    setInterval(() => {
+      const dot = document.getElementById("focus-dot");
+      if (dot && dot.classList.contains("active")) pollFocusState();
+    }, 30 * 1000);
   </script>
 </body>
 </html>
