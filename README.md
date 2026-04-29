@@ -1,151 +1,157 @@
 # 📚 Arush's Study Tracker
 
-A live accountability page that turns YouTube likes into study hours made for personal use as a passion project. Every time someone likes one of my comments on a study-with-me video, hours get added to my queue — and I have to sit down and clear them.
+A personal, public-facing study accountability tracker — built from scratch with vanilla HTML, CSS, and JavaScript. Deployed as a static page. No frameworks, no build tools.
 
-**Live → [arushmangal.github.io/study-tracker](https://arushmangal.github.io/study-tracker)**
-
-***
-
-## Why this exists
-
-I struggle with binge-watching and wasting time on YouTube. This tracker flips that habit: I post comments on study-with-me videos I actually use, and each like on those comments adds real study hours to my schedule. Strangers on the internet become my accountability partners — without them having to do anything except click a button they were going to click anyway.
+**Live site:** [mangalarush.github.io/study-tracker](https://mangalarush.github.io/study-tracker) *(or wherever you host it)*
 
 ***
 
-## How it works
+## What It Does
 
-```
-YouTube likes
-     │
-     ▼
-Cloudflare Worker  ──── YouTube Data API v3 ────► fetches live like counts
-     │                                             for each tracked comment
-     │  stores counts in KV, detects new likes
-     ▼
-raw.githubusercontent.com/data.json   ◄──── I log sessions via a hidden
-     │                                       admin panel (Shift + A + D)
-     ▼
-index.html  (GitHub Pages)
-  ├── hours owed  =  Σ(likes × hoursPerLike)  across all tracked comments
-  ├── hours done  =  hoursCompleted in data.json
-  ├── remaining   =  owed − done
-  ├── progress bar
-  ├── study heatmap (last 90 days)
-  ├── today / this-week stats
-  ├── like-sources breakdown
-  └── recent sessions log
-```
+The tracker answers one question at a glance: **how many hours are left to study?**
+
+Hours are *earned* by collecting likes on YouTube comments. Every like on a tracked comment adds a fixed number of hours to the obligation. Hours are *completed* by logging Todoist study tasks. The gap between owed and done is the remaining debt displayed in big red numbers at the top.
+
+This creates a public accountability loop — anyone who likes a comment is directly contributing to the study goal.
 
 ***
 
-## Stack
+## Features
 
-| Layer | Technology | Why |
-|---|---|---|
-| Frontend | Vanilla HTML / CSS / JS | No build step, zero dependencies, works anywhere |
-| Data store | `data.json` in this repo | Free, version-controlled, no database needed |
-| Like counter | Cloudflare Worker + KV | Edge-cached, detects new likes, holds API key securely |
-| Like source | YouTube Data API v3 | Real-time `likeCount` per comment |
-| Hosting | GitHub Pages | Free static hosting, deploys on every push |
+### Core Stats
+- **Hours remaining** — owed minus completed, shown prominently
+- **Progress bar** — visual fill from 0 → 100% as hours are completed
+- **Hours owed / hours done** — side-by-side breakdown
+
+### Clock & Status
+- Live IST clock with date display
+- **Sleep detection** — between 12 AM and 8 AM, if no active focus session is running, the clock card shows a sleeping notice. If a focus session *is* active during those hours (all-nighter mode), it switches to an encouraging message instead
+- **Focus dot** — a live green pulsing indicator when a focus session is active, with elapsed time; shows "last seen X ago" when on a break
+
+### Study Insights
+- **Today's hours** with day-of-year counter
+- **This week's hours** with ISO week number
+- **90-day study heatmap** — GitHub-style grid, hoverable, colour-coded by intensity; only shows days from the deploy date onwards
+
+### Todoist Integration
+- **Active tasks panel** — pulls your current Todoist inbox tasks with priority colour coding and due dates (overdue tasks highlighted red)
+- **Auto-sync completed tasks** — periodically calls the worker to check for newly completed Todoist study tasks and writes them to the session log automatically; no manual entry needed
+
+### Like Sources
+- Collapsible breakdown of every tracked YouTube comment
+- Shows per-comment like count, hours earned, and a `+Xh` badge linking directly to the comment so visitors can like it
+
+### Recent Sessions
+- Last 6 logged study sessions with topic and duration
+
+### Maintenance Mode
+- Uncomment a single `<script>` block in `index.html` to display a full-screen maintenance overlay with an animated message; no visible content underneath
 
 ***
 
-## Repo structure
+## How the Date Logging Works
+
+When a Todoist task is synced as a completed session, the date used for the study log follows this priority:
+
+1. **Assigned due date on the task** (most relevant — this is when the work was *meant to happen*)
+2. **Completion timestamp** (fallback — used only if no due date is set)
+
+This means if you complete a task on Wednesday that was due Monday, it logs under Monday.
+
+***
+
+## Architecture
 
 ```
-study-tracker/
-├── index.html      ← entire frontend (single file, no build)
-├── data.json       ← session log, updated by me
-└── README.md
+Browser (index.html)
+    │
+    ├── GitHub Raw (data.json)          — completed hours & session log
+    │
+    └── Cloudflare Worker               — all live data + API actions
+            ├── GET /                   — like counts, hours owed, last change, cache timestamp
+            ├── ?action=getFocusState   — current focus session state
+            ├── ?action=getTodoistTasks — active Todoist tasks
+            └── ?action=syncTodoistCompleted — pull & write completed tasks → data.json
 ```
 
-### `data.json` shape
-
+### `data.json` (GitHub)
+Stores the completed side of the tracker:
 ```json
 {
-  "hoursCompleted": 14.5,
+  "hoursCompleted": 86.5,
   "sessions": [
-    {
-      "date": "01 Apr 2026",
-      "topic": "Electrostatics — Gauss's Law",
-      "hours": 2.5
-    }
+    { "topic": "Maths — Limits", "hours": 2, "date": "28 Apr 2026", "loggedAt": "2026-04-28T14:00:00Z" }
   ]
 }
 ```
 
-***
+### Cloudflare Worker
+Handles everything that needs a secret (YouTube API key, Todoist token, GitHub PAT for writing `data.json`). The browser never touches any credential directly.
 
-## Cloudflare Worker
-
-Hosted at `study-tracker-likes.mangalarush.workers.dev`. On every request it:
-
-1. Calls the YouTube Data API for the live `likeCount` on each tracked comment
-2. Compares against previous counts stored in KV and records any new likes
-3. Returns a JSON payload — `totalLikes`, `totalHours`, a per-comment `breakdown`, and `lastChange` metadata
-
-The worker is the **only** component that touches an API key. The frontend is entirely read-only and makes no authenticated requests.
+### Caching
+Worker responses are cached for **5 minutes**. A live countdown in the UI shows time until the next refresh. The countdown turns orange under 60 seconds and green when a re-fetch is imminent.
 
 ***
 
-## Tracked comments
+## Refresh Intervals
 
-Each comment has a `hoursPerLike` rate. Longer, harder videos I need more motivation to sit through get higher rates.
-
-| Video | Channel | Rate |
-|---|---|---|
-| Shut out the world For next 8 hours | messydeskhours | **8h / like** |
-| 4 a.m. 4 hours of deep work | james vinh scholz | **4h / like** |
-| 4 Hours of Asian Mum to Help You Focus | TwoSetViolin | **4h / like** |
-| 4 Hours of German WW2 Officer | Radical Living | **4h / like** |
-| 3 Hours Study With Me | iCanStudy | **3h / like** |
-| 3-HR STUDY WITH ME | tani study | **3h / like** |
-| 2 Hours of German WW2 Officer | Radical Living | **2h / like** |
-| 2 Hours of Soviet WW2 Officer | The Focus Warden | **2h / like** |
-| You Are Solving the Unsolvable \| Oppenheimer Soundtrack | Cinematic Focus | **1h / like** |
-| German Soldier Helps You Study | The Focus Warden | **1h / like** |
-| SUITS — You are proving everyone wrong | MUNDI OPUS | **1h / like** |
-| Sitar For Brain Fog | Shanti Instrumentals | **1h / like** |
-| 1 Hour of Asian Mum Cooking | TwoSetViolin | **1h / like** |
+| Data | Interval |
+|---|---|
+| Hours owed / like counts | 5 min (worker cache TTL) |
+| Active Todoist tasks | 3 min |
+| Todoist completed sync | 5 min |
+| Focus state | 60 sec (30 sec while active) |
+| Clock | 1 sec |
 
 ***
 
-## Logging a session
+## Local Development
 
-Sessions are logged via a hidden admin panel — press **Shift + A + D** on the live page. It commits directly to `data.json` via the GitHub API using a personal access token stored only in my browser's `localStorage`. No credentials are ever shipped in the code.
+No build step needed. Open `index.html` directly in a browser or serve it with any static server:
 
-After logging, GitHub Pages redeploys in seconds and the progress bar updates.
+```bash
+npx serve .
+# or
+python3 -m http.server 8080
+```
+
+The page will load but live data (likes, focus state, Todoist) requires the Cloudflare Worker to be running.
 
 ***
 
-## Maintenance mode
+## Enabling Maintenance Mode
 
-When the page needs an update, I wrap a one-line script block in HTML comments at the top of `index.html`. Visitors see a 🔧 overlay instead of broken data.
-
-To **activate**: remove the `<!--` and `-->` around the block in `index.html`.  
-To **deactivate**: put them back.
+In `index.html`, uncomment the block near the top:
 
 ```html
-<!--
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("maintenance-screen").style.display = "flex";
     document.body.style.overflow = "hidden";
   });
 </script>
--->
 ```
+
+Re-comment it to restore the live page.
 
 ***
 
-## Local development
+## Stack
 
-No build tools needed. Just open `index.html` in a browser — it loads live data from the Cloudflare Worker and GitHub as normal.
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla HTML · CSS · JavaScript |
+| Hosting | GitHub Pages |
+| Worker / API | Cloudflare Workers |
+| Session data | GitHub (raw `data.json` via PAT) |
+| Task tracking | Todoist REST API |
+| Like tracking | YouTube Data API v3 |
+| Timezone | All times in IST (Asia/Kolkata) |
 
-```bash
-git clone https://github.com/arushmangal/study-tracker.git
-cd study-tracker
-open index.html
-```
+***
+
+## Motivation
+
+Built to stay honest. The study hours aren't self-reported — they're driven by real Todoist completions and a public like-count anyone can verify. The sleep/focus status makes the accountability live: visitors can see in real time whether work is actually happening.
 
 ***
