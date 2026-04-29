@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 133.65,
+  "hoursCompleted": 135.65,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -233,6 +233,12 @@
       "date": "29 Apr 2026",
       "topic": "revise solid state",
       "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "29 Apr 2026",
+      "topic": "Complete solid state theory",
+      "hours": 2,
       "labels": []
     }
   ]
