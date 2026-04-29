@@ -21,7 +21,6 @@
       gap: 10px;
     }
 
-    /* ── Maintenance overlay ── */
     #maintenance-screen {
       display: none;
       position: fixed;
@@ -58,7 +57,6 @@
       padding: 8px 18px; font-size: 0.78rem; color: #666;
     }
 
-    /* ── Core layout ── */
     .big   { font-weight: bold; }
     .red   { color: #ff4444; }
     .green { color: #44ff88; }
@@ -111,7 +109,7 @@
     #clock-time { font-size: 1.35rem; font-weight: bold; color: #ddd; letter-spacing: 1px; line-height: 1.1; }
     #clock-date { font-size: 0.8rem; color: #888; margin-top: 4px; }
     #clock-tag  { font-size: 0.8rem; color: #555; padding-top: 3px; text-align: right; }
-    #sleep-note { font-size: 0.78rem; color: #ff4444; margin-top: 8px; }
+    #sleep-note { font-size: 0.78rem; margin-top: 8px; min-height: 1em; transition: opacity 0.5s ease; }
 
     /* ── Focus status ── */
     #focus-row {
@@ -133,13 +131,9 @@
       0%, 100% { box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.3); }
       50%       { box-shadow: 0 0 0 5px rgba(68,255,136,0.08), 0 0 14px rgba(68,255,136,0.5); }
     }
-    #focus-text {
-      font-size: 0.78rem; color: #444;
-      transition: color 0.4s ease;
-    }
+    #focus-text { font-size: 0.78rem; color: #444; transition: color 0.4s ease; }
     #focus-text.active { color: #aaa; }
 
-    /* ── Notices ── */
     #loading-disclaimer {
       width: 340px; background: #1a1200; border: 1px solid #ffc107;
       border-radius: 8px; padding: 12px 16px; font-size: 0.85rem;
@@ -151,7 +145,6 @@
       color: #81c784; text-align: center; line-height: 1.5;
     }
 
-    /* ── Breakdown toggle ── */
     #breakdown-box .section-label { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
     #breakdown-box .section-label:hover { color: #aaa; }
     #breakdown-toggle { font-size: 0.75rem; color: #555; transition: transform 0.2s ease; }
@@ -179,7 +172,6 @@
     }
     .like-badge:hover { background: #44ff88; border-color: #44ff88; color: #000; }
 
-    /* ── Study Insights ── */
     #study-insights { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
     .mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
     .mini-card  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
@@ -187,7 +179,6 @@
     .mini-number { font-size: 1.5rem; font-weight: bold; color: #44ff88; line-height: 1.1; }
     .mini-meta   { color: #555; font-size: 0.72rem; margin-top: 6px; line-height: 1.5; }
 
-    /* ── Heatmap ── */
     .heatmap-wrap  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
     .heatmap-head  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
     .heatmap-title { color: #aaa; font-size: 0.78rem; font-weight: 600; }
@@ -209,7 +200,6 @@
     .legend-boxes { display: flex; align-items: center; gap: 3px; }
     .legend-box   { width: 11px; height: 11px; border-radius: 2px; }
 
-    /* ── Heatmap tooltip ── */
     #heat-tooltip {
       display: none; position: fixed; background: #0a0a0a; border: 1px solid #2a2a2a;
       border-radius: 8px; padding: 8px 13px; pointer-events: none; z-index: 1000;
@@ -218,7 +208,6 @@
     #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
     #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
 
-    /* ── Todoist Section ── */
     #todoist-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
     .todoist-item {
       background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
@@ -271,7 +260,6 @@
       <div id="clock-tag">— Time for me</div>
     </div>
     <div id="sleep-note"></div>
-    <!-- Focus status row — lives inside the clock card -->
     <div id="focus-row">
       <div id="focus-dot"></div>
       <span id="focus-text">—</span>
@@ -371,6 +359,13 @@
     const GH_BRANCH    = "main";
     const CACHE_TTL_MS = 5 * 60 * 1000;
 
+    // Global focus state — set once focus is polled, used by updateClock
+    window._focusActive   = false;
+    // Once we know focus state for the night, lock the sleep notice decision
+    // until next morning so it doesn't flicker on break → sleep → break
+    window._nightDecided  = false;  // true once we've committed to "sleeping" for this night
+    window._lastNightHour = null;   // tracks which night session we decided for
+
     function rawDataURL() {
       return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json?t=${Date.now()}`;
     }
@@ -399,6 +394,49 @@
       return d.toLocaleDateString("en-IN", { day:"2-digit", month:"short", year:"numeric" });
     }
 
+    function updateSleepNote(h) {
+      const el = document.getElementById("sleep-note");
+      if (!el) return;
+
+      const isNightHours = h >= 0 && h < 8;
+
+      if (!isNightHours) {
+        // Daytime — clear everything and reset night state
+        el.textContent      = "";
+        el.style.color      = "";
+        window._nightDecided  = false;
+        window._lastNightHour = null;
+        return;
+      }
+
+      // It's night (12 AM – 8 AM).
+      // Key: which "night slot" are we in? Use date+hour bucket so reset happens each new night.
+      const ist      = getIST();
+      const nightKey = `${formatKey(ist)}-${h}`;
+
+      // If focus just came ON after we decided "sleeping" for this night, reset the decision
+      // so the all-nighter message can show immediately.
+      if (window._focusActive && window._nightDecided) {
+        window._nightDecided  = false;
+        window._lastNightHour = null;
+      }
+
+      if (window._focusActive) {
+        // They're actively focusing — all-nighter mode, suppress sleep notice
+        el.textContent = "🌙 All-nighter mode — go get it!";
+        el.style.color = "#44aa66";
+      } else {
+        // Not focusing during night hours.
+        // Commit to "sleeping" for this night only if we haven't already decided otherwise.
+        if (!window._nightDecided) {
+          window._nightDecided  = true;
+          window._lastNightHour = nightKey;
+        }
+        el.textContent = "😴 Prolly sleeping — no updates 12 AM to 8 AM!";
+        el.style.color = "#ff4444";
+      }
+    }
+
     function updateClock() {
       const ist  = getIST();
       const h    = ist.getHours();
@@ -406,7 +444,7 @@
       const ampm = h >= 12 ? "PM" : "AM";
       document.getElementById("clock-time").textContent = `${((h%12)||12)}:${mins} ${ampm}`;
       document.getElementById("clock-date").textContent = ist.toLocaleDateString("en-IN", { weekday:"short", day:"2-digit", month:"short", year:"numeric" });
-      document.getElementById("sleep-note").textContent = h < 8 ? "😴 I'm prolly sleeping rn — no updates from 12 AM to 8 AM!" : "";
+      updateSleepNote(h);
     }
     updateClock();
     setInterval(updateClock, 1000);
@@ -732,6 +770,10 @@
       const dot  = document.getElementById("focus-dot");
       const text = document.getElementById("focus-text");
       if (!dot || !text) return;
+
+      // Update global so updateSleepNote can read it immediately
+      window._focusActive = !!data.active;
+
       if (data.active) {
         dot.classList.add("active");
         text.classList.add("active");
@@ -743,6 +785,9 @@
         const ago        = data.lastSeen ? formatElapsed(data.lastSeen) : null;
         text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
       }
+
+      // Immediately re-evaluate sleep note with updated focus state
+      updateSleepNote(getIST().getHours());
     }
 
     async function pollFocusState() {
@@ -754,12 +799,10 @@
     }
 
     pollFocusState();
-    // Re-poll every 60s for fresh state, and every 30s if active to keep elapsed timer live
     setInterval(pollFocusState, 60 * 1000);
-    // Tick the elapsed timer locally every 30s without a network call
+    // Keep elapsed timer live when focusing without extra network calls
     setInterval(() => {
-      const dot = document.getElementById("focus-dot");
-      if (dot && dot.classList.contains("active")) pollFocusState();
+      if (window._focusActive) pollFocusState();
     }, 30 * 1000);
   </script>
 </body>
