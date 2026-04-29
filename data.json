@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 133.15,
+  "hoursCompleted": 133.65,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -227,6 +227,12 @@
       "date": "29 Apr 2026",
       "topic": "Solid State PYQs",
       "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "29 Apr 2026",
+      "topic": "revise solid state",
+      "hours": 0.5,
       "labels": []
     }
   ]
