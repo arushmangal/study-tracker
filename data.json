@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 135.98,
+  "hoursCompleted": 138.98,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -245,6 +245,18 @@
       "date": "30 Apr 2026",
       "topic": "Quizrr Scholarship",
       "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "30 Apr 2026",
+      "topic": "Organic Revisions",
+      "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "30 Apr 2026",
+      "topic": "Scaler Admission form work",
+      "hours": 2,
       "labels": []
     }
   ]
