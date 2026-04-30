@@ -139,21 +139,6 @@ A collapsible panel showing each tracked YouTube comment with its like count, to
 
 ---
 
-## Engineering Decisions
-
-| Problem | Decision |
-|---|---|
-| YouTube API daily quota is limited | Cache all 18 comment fetches in KV for 5 min; serve stale on quota error rather than failing |
-| Concurrent sync requests could corrupt `data.json` | Distributed lock in KV with 60s auto-expiry TTL |
-| Re-running sync could double-count sessions | Processed task IDs persisted in KV (capped at 1000 to prevent bloat); filtered before any write |
-| Todoist returns paginated results | Full cursor-pagination loop on all endpoints — active tasks, completed tasks, task comments |
-| YouTube occasionally returns stale (lower) counts | Monotonic storage: `Math.max(apiCount, storedCount)` — counts never decrease |
-| Browser timezone varies by visitor | All date logic uses `toLocaleString("en-US", { timeZone: "Asia/Kolkata" })` — IST everywhere |
-| GitHub CDN aggressively caches `data.json` | Cache-busted with `?t=Date.now()` on every fetch |
-| Focus state shouldn't flicker during all-nighter breaks | `_nightDecided` flag committed once per night; only overridden when focus actively turns on |
-
----
-
 ## Cloudflare KV Namespace
 
 | Key | Stored value |
