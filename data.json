@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 135.65,
+  "hoursCompleted": 135.98,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -239,6 +239,12 @@
       "date": "29 Apr 2026",
       "topic": "Complete solid state theory",
       "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "30 Apr 2026",
+      "topic": "Quizrr Scholarship",
+      "hours": 0.33,
       "labels": []
     }
   ]
