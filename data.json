@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 142.5,
+  "hoursCompleted": 142.83,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -297,8 +297,14 @@
     },
     {
       "date": "7 May 2026",
-      "topic": "⏳ Focus: Revise OCOC-1",
+      "topic": "â³ Focus: Revise OCOC-1",
       "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "7 May 2026",
+      "topic": "OCOC-1 Revision",
+      "hours": 0.33,
       "labels": []
     }
   ]
