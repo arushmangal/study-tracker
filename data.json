@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 141.42,
+  "hoursCompleted": 142.5,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -287,6 +287,18 @@
       "date": "6 May 2026",
       "topic": "Revise HCOC",
       "hours": 0.25,
+      "labels": []
+    },
+    {
+      "date": "7 May 2026",
+      "topic": "OCOC1 Revisions",
+      "hours": 0.58,
+      "labels": []
+    },
+    {
+      "date": "7 May 2026",
+      "topic": "⏳ Focus: Revise OCOC-1",
+      "hours": 0.5,
       "labels": []
     }
   ]
