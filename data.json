@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 142.83,
+  "hoursCompleted": 144.44,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -297,7 +297,7 @@
     },
     {
       "date": "7 May 2026",
-      "topic": "â³ Focus: Revise OCOC-1",
+      "topic": "Ã¢ÂÂ³ Focus: Revise OCOC-1",
       "hours": 0.5,
       "labels": []
     },
@@ -305,6 +305,24 @@
       "date": "7 May 2026",
       "topic": "OCOC-1 Revision",
       "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "8 May 2026",
+      "topic": "Revisions",
+      "hours": 0.67,
+      "labels": []
+    },
+    {
+      "date": "8 May 2026",
+      "topic": "Anki",
+      "hours": 0.69,
+      "labels": []
+    },
+    {
+      "date": "8 May 2026",
+      "topic": "Anki Revisions",
+      "hours": 0.25,
       "labels": []
     }
   ]
