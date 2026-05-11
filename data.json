@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 153,
+  "hoursCompleted": 153.75,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -297,7 +297,7 @@
     },
     {
       "date": "7 May 2026",
-      "topic": "ÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ³ Focus: Revise OCOC-1",
+      "topic": "ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ¢ÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂÃÂ³ Focus: Revise OCOC-1",
       "hours": 0.5,
       "labels": []
     },
@@ -341,6 +341,12 @@
       "date": "11 May 2026",
       "topic": "JEE ADV Mock Test",
       "hours": 8,
+      "labels": []
+    },
+    {
+      "date": "11 May 2026",
+      "topic": "AC Circuits Revision",
+      "hours": 0.75,
       "labels": []
     }
   ]
