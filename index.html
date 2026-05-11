@@ -103,7 +103,6 @@
     }
     #update-countdown { font-variant-numeric: tabular-nums; font-weight: 700; transition: color 0.3s ease; }
 
-    /* ── Clock ── */
     #clock-box { width: 340px; background: #111; border: 1px solid #222; border-radius: 10px; padding: 12px 16px; }
     .clock-row { display: flex; justify-content: space-between; align-items: flex-start; }
     #clock-time { font-size: 1.35rem; font-weight: bold; color: #ddd; letter-spacing: 1px; line-height: 1.1; }
@@ -111,7 +110,6 @@
     #clock-tag  { font-size: 0.8rem; color: #555; padding-top: 3px; text-align: right; }
     #sleep-note { font-size: 0.78rem; margin-top: 8px; min-height: 1em; transition: opacity 0.5s ease; }
 
-    /* ── Focus status ── */
     #focus-row {
       display: flex; align-items: center; gap: 8px;
       margin-top: 10px; padding-top: 10px;
@@ -208,7 +206,6 @@
     #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
     #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
 
-    /* ── Hours graph ── */
     #hours-graph-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
     #hours-graph-card    { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
     #hours-graph-meta    { color: #333; font-size: 0.68rem; margin-top: 8px; text-align: right; }
@@ -344,11 +341,10 @@
     </div>
   </div>
 
-  <!-- ── Hours-owed graph ── -->
   <div id="hours-graph-section">
-    <div class="section-label">Hours owed over time</div>
+    <div class="section-label">Hours remaining over time</div>
     <div id="hours-graph-card">
-      <canvas id="hours-graph" width="316" height="140" style="width:100%;height:140px;display:block;"></canvas>
+      <canvas id="hours-graph" width="316" height="160" style="width:100%;height:160px;display:block;"></canvas>
       <div id="hours-graph-meta"></div>
     </div>
   </div>
@@ -618,24 +614,49 @@
       }
     }
 
-    /* ── Hours-owed line graph ─────────────────────────────────────────── */
-    async function loadAndRenderHoursGraph() {
+    /* ── Hours-remaining graph ─────────────────────────────────────────── */
+    async function loadAndRenderHoursGraph(_sessions) {
+      // _sessions arg ignored — we fetch the dedicated remaining-history endpoint
       try {
-        const res  = await fetch(`${WORKER_URL}?action=getHoursHistory`);
+        const res  = await fetch(`${WORKER_URL}?action=getRemainingHistory`);
         const data = await res.json();
-        if (!data.ok || !data.history || data.history.length < 2) return;
-        renderHoursGraph(data.history);
-      } catch(e) {}
+        if (!data.ok || !data.history || data.history.length < 2) {
+          // Fallback: build from current owed/done if history too short
+          renderRemainingGraphFallback();
+          return;
+        }
+        renderRemainingGraph(data.history);
+      } catch(e) {
+        renderRemainingGraphFallback();
+      }
     }
 
-    function renderHoursGraph(history) {
+    function renderRemainingGraphFallback() {
+      const canvas = document.getElementById("hours-graph");
+      const meta   = document.getElementById("hours-graph-meta");
+      if (!canvas) return;
+      const dpr = window.devicePixelRatio || 1;
+      const W = canvas.offsetWidth || 316, H = canvas.offsetHeight || 160;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + "px"; canvas.style.height = H + "px";
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#2a2a2a";
+      ctx.font = "11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Graph builds up as time passes — check back soon!", W / 2, H / 2);
+      if (meta) meta.textContent = "";
+    }
+
+    function renderRemainingGraph(history) {
       const canvas = document.getElementById("hours-graph");
       const meta   = document.getElementById("hours-graph-meta");
       if (!canvas) return;
 
       const dpr = window.devicePixelRatio || 1;
       const W   = canvas.offsetWidth  || 316;
-      const H   = canvas.offsetHeight || 140;
+      const H   = canvas.offsetHeight || 160;
       canvas.width  = W * dpr;
       canvas.height = H * dpr;
       canvas.style.width  = W + "px";
@@ -643,21 +664,24 @@
 
       const ctx = canvas.getContext("2d");
       ctx.scale(dpr, dpr);
+      ctx.clearRect(0, 0, W, H);
 
-      const PAD   = { top: 12, right: 8, bottom: 24, left: 44 };
+      const PAD   = { top: 14, right: 10, bottom: 28, left: 44 };
       const gW    = W - PAD.left - PAD.right;
       const gH    = H - PAD.top  - PAD.bottom;
-      const vals  = history.map(p => p.h);
-      const times = history.map(p => p.t);
-      const minV  = Math.floor(Math.min(...vals) * 0.97);
-      const maxV  = Math.ceil (Math.max(...vals) * 1.03);
-      const minT  = times[0];
-      const maxT  = times[times.length - 1];
+
+      const times     = history.map(p => p.t);
+      const owedVals  = history.map(p => p.owed      || 0);
+      const doneVals  = history.map(p => p.done      || 0);
+      const remVals   = history.map(p => p.remaining || 0);
+
+      const minT = times[0], maxT = times[times.length - 1];
+      const allVals = [...owedVals, ...remVals];
+      const minV = 0;
+      const maxV = Math.ceil(Math.max(...allVals) * 1.08) || 1;
 
       function xOf(t) { return PAD.left + ((t - minT) / (maxT - minT || 1)) * gW; }
       function yOf(v) { return PAD.top  + (1 - (v - minV) / (maxV - minV || 1)) * gH; }
-
-      ctx.clearRect(0, 0, W, H);
 
       // Grid lines
       ctx.strokeStyle = "#1e1e1e";
@@ -665,74 +689,130 @@
       for (let i = 0; i <= 3; i++) {
         const y = PAD.top + (i / 3) * gH;
         ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + gW, y); ctx.stroke();
-        const labelVal = Math.round(maxV - (i / 3) * (maxV - minV));
+        const lv = Math.round(maxV - (i / 3) * maxV);
         ctx.fillStyle  = "#333";
         ctx.font       = "10px sans-serif";
         ctx.textAlign  = "right";
-        ctx.fillText(labelVal + "h", PAD.left - 6, y + 4);
+        ctx.fillText(lv + "h", PAD.left - 6, y + 4);
       }
 
-      // Gradient fill
-      const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
-      grad.addColorStop(0, "rgba(68,255,136,0.18)");
-      grad.addColorStop(1, "rgba(68,255,136,0)");
+      // Shaded band: owed line on top, done on bottom — shows the "debt gap"
+      const gradBand = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
+      gradBand.addColorStop(0, "rgba(255,68,68,0.08)");
+      gradBand.addColorStop(1, "rgba(255,68,68,0.02)");
       ctx.beginPath();
-      ctx.moveTo(xOf(times[0]), yOf(vals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(vals[i]));
+      ctx.moveTo(xOf(times[0]), yOf(owedVals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(owedVals[i]));
+      for (let i = history.length - 1; i >= 0; i--) ctx.lineTo(xOf(times[i]), yOf(doneVals[i]));
+      ctx.closePath();
+      ctx.fillStyle = gradBand;
+      ctx.fill();
+
+      // Hours owed line (red, dashed)
+      ctx.beginPath();
+      ctx.setLineDash([4, 3]);
+      ctx.moveTo(xOf(times[0]), yOf(owedVals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(owedVals[i]));
+      ctx.strokeStyle = "#ff4444";
+      ctx.lineWidth   = 1.2;
+      ctx.lineJoin    = "round";
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Hours done line (green, dashed)
+      ctx.beginPath();
+      ctx.setLineDash([4, 3]);
+      ctx.moveTo(xOf(times[0]), yOf(doneVals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(doneVals[i]));
+      ctx.strokeStyle = "#44ff88";
+      ctx.lineWidth   = 1.2;
+      ctx.lineJoin    = "round";
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Hours REMAINING line (bold green) with gradient fill
+      const gradRem = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
+      gradRem.addColorStop(0, "rgba(68,255,136,0.22)");
+      gradRem.addColorStop(1, "rgba(68,255,136,0)");
+      ctx.beginPath();
+      ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
       ctx.lineTo(xOf(times[times.length - 1]), PAD.top + gH);
       ctx.lineTo(xOf(times[0]),                PAD.top + gH);
       ctx.closePath();
-      ctx.fillStyle = grad;
+      ctx.fillStyle = gradRem;
       ctx.fill();
 
-      // Line
       ctx.beginPath();
-      ctx.moveTo(xOf(times[0]), yOf(vals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(vals[i]));
+      ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
       ctx.strokeStyle = "#44ff88";
-      ctx.lineWidth   = 1.8;
+      ctx.lineWidth   = 2;
       ctx.lineJoin    = "round";
       ctx.stroke();
 
-      // Latest point dot
+      // Latest dot
       const lx = xOf(times[times.length - 1]);
-      const ly = yOf(vals[vals.length - 1]);
+      const ly = yOf(remVals[remVals.length - 1]);
       ctx.beginPath();
-      ctx.arc(lx, ly, 3.5, 0, Math.PI * 2);
+      ctx.arc(lx, ly, 4, 0, Math.PI * 2);
       ctx.fillStyle = "#44ff88";
       ctx.fill();
 
-      // X-axis date labels
+      // Legend
+      ctx.font       = "9px sans-serif";
+      ctx.textAlign  = "left";
+      const ly2 = PAD.top - 2;
+      ctx.strokeStyle = "#ff4444"; ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(PAD.left, ly2); ctx.lineTo(PAD.left + 14, ly2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#ff4444"; ctx.fillText("owed", PAD.left + 17, ly2 + 3);
+
+      ctx.strokeStyle = "#44ff88"; ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath(); ctx.moveTo(PAD.left + 52, ly2); ctx.lineTo(PAD.left + 66, ly2); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#44ff88"; ctx.fillText("done", PAD.left + 69, ly2 + 3);
+
+      ctx.strokeStyle = "#44ff88"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(PAD.left + 104, ly2); ctx.lineTo(PAD.left + 118, ly2); ctx.stroke();
+      ctx.fillStyle = "#aaa"; ctx.fillText("remaining", PAD.left + 121, ly2 + 3);
+
+      // X-axis labels
       ctx.fillStyle = "#333";
       ctx.font      = "9px sans-serif";
       ctx.textAlign = "left";
-      ctx.fillText(niceDate(new Date(minT)), PAD.left, H - 4);
+      ctx.fillText(niceDate(new Date(minT)), PAD.left, H - 6);
       ctx.textAlign = "right";
-      ctx.fillText(niceDate(new Date(maxT)), PAD.left + gW, H - 4);
+      ctx.fillText(niceDate(new Date(maxT)), PAD.left + gW, H - 6);
 
-      // Hover tooltip — reuses existing heatTip element
+      // Hover
       canvas.onmousemove = function(e) {
-        const rect    = canvas.getBoundingClientRect();
-        const mx      = e.clientX - rect.left;
-        let closest   = 0, minDist = Infinity;
+        const rect  = canvas.getBoundingClientRect();
+        const mx    = e.clientX - rect.left;
+        let closest = 0, minDist = Infinity;
         for (let i = 0; i < history.length; i++) {
           const dist = Math.abs(xOf(times[i]) - mx);
           if (dist < minDist) { minDist = dist; closest = i; }
         }
         const p = history[closest];
         heatTipDate.textContent  = niceDate(new Date(p.t));
-        heatTipHours.textContent = formatHours(p.h) + " owed";
+        heatTipHours.textContent = `${formatHours(p.remaining)} remaining`;
         heatTip.style.display    = "block";
         positionTip(e);
       };
       canvas.onmouseout = () => { heatTip.style.display = "none"; };
 
       if (meta) {
-        const days = Math.round((maxT - minT) / 86400000);
-        meta.textContent = `${history.length} data point${history.length !== 1 ? "s" : ""} · ${days} day${days !== 1 ? "s" : ""} of history`;
+        const days  = Math.round((maxT - minT) / 86400000) || 1;
+        const start = history[0].remaining;
+        const end   = history[history.length - 1].remaining;
+        const delta = end - start;
+        const sign  = delta > 0 ? "+" : "";
+        meta.textContent = `${history.length} snapshots · ${days}d · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ more debt" : "↓ cleared"}`;
       }
     }
-    /* ── end graph ─────────────────────────────────────────────────────── */
 
     async function loadData() {
       let workerData     = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
@@ -806,7 +886,7 @@
         : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
 
       dismissDisclaimer();
-      loadAndRenderHoursGraph();
+      loadAndRenderHoursGraph(sessions);
     }
 
     async function loadAndSchedule() {
@@ -819,7 +899,6 @@
 
     loadAndSchedule();
 
-    /* ── Todoist tasks ── */
     async function loadTodoistTasks() {
       try {
         const res  = await fetch(`${WORKER_URL}?action=getTodoistTasks`);
@@ -868,7 +947,6 @@
     setInterval(loadTodoistTasks, 3 * 60 * 1000);
     setInterval(syncTodoist,      5 * 60 * 1000);
 
-    /* ── Focus status ── */
     function formatElapsed(fromISO) {
       const diffMs = Date.now() - new Date(fromISO).getTime();
       const totalM = Math.floor(diffMs / 60000);
