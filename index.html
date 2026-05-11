@@ -208,6 +208,11 @@
     #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
     #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
 
+    /* ── Hours graph ── */
+    #hours-graph-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
+    #hours-graph-card    { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
+    #hours-graph-meta    { color: #333; font-size: 0.68rem; margin-top: 8px; text-align: right; }
+
     #todoist-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
     .todoist-item {
       background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
@@ -339,6 +344,15 @@
     </div>
   </div>
 
+  <!-- ── Hours-owed graph ── -->
+  <div id="hours-graph-section">
+    <div class="section-label">Hours owed over time</div>
+    <div id="hours-graph-card">
+      <canvas id="hours-graph" width="316" height="140" style="width:100%;height:140px;display:block;"></canvas>
+      <div id="hours-graph-meta"></div>
+    </div>
+  </div>
+
   <div id="todoist-section">
     <div class="section-label">Active tasks</div>
     <div id="todoist-list">
@@ -360,12 +374,9 @@
     const GH_BRANCH    = "main";
     const CACHE_TTL_MS = 5 * 60 * 1000;
 
-    // Global focus state — set once focus is polled, used by updateClock
     window._focusActive   = false;
-    // Once we know focus state for the night, lock the sleep notice decision
-    // until next morning so it doesn't flicker on break → sleep → break
-    window._nightDecided  = false;  // true once we've committed to "sleeping" for this night
-    window._lastNightHour = null;   // tracks which night session we decided for
+    window._nightDecided  = false;
+    window._lastNightHour = null;
 
     function rawDataURL() {
       return `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/data.json?t=${Date.now()}`;
@@ -398,40 +409,25 @@
     function updateSleepNote(h) {
       const el = document.getElementById("sleep-note");
       if (!el) return;
-
       const isNightHours = h >= 0 && h < 8;
-
       if (!isNightHours) {
-        // Daytime — clear everything and reset night state
         el.textContent      = "";
         el.style.color      = "";
         window._nightDecided  = false;
         window._lastNightHour = null;
         return;
       }
-
-      // It's night (12 AM – 8 AM).
-      // Key: which "night slot" are we in? Use date+hour bucket so reset happens each new night.
-      const ist      = getIST();
-      const nightKey = `${formatKey(ist)}-${h}`;
-
-      // If focus just came ON after we decided "sleeping" for this night, reset the decision
-      // so the all-nighter message can show immediately.
       if (window._focusActive && window._nightDecided) {
         window._nightDecided  = false;
         window._lastNightHour = null;
       }
-
       if (window._focusActive) {
-        // They're actively focusing — all-nighter mode, suppress sleep notice
         el.textContent = "🌙 All-nighter mode — go get it!";
         el.style.color = "#44aa66";
       } else {
-        // Not focusing during night hours.
-        // Commit to "sleeping" for this night only if we haven't already decided otherwise.
         if (!window._nightDecided) {
           window._nightDecided  = true;
-          window._lastNightHour = nightKey;
+          window._lastNightHour = `${formatKey(getIST())}-${h}`;
         }
         el.textContent = "😴 Prolly sleeping — no updates 12 AM to 8 AM!";
         el.style.color = "#ff4444";
@@ -622,6 +618,122 @@
       }
     }
 
+    /* ── Hours-owed line graph ─────────────────────────────────────────── */
+    async function loadAndRenderHoursGraph() {
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=getHoursHistory`);
+        const data = await res.json();
+        if (!data.ok || !data.history || data.history.length < 2) return;
+        renderHoursGraph(data.history);
+      } catch(e) {}
+    }
+
+    function renderHoursGraph(history) {
+      const canvas = document.getElementById("hours-graph");
+      const meta   = document.getElementById("hours-graph-meta");
+      if (!canvas) return;
+
+      const dpr = window.devicePixelRatio || 1;
+      const W   = canvas.offsetWidth  || 316;
+      const H   = canvas.offsetHeight || 140;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width  = W + "px";
+      canvas.style.height = H + "px";
+
+      const ctx = canvas.getContext("2d");
+      ctx.scale(dpr, dpr);
+
+      const PAD   = { top: 12, right: 8, bottom: 24, left: 44 };
+      const gW    = W - PAD.left - PAD.right;
+      const gH    = H - PAD.top  - PAD.bottom;
+      const vals  = history.map(p => p.h);
+      const times = history.map(p => p.t);
+      const minV  = Math.floor(Math.min(...vals) * 0.97);
+      const maxV  = Math.ceil (Math.max(...vals) * 1.03);
+      const minT  = times[0];
+      const maxT  = times[times.length - 1];
+
+      function xOf(t) { return PAD.left + ((t - minT) / (maxT - minT || 1)) * gW; }
+      function yOf(v) { return PAD.top  + (1 - (v - minV) / (maxV - minV || 1)) * gH; }
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Grid lines
+      ctx.strokeStyle = "#1e1e1e";
+      ctx.lineWidth   = 1;
+      for (let i = 0; i <= 3; i++) {
+        const y = PAD.top + (i / 3) * gH;
+        ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + gW, y); ctx.stroke();
+        const labelVal = Math.round(maxV - (i / 3) * (maxV - minV));
+        ctx.fillStyle  = "#333";
+        ctx.font       = "10px sans-serif";
+        ctx.textAlign  = "right";
+        ctx.fillText(labelVal + "h", PAD.left - 6, y + 4);
+      }
+
+      // Gradient fill
+      const grad = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
+      grad.addColorStop(0, "rgba(68,255,136,0.18)");
+      grad.addColorStop(1, "rgba(68,255,136,0)");
+      ctx.beginPath();
+      ctx.moveTo(xOf(times[0]), yOf(vals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(vals[i]));
+      ctx.lineTo(xOf(times[times.length - 1]), PAD.top + gH);
+      ctx.lineTo(xOf(times[0]),                PAD.top + gH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Line
+      ctx.beginPath();
+      ctx.moveTo(xOf(times[0]), yOf(vals[0]));
+      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(vals[i]));
+      ctx.strokeStyle = "#44ff88";
+      ctx.lineWidth   = 1.8;
+      ctx.lineJoin    = "round";
+      ctx.stroke();
+
+      // Latest point dot
+      const lx = xOf(times[times.length - 1]);
+      const ly = yOf(vals[vals.length - 1]);
+      ctx.beginPath();
+      ctx.arc(lx, ly, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = "#44ff88";
+      ctx.fill();
+
+      // X-axis date labels
+      ctx.fillStyle = "#333";
+      ctx.font      = "9px sans-serif";
+      ctx.textAlign = "left";
+      ctx.fillText(niceDate(new Date(minT)), PAD.left, H - 4);
+      ctx.textAlign = "right";
+      ctx.fillText(niceDate(new Date(maxT)), PAD.left + gW, H - 4);
+
+      // Hover tooltip — reuses existing heatTip element
+      canvas.onmousemove = function(e) {
+        const rect    = canvas.getBoundingClientRect();
+        const mx      = e.clientX - rect.left;
+        let closest   = 0, minDist = Infinity;
+        for (let i = 0; i < history.length; i++) {
+          const dist = Math.abs(xOf(times[i]) - mx);
+          if (dist < minDist) { minDist = dist; closest = i; }
+        }
+        const p = history[closest];
+        heatTipDate.textContent  = niceDate(new Date(p.t));
+        heatTipHours.textContent = formatHours(p.h) + " owed";
+        heatTip.style.display    = "block";
+        positionTip(e);
+      };
+      canvas.onmouseout = () => { heatTip.style.display = "none"; };
+
+      if (meta) {
+        const days = Math.round((maxT - minT) / 86400000);
+        meta.textContent = `${history.length} data point${history.length !== 1 ? "s" : ""} · ${days} day${days !== 1 ? "s" : ""} of history`;
+      }
+    }
+    /* ── end graph ─────────────────────────────────────────────────────── */
+
     async function loadData() {
       let workerData     = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
       let hoursCompleted = 0;
@@ -694,6 +806,7 @@
         : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
 
       dismissDisclaimer();
+      loadAndRenderHoursGraph();
     }
 
     async function loadAndSchedule() {
@@ -771,10 +884,7 @@
       const dot  = document.getElementById("focus-dot");
       const text = document.getElementById("focus-text");
       if (!dot || !text) return;
-
-      // Update global so updateSleepNote can read it immediately
       window._focusActive = !!data.active;
-
       if (data.active) {
         dot.classList.add("active");
         text.classList.add("active");
@@ -786,8 +896,6 @@
         const ago        = data.lastSeen ? formatElapsed(data.lastSeen) : null;
         text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
       }
-
-      // Immediately re-evaluate sleep note with updated focus state
       updateSleepNote(getIST().getHours());
     }
 
@@ -801,10 +909,7 @@
 
     pollFocusState();
     setInterval(pollFocusState, 60 * 1000);
-    // Keep elapsed timer live when focusing without extra network calls
-    setInterval(() => {
-      if (window._focusActive) pollFocusState();
-    }, 30 * 1000);
+    setInterval(() => { if (window._focusActive) pollFocusState(); }, 30 * 1000);
   </script>
 </body>
 </html>
