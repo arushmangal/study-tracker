@@ -202,6 +202,7 @@
       display: none; position: fixed; background: #0a0a0a; border: 1px solid #2a2a2a;
       border-radius: 8px; padding: 8px 13px; pointer-events: none; z-index: 1000;
       text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,0.7); transform: translateY(-4px);
+      transition: border-color 0.15s ease;
     }
     #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
     #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
@@ -631,38 +632,20 @@
     }
 
     /* ── Hours-remaining graph ─────────────────────────────────────────── */
-    window._remainingHistory = [];
-    window._graphRangeDays   = 1;
-
-    document.querySelectorAll(".graph-toggle-btn").forEach(btn => {
-      btn.addEventListener("click", function() {
-        document.querySelectorAll(".graph-toggle-btn").forEach(b => b.classList.remove("active"));
-        this.classList.add("active");
-        window._graphRangeDays = Number(this.dataset.range);
-        renderRemainingGraph(window._remainingHistory, window._graphRangeDays);
-      });
-    });
-
     async function loadAndRenderHoursGraph(_sessions) {
+      // _sessions arg ignored — we fetch the dedicated remaining-history endpoint
       try {
         const res  = await fetch(`${WORKER_URL}?action=getRemainingHistory`);
         const data = await res.json();
         if (!data.ok || !data.history || data.history.length < 2) {
+          // Fallback: build from current owed/done if history too short
           renderRemainingGraphFallback();
           return;
         }
-        window._remainingHistory = data.history;
-        renderRemainingGraph(data.history, window._graphRangeDays);
+        renderRemainingGraph(data.history);
       } catch(e) {
         renderRemainingGraphFallback();
       }
-    }
-
-    function filterHistory(history, days) {
-      if (!days) return history;
-      const cutoff   = Date.now() - days * 24 * 60 * 60 * 1000;
-      const filtered = history.filter(p => p.t >= cutoff);
-      return filtered.length >= 2 ? filtered : history.slice(-2);
     }
 
     function renderRemainingGraphFallback() {
@@ -683,8 +666,7 @@
       if (meta) meta.textContent = "";
     }
 
-    function renderRemainingGraph(fullHistory, days) {
-      const history = filterHistory(fullHistory, days || 0);
+    function renderRemainingGraph(history) {
       const canvas = document.getElementById("hours-graph");
       const meta   = document.getElementById("hours-graph-meta");
       if (!canvas) return;
@@ -711,9 +693,13 @@
       const remVals   = history.map(p => p.remaining || 0);
 
       const minT = times[0], maxT = times[times.length - 1];
-      const allVals = [...owedVals, ...remVals];
-      const minV = 0;
-      const maxV = Math.ceil(Math.max(...allVals) * 1.08) || 1;
+      const allVisible = [...owedVals, ...doneVals, ...remVals];
+      const dataMin  = Math.min(...allVisible);
+      const dataMax  = Math.max(...allVisible);
+      const dataRange = dataMax - dataMin || 1;
+      const pad  = dataRange * 0.12;
+      const minV = Math.max(0, dataMin - pad);
+      const maxV = dataMax + pad;
 
       function xOf(t) { return PAD.left + ((t - minT) / (maxT - minT || 1)) * gW; }
       function yOf(v) { return PAD.top  + (1 - (v - minV) / (maxV - minV || 1)) * gH; }
@@ -724,7 +710,7 @@
       for (let i = 0; i <= 3; i++) {
         const y = PAD.top + (i / 3) * gH;
         ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + gW, y); ctx.stroke();
-        const lv = Math.round(maxV - (i / 3) * maxV);
+        const lv = Math.round(maxV - (i / 3) * (maxV - minV));
         ctx.fillStyle  = "#333";
         ctx.font       = "10px sans-serif";
         ctx.textAlign  = "right";
@@ -772,8 +758,8 @@
       ctx.beginPath();
       ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
       for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
-      ctx.lineTo(xOf(times[times.length - 1]), PAD.top + gH);
-      ctx.lineTo(xOf(times[0]),                PAD.top + gH);
+      ctx.lineTo(xOf(times[times.length - 1]), yOf(minV));
+      ctx.lineTo(xOf(times[0]),                yOf(minV));
       ctx.closePath();
       ctx.fillStyle = gradRem;
       ctx.fill();
@@ -822,31 +808,57 @@
       ctx.textAlign = "right";
       ctx.fillText(niceDate(new Date(maxT)), PAD.left + gW, H - 6);
 
-      // Hover
+      // Hover — per-line detection with colour
       canvas.onmousemove = function(e) {
-        const rect  = canvas.getBoundingClientRect();
-        const mx    = e.clientX - rect.left;
-        let closest = 0, minDist = Infinity;
+        const rect = canvas.getBoundingClientRect();
+        const mx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
+        const my   = (e.clientY - rect.top)  * (canvas.height / rect.height);
+
+        let xi = 0, minXDist = Infinity;
         for (let i = 0; i < history.length; i++) {
-          const dist = Math.abs(xOf(times[i]) - mx);
-          if (dist < minDist) { minDist = dist; closest = i; }
+          const d = Math.abs(xOf(times[i]) * dpr - mx);
+          if (d < minXDist) { minXDist = d; xi = i; }
         }
-        const p = history[closest];
-        heatTipDate.textContent  = niceDate(new Date(p.t));
-        heatTipHours.textContent = `${formatHours(p.remaining)} remaining`;
-        heatTip.style.display    = "block";
+
+        const p     = history[xi];
+        const yOwed = yOf(owedVals[xi]) * dpr;
+        const yDone = yOf(doneVals[xi]) * dpr;
+        const yRem  = yOf(remVals[xi])  * dpr;
+
+        const dOwed = Math.abs(my - yOwed);
+        const dDone = Math.abs(my - yDone);
+        const dRem  = Math.abs(my - yRem);
+        const minD  = Math.min(dOwed, dDone, dRem);
+
+        let label, value, color;
+        if (minD === dOwed) {
+          label = "owed";      value = formatHours(p.owed);      color = "#ff4444";
+        } else if (minD === dDone) {
+          label = "done";      value = formatHours(p.done);      color = "#44ff88";
+        } else {
+          label = "remaining"; value = formatHours(p.remaining); color = "#44ff88";
+        }
+
+        heatTipDate.textContent      = niceDate(new Date(p.t));
+        heatTipHours.textContent     = `${value} ${label}`;
+        heatTipHours.style.color     = color;
+        heatTip.style.borderColor    = color + "55";
+        heatTip.style.display        = "block";
         positionTip(e);
       };
-      canvas.onmouseout = () => { heatTip.style.display = "none"; };
+      canvas.onmouseout = () => {
+        heatTip.style.display        = "none";
+        heatTipHours.style.color     = "#44ff88";
+        heatTip.style.borderColor    = "";
+      };
 
       if (meta) {
-        const spanDays = Math.round((maxT - minT) / 86400000) || 1;
-        const start    = history[0].remaining;
-        const end      = history[history.length - 1].remaining;
-        const delta    = end - start;
-        const sign     = delta > 0 ? "+" : "";
-        const rangeLabel = !days ? "all time" : days === 1 ? "last 24h" : `last ${days}d`;
-        meta.textContent = `${rangeLabel} · ${history.length} pts · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ debt grew" : "↓ cleared"}`;
+        const days  = Math.round((maxT - minT) / 86400000) || 1;
+        const start = history[0].remaining;
+        const end   = history[history.length - 1].remaining;
+        const delta = end - start;
+        const sign  = delta > 0 ? "+" : "";
+        meta.textContent = `${history.length} snapshots · ${days}d · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ more debt" : "↓ cleared"}`;
       }
     }
 
