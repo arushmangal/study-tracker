@@ -718,8 +718,10 @@
       const dataMin  = Math.min(...allVisible);
       const dataMax  = Math.max(...allVisible);
       const dataRange = dataMax - dataMin || 1;
-      const pad  = dataRange * 0.12;
-      const minV = Math.max(0, dataMin - pad);
+      // After (fixed):
+      const pad  = dataRange * 0.20;            // slightly more breathing room too
+      const flooredMin = dataMin - pad;
+      const minV = (dataMin < dataRange) ? Math.max(0, flooredMin) : flooredMin;
       const maxV = dataMax + pad;
 
       function xOf(t) { return PAD.left + ((t - minT) / (maxT - minT || 1)) * gW; }
