@@ -631,20 +631,38 @@
     }
 
     /* ── Hours-remaining graph ─────────────────────────────────────────── */
+    window._remainingHistory = [];
+    window._graphRangeDays   = 1;
+
+    document.querySelectorAll(".graph-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        document.querySelectorAll(".graph-toggle-btn").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+        window._graphRangeDays = Number(this.dataset.range);
+        renderRemainingGraph(window._remainingHistory, window._graphRangeDays);
+      });
+    });
+
     async function loadAndRenderHoursGraph(_sessions) {
-      // _sessions arg ignored — we fetch the dedicated remaining-history endpoint
       try {
         const res  = await fetch(`${WORKER_URL}?action=getRemainingHistory`);
         const data = await res.json();
         if (!data.ok || !data.history || data.history.length < 2) {
-          // Fallback: build from current owed/done if history too short
           renderRemainingGraphFallback();
           return;
         }
-        renderRemainingGraph(data.history);
+        window._remainingHistory = data.history;
+        renderRemainingGraph(data.history, window._graphRangeDays);
       } catch(e) {
         renderRemainingGraphFallback();
       }
+    }
+
+    function filterHistory(history, days) {
+      if (!days) return history;
+      const cutoff   = Date.now() - days * 24 * 60 * 60 * 1000;
+      const filtered = history.filter(p => p.t >= cutoff);
+      return filtered.length >= 2 ? filtered : history.slice(-2);
     }
 
     function renderRemainingGraphFallback() {
@@ -665,7 +683,8 @@
       if (meta) meta.textContent = "";
     }
 
-    function renderRemainingGraph(history) {
+    function renderRemainingGraph(fullHistory, days) {
+      const history = filterHistory(fullHistory, days || 0);
       const canvas = document.getElementById("hours-graph");
       const meta   = document.getElementById("hours-graph-meta");
       if (!canvas) return;
@@ -821,12 +840,13 @@
       canvas.onmouseout = () => { heatTip.style.display = "none"; };
 
       if (meta) {
-        const days  = Math.round((maxT - minT) / 86400000) || 1;
-        const start = history[0].remaining;
-        const end   = history[history.length - 1].remaining;
-        const delta = end - start;
-        const sign  = delta > 0 ? "+" : "";
-        meta.textContent = `${history.length} snapshots · ${days}d · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ more debt" : "↓ cleared"}`;
+        const spanDays = Math.round((maxT - minT) / 86400000) || 1;
+        const start    = history[0].remaining;
+        const end      = history[history.length - 1].remaining;
+        const delta    = end - start;
+        const sign     = delta > 0 ? "+" : "";
+        const rangeLabel = !days ? "all time" : days === 1 ? "last 24h" : `last ${days}d`;
+        meta.textContent = `${rangeLabel} · ${history.length} pts · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ debt grew" : "↓ cleared"}`;
       }
     }
 
