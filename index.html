@@ -342,13 +342,20 @@
   </div>
 
   <div id="hours-graph-section">
-    <div class="section-label">Hours remaining over time</div>
-    <div id="hours-graph-card">
-      <canvas id="hours-graph" width="316" height="160" style="width:100%;height:160px;display:block;"></canvas>
-      <div id="hours-graph-meta"></div>
+  <div class="section-label">Hours remaining over time</div>
+  <div id="hours-graph-card">
+    <div class="graph-toggles">
+      <button class="graph-toggle-btn active" data-range="1">24h</button>
+      <button class="graph-toggle-btn" data-range="7">7d</button>
+      <button class="graph-toggle-btn" data-range="30">30d</button>
+      <button class="graph-toggle-btn" data-range="90">90d</button>
+      <button class="graph-toggle-btn" data-range="0">All</button>
     </div>
+    <canvas id="hours-graph" width="316" height="160" style="width:100%;height:160px;display:block;"></canvas>
+    <div id="hours-graph-meta"></div>
   </div>
-
+</div>
+  
   <div id="todoist-section">
     <div class="section-label">Active tasks</div>
     <div id="todoist-list">
