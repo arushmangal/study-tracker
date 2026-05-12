@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 157,
+  "hoursCompleted": 158,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -359,6 +359,12 @@
       "date": "12 May 2026",
       "topic": "Line Graph and Histogram Dev",
       "hours": 3,
+      "labels": []
+    },
+    {
+      "date": "12 May 2026",
+      "topic": "Improving the page",
+      "hours": 1,
       "labels": []
     }
   ]
