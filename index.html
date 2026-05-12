@@ -21,133 +21,191 @@
       gap: 10px;
     }
 
+    /* ── Maintenance ── */
     #maintenance-screen {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: #0f0f0f;
-      z-index: 9999;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      text-align: center;
-      padding: 32px;
+      display: none; position: fixed; inset: 0; background: #0f0f0f; z-index: 9999;
+      flex-direction: column; align-items: center; justify-content: center;
+      gap: 16px; text-align: center; padding: 32px;
     }
     .maint-icon { font-size: 2.8rem; animation: wrench-rock 2s ease-in-out infinite; }
-    @keyframes wrench-rock {
-      0%, 100% { transform: rotate(-15deg); }
-      50%       { transform: rotate(15deg);  }
-    }
+    @keyframes wrench-rock { 0%,100% { transform: rotate(-15deg); } 50% { transform: rotate(15deg); } }
     .maint-title { font-size: 1.4rem; font-weight: bold; color: #ddd; letter-spacing: 0.5px; }
     .maint-sub   { font-size: 0.9rem; color: #555; max-width: 280px; line-height: 1.6; }
     .maint-dots span {
       display: inline-block; width: 7px; height: 7px; margin: 0 3px;
-      border-radius: 50%; background: #44ff88;
-      animation: bounce-dot 1.2s infinite ease-in-out;
+      border-radius: 50%; background: #44ff88; animation: bounce-dot 1.2s infinite ease-in-out;
     }
     .maint-dots span:nth-child(2) { animation-delay: 0.2s; }
     .maint-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce-dot {
-      0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
-      40%            { transform: scale(1);   opacity: 1;   }
-    }
-    .maint-pill {
-      background: #1a1a1a; border: 1px solid #2e2e2e; border-radius: 20px;
-      padding: 8px 18px; font-size: 0.78rem; color: #666;
-    }
+    @keyframes bounce-dot { 0%,80%,100% { transform: scale(0.6); opacity: 0.3; } 40% { transform: scale(1); opacity: 1; } }
+    .maint-pill { background: #1a1a1a; border: 1px solid #2e2e2e; border-radius: 20px; padding: 8px 18px; font-size: 0.78rem; color: #666; }
 
+    /* ── Base ── */
     .big   { font-weight: bold; }
     .red   { color: #ff4444; }
     .green { color: #44ff88; }
     .label { color: #aaa; margin-top: -8px; font-size: 1.1rem; }
+    .sub   { color: #555; font-size: 0.85rem; }
+    a      { color: #777; }
 
-    .bar-wrap { width: 340px; background: #222; border-radius: 20px; height: 14px; margin: 10px 0; }
+    /* ── Layout rows ── */
+    /* Row 1: gratitude note — full width, centred, alone */
+    #gratitude-note {
+      width: 100%; max-width: 720px;
+      background: #0a1f0e; border: 1px solid #2e7d32; border-radius: 8px;
+      padding: 12px 16px; font-size: 0.85rem; color: #81c784;
+      text-align: center; line-height: 1.5;
+    }
+    #loading-disclaimer {
+      width: 100%; max-width: 720px;
+      background: #1a1200; border: 1px solid #ffc107; border-radius: 8px;
+      padding: 12px 16px; font-size: 0.85rem; color: #ffc107;
+      text-align: center; transition: opacity 1s ease;
+    }
+
+    /* Row 2: hero — centred, alone */
+    #hero-row {
+      width: 100%; max-width: 480px;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    #hero-row .big { font-size: 5rem; line-height: 1; }
+    #hero-row .big.shrink { font-size: 3rem; }
+    .bar-wrap { width: 100%; max-width: 380px; background: #222; border-radius: 20px; height: 14px; margin: 10px 0; }
     .bar-fill { height: 14px; border-radius: 20px; background: #44ff88; transition: width 0.6s ease; }
-
     .stats-row { display: flex; gap: 40px; margin-top: 10px; }
     .stat { text-align: center; }
     .stat .num { font-size: 2.5rem; font-weight: bold; }
-
-    .sub { color: #555; font-size: 0.85rem; }
-    a { color: #777; }
-
-    .sessions {
-      width: 340px; margin-top: 20px;
-      border-top: 1px solid #1f1f1f; padding-top: 16px;
-    }
-
-    .section-label {
-      color: #888; font-size: 0.7rem; font-weight: 600;
-      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;
-    }
-
-    .session-item {
-      background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
-      margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
-      display: flex; justify-content: space-between; align-items: center; gap: 8px;
-    }
-    .session-item a {
-      flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis;
-      white-space: nowrap; color: #ccc; text-decoration: none;
-    }
-    .session-item a:hover { color: #fff; text-decoration: underline; }
-    .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
-    .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
-
-    #last-change { margin-top: 6px; font-size: 0.82rem; color: #444; text-align: center; width: 340px; }
-
+    #last-change { margin-top: 6px; font-size: 0.82rem; color: #444; text-align: center; width: 100%; }
     #update-countdown-wrap {
       display: flex; align-items: center; justify-content: center;
       gap: 6px; margin-top: 6px; font-size: 0.75rem; color: #333;
     }
     #update-countdown { font-variant-numeric: tabular-nums; font-weight: 700; transition: color 0.3s ease; }
 
-    #clock-box { width: 340px; background: #111; border: 1px solid #222; border-radius: 10px; padding: 12px 16px; }
+    /* Row 3: rhythm | clock | heatmap — three columns */
+    #row-three {
+      width: 100%; max-width: 960px;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 700px) {
+      #row-three { grid-template-columns: 1fr; }
+    }
+
+    /* Clock box */
+    #clock-box { width: 100%; background: #111; border: 1px solid #222; border-radius: 10px; padding: 12px 16px; }
     .clock-row { display: flex; justify-content: space-between; align-items: flex-start; }
     #clock-time { font-size: 1.35rem; font-weight: bold; color: #ddd; letter-spacing: 1px; line-height: 1.1; }
     #clock-date { font-size: 0.8rem; color: #888; margin-top: 4px; }
     #clock-tag  { font-size: 0.8rem; color: #555; padding-top: 3px; text-align: right; }
     #sleep-note { font-size: 0.78rem; margin-top: 8px; min-height: 1em; transition: opacity 0.5s ease; }
-
-    #focus-row {
-      display: flex; align-items: center; gap: 8px;
-      margin-top: 10px; padding-top: 10px;
-      border-top: 1px solid #1c1c1c;
-    }
-    #focus-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: #2a2a2a; flex-shrink: 0;
-      transition: background 0.5s ease, box-shadow 0.5s ease;
-    }
-    #focus-dot.active {
-      background: #44ff88;
-      box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.35);
-      animation: focus-pulse 2.4s ease-in-out infinite;
-    }
+    #focus-row  { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1c1c1c; }
+    #focus-dot  { width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a; flex-shrink: 0; transition: background 0.5s ease, box-shadow 0.5s ease; }
+    #focus-dot.active { background: #44ff88; box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.35); animation: focus-pulse 2.4s ease-in-out infinite; }
     @keyframes focus-pulse {
-      0%, 100% { box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.3); }
-      50%       { box-shadow: 0 0 0 5px rgba(68,255,136,0.08), 0 0 14px rgba(68,255,136,0.5); }
+      0%,100% { box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.3); }
+      50%      { box-shadow: 0 0 0 5px rgba(68,255,136,0.08), 0 0 14px rgba(68,255,136,0.5); }
     }
     #focus-text { font-size: 0.78rem; color: #444; transition: color 0.4s ease; }
     #focus-text.active { color: #aaa; }
 
-    #loading-disclaimer {
-      width: 340px; background: #1a1200; border: 1px solid #ffc107;
-      border-radius: 8px; padding: 12px 16px; font-size: 0.85rem;
-      color: #ffc107; text-align: center; transition: opacity 1s ease;
+    /* Study rhythm mini-cards */
+    #study-insights { width: 100%; }
+    .section-label {
+      color: #888; font-size: 0.7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px;
     }
-    #gratitude-note {
-      width: 340px; background: #0a1f0e; border: 1px solid #2e7d32;
-      border-radius: 8px; padding: 12px 16px; font-size: 0.85rem;
-      color: #81c784; text-align: center; line-height: 1.5;
-    }
+    .mini-stats  { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mini-card   { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
+    .mini-kicker { color: #666; font-size: 0.65rem; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 7px; }
+    .mini-number { font-size: 1.5rem; font-weight: bold; color: #44ff88; line-height: 1.1; }
+    .mini-meta   { color: #555; font-size: 0.72rem; margin-top: 6px; line-height: 1.5; }
 
+    /* Heatmap */
+    .heatmap-wrap  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; width: 100%; }
+    .heatmap-head  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .heatmap-title { color: #aaa; font-size: 0.78rem; font-weight: 600; }
+    .heatmap-sub   { color: #555; font-size: 0.68rem; }
+    .heatmap-grid  { display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px); grid-auto-columns: 11px; gap: 3px; overflow-x: auto; padding-bottom: 2px; }
+    .heat-cell  { width: 11px; height: 11px; border-radius: 2px; cursor: default; }
+    .heat-empty { background: transparent; }
+    .heat-0 { background: #1e1e1e; cursor: pointer; }
+    .heat-1 { background: #183823; cursor: pointer; }
+    .heat-2 { background: #23653c; cursor: pointer; }
+    .heat-3 { background: #2f9254; cursor: pointer; }
+    .heat-4 { background: #44ff88; cursor: pointer; }
+    .heat-5 { background: #afffce; cursor: pointer; }
+    .heat-legend      { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+    .heat-legend-text { color: #555; font-size: 0.68rem; }
+    .legend-boxes { display: flex; align-items: center; gap: 3px; }
+    .legend-box   { width: 11px; height: 11px; border-radius: 2px; }
+
+    /* Tooltip (shared by heatmap + graph hover) */
+    #heat-tooltip {
+      display: none; position: fixed; background: #0a0a0a; border: 1px solid #2a2a2a;
+      border-radius: 8px; padding: 8px 13px; pointer-events: none; z-index: 1000;
+      text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,0.7); transform: translateY(-4px);
+      transition: border-color 0.15s ease;
+    }
+    #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
+    #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
+
+    /* Row 4: graph — full width, alone */
+    #hours-graph-section { width: 100%; max-width: 960px; }
+    #hours-graph-card    { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
+    #hours-graph-meta    { color: #333; font-size: 0.68rem; margin-top: 8px; text-align: right; }
+    .graph-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .graph-toggles { display: flex; gap: 5px; flex-wrap: wrap; }
+    .graph-toggle-btn {
+      padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600;
+      border: 1px solid #2a2a2a; background: #1a1a1a; color: #444; cursor: pointer;
+      transition: all 0.15s ease; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .graph-toggle-btn:hover  { border-color: #444; color: #888; }
+    .graph-toggle-btn.active { background: #1e3a2a; border-color: #2a5a3a; color: #44ff88; }
+    .line-toggles { display: flex; gap: 5px; }
+    .line-toggle-btn {
+      padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600;
+      border: 1px solid #2a2a2a; background: #1a1a1a; color: #333; cursor: pointer;
+      transition: all 0.15s ease; letter-spacing: 0.4px; text-transform: uppercase;
+    }
+    .line-toggle-btn:hover { border-color: #444; color: #666; }
+    .line-toggle-btn.active[data-line="rem"]  { background: #1e3a2a; border-color: #2a5a3a; color: #44ff88; }
+    .line-toggle-btn.active[data-line="owed"] { background: #2a1a1a; border-color: #5a2a2a; color: #ff4444; }
+    .line-toggle-btn.active[data-line="done"] { background: #1a2a1e; border-color: #2a4a32; color: #44cc77; }
+
+    /* Row 5: like sources | active tasks | recent sessions */
+    #row-five {
+      width: 100%; max-width: 960px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+    @media (max-width: 700px) {
+      #row-five { grid-template-columns: 1fr; }
+    }
+    .panel { width: 100%; min-width: 0; overflow: hidden; }
+    .sessions { width: 100%; min-width: 0; overflow: hidden; }
+
+    .session-item {
+      background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
+      margin-bottom: 6px; font-size: 0.9rem; color: #ccc;
+      display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      min-width: 0; box-sizing: border-box;
+    }
+    .session-item a { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #ccc; text-decoration: none; }
+    .session-item a:hover { color: #fff; text-decoration: underline; }
+    .session-hrs { color: #44ff88; font-weight: bold; white-space: nowrap; margin-left: 10px; }
+    .likes-tag   { color: #ff9944; font-weight: bold; white-space: nowrap; margin-left: 10px; }
+
+    /* Breakdown */
     #breakdown-box .section-label { display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
     #breakdown-box .section-label:hover { color: #aaa; }
     #breakdown-toggle { font-size: 0.75rem; color: #555; transition: transform 0.2s ease; }
     #breakdown-toggle.open { transform: rotate(90deg); }
-
     .info-icon {
       display: inline-flex; align-items: center; justify-content: center;
       width: 14px; height: 14px; border-radius: 50%; border: 1px solid #444;
@@ -159,7 +217,6 @@
       background: #222; border: 1px solid #333; border-radius: 6px; padding: 8px 10px;
       font-size: 0.75rem; color: #aaa; white-space: nowrap; z-index: 10; pointer-events: none;
     }
-
     .like-badge {
       display: inline-flex; align-items: center; justify-content: center;
       min-width: 20px; padding: 4px 6px; border-radius: 5px;
@@ -170,67 +227,14 @@
     }
     .like-badge:hover { background: #44ff88; border-color: #44ff88; color: #000; }
 
-    #study-insights { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
-    .mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .mini-card  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
-    .mini-kicker { color: #666; font-size: 0.65rem; letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 7px; }
-    .mini-number { font-size: 1.5rem; font-weight: bold; color: #44ff88; line-height: 1.1; }
-    .mini-meta   { color: #555; font-size: 0.72rem; margin-top: 6px; line-height: 1.5; }
-
-    .heatmap-wrap  { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
-    .heatmap-head  { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-    .heatmap-title { color: #aaa; font-size: 0.78rem; font-weight: 600; }
-    .heatmap-sub   { color: #555; font-size: 0.68rem; }
-    .heatmap-grid  {
-      display: grid; grid-auto-flow: column; grid-template-rows: repeat(7, 11px);
-      grid-auto-columns: 11px; gap: 3px; overflow-x: auto; padding-bottom: 2px;
-    }
-    .heat-cell  { width: 11px; height: 11px; border-radius: 2px; cursor: default; }
-    .heat-empty { background: transparent; }
-    .heat-0     { background: #1e1e1e; cursor: pointer; }
-    .heat-1     { background: #183823; cursor: pointer; }
-    .heat-2     { background: #23653c; cursor: pointer; }
-    .heat-3     { background: #2f9254; cursor: pointer; }
-    .heat-4     { background: #44ff88; cursor: pointer; }
-    .heat-5     { background: #afffce; cursor: pointer; }
-    .heat-legend { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-    .heat-legend-text { color: #555; font-size: 0.68rem; }
-    .legend-boxes { display: flex; align-items: center; gap: 3px; }
-    .legend-box   { width: 11px; height: 11px; border-radius: 2px; }
-
-    #heat-tooltip {
-      display: none; position: fixed; background: #0a0a0a; border: 1px solid #2a2a2a;
-      border-radius: 8px; padding: 8px 13px; pointer-events: none; z-index: 1000;
-      text-align: center; box-shadow: 0 6px 24px rgba(0,0,0,0.7); transform: translateY(-4px);
-      transition: border-color 0.15s ease;
-    }
-    #heat-tooltip-date  { font-size: 0.75rem; font-weight: 700; color: #fff; white-space: nowrap; letter-spacing: 0.3px; }
-    #heat-tooltip-hours { font-size: 0.85rem; font-weight: 700; color: #44ff88; white-space: nowrap; margin-top: 3px; }
-
-    #hours-graph-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
-    #hours-graph-card    { background: #141414; border: 1px solid #222; border-radius: 10px; padding: 12px; }
-    #hours-graph-meta    { color: #333; font-size: 0.68rem; margin-top: 8px; text-align: right; }
-
-    .graph-toggles { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-    .graph-toggle-btn {
-      padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 600;
-      border: 1px solid #2a2a2a; background: #1a1a1a; color: #444; cursor: pointer;
-      transition: all 0.15s ease; letter-spacing: 0.5px; text-transform: uppercase;
-    }
-    .graph-toggle-btn:hover  { border-color: #444; color: #888; }
-    .graph-toggle-btn.active { background: #1e3a2a; border-color: #2a5a3a; color: #44ff88; }
-
-    #todoist-section { width: 340px; margin-top: 20px; border-top: 1px solid #1f1f1f; padding-top: 16px; }
-    .todoist-item {
-      background: #1a1a1a; border-radius: 8px; padding: 10px 14px;
-      margin-bottom: 6px; font-size: 0.88rem; color: #ccc;
-      display: flex; align-items: flex-start; gap: 10px;
-    }
-    .p-dot       { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-    .p-dot-4     { background: #ff4444; }
-    .p-dot-3     { background: #ff9944; }
-    .p-dot-2     { background: #4499ff; }
-    .p-dot-1     { background: #444;    }
+    /* Todoist */
+    #todoist-section { width: 100%; }
+    .todoist-item { background: #1a1a1a; border-radius: 8px; padding: 10px 14px; margin-bottom: 6px; font-size: 0.88rem; color: #ccc; display: flex; align-items: flex-start; gap: 10px; }
+    .p-dot   { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+    .p-dot-4 { background: #ff4444; }
+    .p-dot-3 { background: #ff9944; }
+    .p-dot-2 { background: #4499ff; }
+    .p-dot-1 { background: #444;    }
     .todoist-text    { flex: 1; min-width: 0; }
     .todoist-content { color: #ccc; word-break: break-word; }
     .todoist-meta    { display: flex; gap: 8px; margin-top: 4px; font-size: 0.72rem; }
@@ -263,26 +267,13 @@
     <div id="heat-tooltip-hours"></div>
   </div>
 
-  <div id="clock-box">
-    <div class="clock-row">
-      <div>
-        <div id="clock-time">--:-- --</div>
-        <div id="clock-date">--</div>
-      </div>
-      <div id="clock-tag">— Time for me</div>
-    </div>
-    <div id="sleep-note"></div>
-    <div id="focus-row">
-      <div id="focus-dot"></div>
-      <span id="focus-text">—</span>
-    </div>
-  </div>
-
+  <!-- ROW 1: Loading disclaimer (auto-hides) -->
   <div id="loading-disclaimer">
     ⏳ If the page doesn't show any hours, please wait 5–10 seconds —
     I'm a beginner at development, so it takes time for the page to load!
   </div>
 
+  <!-- ROW 1b: Gratitude note — centred, alone -->
   <div id="gratitude-note">
     💚 <strong>Hey! Thanks for liking my comment!</strong><br>
     When I'm low, I tend to struggle with binge watching and wasting time on YouTube,
@@ -290,46 +281,65 @@
     me to just keep working everytime I open YouTube out of habit.
   </div>
 
-  <div class="big red" id="remaining">...</div>
-  <div class="label">hours remaining</div>
-
-  <div class="bar-wrap">
-    <div class="bar-fill" id="bar" style="width:0%"></div>
-  </div>
-
-  <div class="stats-row">
-    <div class="stat">
-      <div class="num red" id="owed">–</div>
-      <div class="label" style="font-size:0.9rem">hours owed</div>
+  <!-- ROW 2: Hero — centred, alone -->
+  <div id="hero-row">
+    <div class="big red" id="remaining">...</div>
+    <div class="label">hours remaining</div>
+    <div class="bar-wrap">
+      <div class="bar-fill" id="bar" style="width:0%"></div>
     </div>
-    <div class="stat">
-      <div class="num green" id="done">–</div>
-      <div class="label" style="font-size:0.9rem">hours done</div>
-    </div>
-  </div>
-
-  <div class="sub" id="likes" style="margin-top:14px;"></div>
-  <div id="last-change"></div>
-  <div id="update-countdown-wrap">
-    <span style="color:#2a2a2a;">⏱</span>
-    <span style="color:#2a2a2a;">next update in</span>
-    <span id="update-countdown" style="color:#333;">--:--</span>
-  </div>
-
-  <div id="study-insights">
-    <div class="section-label">Study rhythm</div>
-    <div class="mini-stats">
-      <div class="mini-card">
-        <div class="mini-kicker">Today</div>
-        <div class="mini-number" id="today-hours">–</div>
-        <div class="mini-meta" id="today-meta">Day – / –</div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="num red" id="owed">–</div>
+        <div class="label" style="font-size:0.9rem">hours owed</div>
       </div>
-      <div class="mini-card">
-        <div class="mini-kicker">This week</div>
-        <div class="mini-number" id="week-hours">–</div>
-        <div class="mini-meta" id="week-meta">Week – / –</div>
+      <div class="stat">
+        <div class="num green" id="done">–</div>
+        <div class="label" style="font-size:0.9rem">hours done</div>
       </div>
     </div>
+    <div class="sub" id="likes" style="margin-top:14px;"></div>
+    <div id="last-change"></div>
+    <div id="update-countdown-wrap">
+      <span style="color:#2a2a2a;">⏱</span>
+      <span style="color:#2a2a2a;">next update in</span>
+      <span id="update-countdown" style="color:#333;">--:--</span>
+    </div>
+  </div>
+
+  <!-- ROW 3: Study rhythm | Time for me (clock) | Last 90 study days -->
+  <div id="row-three">
+    <div id="study-insights">
+      <div class="section-label">Study rhythm</div>
+      <div class="mini-stats">
+        <div class="mini-card">
+          <div class="mini-kicker">Today</div>
+          <div class="mini-number" id="today-hours">–</div>
+          <div class="mini-meta" id="today-meta">Day – / –</div>
+        </div>
+        <div class="mini-card">
+          <div class="mini-kicker">This week</div>
+          <div class="mini-number" id="week-hours">–</div>
+          <div class="mini-meta" id="week-meta">Week – / –</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="clock-box">
+      <div class="clock-row">
+        <div>
+          <div id="clock-time">--:-- --</div>
+          <div id="clock-date">--</div>
+        </div>
+        <div id="clock-tag">— Time for me</div>
+      </div>
+      <div id="sleep-note"></div>
+      <div id="focus-row">
+        <div id="focus-dot"></div>
+        <span id="focus-text">—</span>
+      </div>
+    </div>
+
     <div class="heatmap-wrap">
       <div class="heatmap-head">
         <div class="heatmap-title">Last 90 study days</div>
@@ -351,33 +361,46 @@
     </div>
   </div>
 
+  <!-- ROW 4: Graph — full width, alone -->
   <div id="hours-graph-section">
-  <div class="section-label">Hours remaining over time</div>
-  <div id="hours-graph-card">
-    <div class="graph-toggles">
-      <button class="graph-toggle-btn active" data-range="1">24h</button>
-      <button class="graph-toggle-btn" data-range="7">7d</button>
-      <button class="graph-toggle-btn" data-range="30">30d</button>
-      <button class="graph-toggle-btn" data-range="90">90d</button>
-      <button class="graph-toggle-btn" data-range="0">All</button>
-    </div>
-    <canvas id="hours-graph" width="316" height="160" style="width:100%;height:160px;display:block;"></canvas>
-    <div id="hours-graph-meta"></div>
-  </div>
-</div>
-  
-  <div id="todoist-section">
-    <div class="section-label">Active tasks</div>
-    <div id="todoist-list">
-      <div class="session-item" style="color:#3a3a3a;font-size:0.82rem">Loading…</div>
+    <div class="section-label">Hours remaining over time</div>
+    <div id="hours-graph-card">
+      <div class="graph-header">
+        <div class="graph-toggles">
+          <button class="graph-toggle-btn active" data-range="1">today</button>
+          <button class="graph-toggle-btn" data-range="7">7d</button>
+          <button class="graph-toggle-btn" data-range="30">30d</button>
+          <button class="graph-toggle-btn" data-range="90">90d</button>
+          <button class="graph-toggle-btn" data-range="0">all</button>
+        </div>
+        <div class="line-toggles">
+          <button class="line-toggle-btn active" data-line="rem">remaining</button>
+          <button class="line-toggle-btn active" data-line="owed">owed</button>
+          <button class="line-toggle-btn active" data-line="done">done</button>
+        </div>
+      </div>
+      <canvas id="hours-graph" width="316" height="180" style="width:100%;height:180px;display:block;"></canvas>
+      <div id="hours-graph-meta"></div>
     </div>
   </div>
 
-  <div class="sessions" id="breakdown-box"></div>
-
-  <div class="sessions">
-    <div class="section-label" id="sessions-label"></div>
-    <div id="sessions-list"></div>
+  <!-- ROW 5: Like sources | Active tasks | Recent sessions -->
+  <div id="row-five">
+    <div class="panel">
+      <div class="sessions" id="breakdown-box"></div>
+    </div>
+    <div class="panel" id="todoist-section">
+      <div class="section-label">Active tasks</div>
+      <div id="todoist-list">
+        <div class="session-item" style="color:#3a3a3a;font-size:0.82rem">Loading…</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="sessions">
+        <div class="section-label" id="sessions-label"></div>
+        <div id="sessions-list"></div>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -424,26 +447,21 @@
       if (!el) return;
       const isNightHours = h >= 0 && h < 8;
       if (!isNightHours) {
-        el.textContent      = "";
-        el.style.color      = "";
-        window._nightDecided  = false;
-        window._lastNightHour = null;
+        el.textContent = ""; el.style.color = "";
+        window._nightDecided = false; window._lastNightHour = null;
         return;
       }
       if (window._focusActive && window._nightDecided) {
-        window._nightDecided  = false;
-        window._lastNightHour = null;
+        window._nightDecided = false; window._lastNightHour = null;
       }
       if (window._focusActive) {
-        el.textContent = "🌙 All-nighter mode — go get it!";
-        el.style.color = "#44aa66";
+        el.textContent = "🌙 All-nighter mode — go get it!"; el.style.color = "#44aa66";
       } else {
         if (!window._nightDecided) {
-          window._nightDecided  = true;
+          window._nightDecided = true;
           window._lastNightHour = `${formatKey(getIST())}-${h}`;
         }
-        el.textContent = "😴 Prolly sleeping — no updates 12 AM to 8 AM!";
-        el.style.color = "#ff4444";
+        el.textContent = "😴 Prolly sleeping — no updates 12 AM to 8 AM!"; el.style.color = "#ff4444";
       }
     }
 
@@ -468,8 +486,7 @@
         if (!el) return;
         const left = Math.max(0, refreshAt - Date.now());
         if (left === 0) {
-          el.textContent = "checking now...";
-          el.style.color = "#44ff88";
+          el.textContent = "checking now..."; el.style.color = "#44ff88";
           Array.from(wrap.children).forEach(c => { if (c !== el) c.style.color = "#44ff88"; });
           return;
         }
@@ -501,7 +518,7 @@
     function setBig(id, val) {
       const el  = document.getElementById(id);
       const str = formatHours(val);
-      el.textContent    = str;
+      el.textContent = str;
       el.style.fontSize = str.includes(" ") ? "3rem" : "5rem";
     }
 
@@ -544,12 +561,8 @@
       return map;
     }
 
-    function dayOfYear(d) {
-      return Math.floor((d - new Date(d.getFullYear(),0,1)) / 86400000) + 1;
-    }
-    function daysInYear(y) {
-      return new Date(y,1,29).getMonth() === 1 ? 366 : 365;
-    }
+    function dayOfYear(d)    { return Math.floor((d - new Date(d.getFullYear(),0,1)) / 86400000) + 1; }
+    function daysInYear(y)   { return new Date(y,1,29).getMonth() === 1 ? 366 : 365; }
     function isoWeek(d) {
       const tmp = new Date(d.getFullYear(), d.getMonth(), d.getDate());
       const day = (tmp.getDay()+6) % 7;
@@ -560,7 +573,7 @@
     }
     function isoWeeksInYear(y) { return isoWeek(new Date(y,11,28)).week; }
     function heatLevel(h) {
-      if (h <= 0) return 0; if (h < 2)  return 1; if (h < 5)  return 2;
+      if (h <= 0) return 0; if (h < 2) return 1; if (h < 5) return 2;
       if (h < 9)  return 3; if (h < 12) return 4; return 5;
     }
 
@@ -572,8 +585,7 @@
       let x = e.clientX + margin, y = e.clientY - th - margin;
       if (x + tw > window.innerWidth - 8) x = e.clientX - tw - margin;
       if (y < 8) y = e.clientY + margin;
-      heatTip.style.left = x + "px";
-      heatTip.style.top  = y + "px";
+      heatTip.style.left = x + "px"; heatTip.style.top = y + "px";
     }
 
     function renderInsights(sessions) {
@@ -621,19 +633,19 @@
           cell.addEventListener("mouseover", function(e) {
             heatTipDate.textContent  = dateSnap;
             heatTipHours.textContent = hoursSnap > 0 ? formatHours(hoursSnap) : "No study";
-            heatTip.style.display    = "block";
-            positionTip(e);
+            heatTip.style.display    = "block"; positionTip(e);
           });
           cell.addEventListener("mousemove", positionTip);
-          cell.addEventListener("mouseout",  function() { heatTip.style.display = "none"; });
+          cell.addEventListener("mouseout",  () => { heatTip.style.display = "none"; });
         }
         grid.appendChild(cell);
       }
     }
 
-    /* ── Hours-remaining graph ─────────────────────────────────────────── */
+    /* ── Graph ── */
     window._remainingHistory = [];
     window._graphRangeDays   = 1;
+    window._lineVisible      = { owed: true, done: true, rem: true };
 
     document.querySelectorAll(".graph-toggle-btn").forEach(btn => {
       btn.addEventListener("click", function() {
@@ -644,28 +656,43 @@
       });
     });
 
+    document.querySelectorAll(".line-toggle-btn").forEach(btn => {
+      btn.addEventListener("click", function() {
+        const line     = this.dataset.line;
+        const visCount = Object.values(window._lineVisible).filter(Boolean).length;
+        if (window._lineVisible[line] && visCount === 1) return;
+        window._lineVisible[line] = !window._lineVisible[line];
+        this.classList.toggle("active", window._lineVisible[line]);
+        renderRemainingGraph(window._remainingHistory, window._graphRangeDays);
+      });
+    });
+
     function filterHistory(history, days) {
       if (!days) return history;
-      const cutoff   = Date.now() - days * 24 * 60 * 60 * 1000;
+      let cutoff;
+      if (days === 1) {
+        // Today in IST — uses the same 2 AM boundary as studyDayKey
+        const ist = getIST();
+        if (ist.getHours() < 2) ist.setDate(ist.getDate() - 1);
+        ist.setHours(2, 0, 0, 0);
+        cutoff = ist.getTime();
+      } else {
+        cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
+      }
       const filtered = history.filter(p => p.t >= cutoff);
       return filtered.length >= 2 ? filtered : history.slice(-2);
     }
 
     async function loadAndRenderHoursGraph(_sessions) {
-      // _sessions arg ignored — we fetch the dedicated remaining-history endpoint
       try {
         const res  = await fetch(`${WORKER_URL}?action=getRemainingHistory`);
         const data = await res.json();
         if (!data.ok || !data.history || data.history.length < 2) {
-          // Fallback: build from current owed/done if history too short
-          renderRemainingGraphFallback();
-          return;
+          renderRemainingGraphFallback(); return;
         }
         window._remainingHistory = data.history;
         renderRemainingGraph(data.history, window._graphRangeDays);
-      } catch(e) {
-        renderRemainingGraphFallback();
-      }
+      } catch(e) { renderRemainingGraphFallback(); }
     }
 
     function renderRemainingGraphFallback() {
@@ -673,53 +700,55 @@
       const meta   = document.getElementById("hours-graph-meta");
       if (!canvas) return;
       const dpr = window.devicePixelRatio || 1;
-      const W = canvas.offsetWidth || 316, H = canvas.offsetHeight || 160;
+      const W = canvas.offsetWidth || 316, H = canvas.offsetHeight || 180;
       canvas.width = W * dpr; canvas.height = H * dpr;
       canvas.style.width = W + "px"; canvas.style.height = H + "px";
       const ctx = canvas.getContext("2d");
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, W, H);
-      ctx.fillStyle = "#2a2a2a";
-      ctx.font = "11px sans-serif";
-      ctx.textAlign = "center";
+      ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
+      ctx.fillStyle = "#2a2a2a"; ctx.font = "11px sans-serif"; ctx.textAlign = "center";
       ctx.fillText("Graph builds up as time passes — check back soon!", W / 2, H / 2);
       if (meta) meta.textContent = "";
     }
 
     function renderRemainingGraph(fullHistory, days) {
       const history = filterHistory(fullHistory, days || 0);
-      const canvas = document.getElementById("hours-graph");
-      const meta   = document.getElementById("hours-graph-meta");
+      const canvas  = document.getElementById("hours-graph");
+      const meta    = document.getElementById("hours-graph-meta");
       if (!canvas) return;
 
+      const vis = window._lineVisible || { owed: true, done: true, rem: true };
       const dpr = window.devicePixelRatio || 1;
       const W   = canvas.offsetWidth  || 316;
-      const H   = canvas.offsetHeight || 160;
-      canvas.width  = W * dpr;
-      canvas.height = H * dpr;
-      canvas.style.width  = W + "px";
-      canvas.style.height = H + "px";
+      const H   = canvas.offsetHeight || 180;
+      canvas.width  = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + "px"; canvas.style.height = H + "px";
 
       const ctx = canvas.getContext("2d");
-      ctx.scale(dpr, dpr);
-      ctx.clearRect(0, 0, W, H);
+      ctx.scale(dpr, dpr); ctx.clearRect(0, 0, W, H);
 
-      const PAD   = { top: 14, right: 10, bottom: 28, left: 44 };
-      const gW    = W - PAD.left - PAD.right;
-      const gH    = H - PAD.top  - PAD.bottom;
+      const PAD = { top: 14, right: 10, bottom: 28, left: 44 };
+      const gW  = W - PAD.left - PAD.right;
+      const gH  = H - PAD.top  - PAD.bottom;
 
-      const times     = history.map(p => p.t);
-      const owedVals  = history.map(p => p.owed      || 0);
-      const doneVals  = history.map(p => p.done      || 0);
-      const remVals   = history.map(p => p.remaining || 0);
+      const times    = history.map(p => p.t);
+      const owedVals = history.map(p => p.owed      || 0);
+      const doneVals = history.map(p => p.done      || 0);
+      const remVals  = history.map(p => p.remaining || 0);
 
       const minT = times[0], maxT = times[times.length - 1];
-      const allVisible = [...owedVals, ...doneVals, ...remVals];
-      const dataMin  = Math.min(...allVisible);
-      const dataMax  = Math.max(...allVisible);
+
+      // Only include visible series in y-scale → zooms axis to where changes are
+      const allVisible = [
+        ...(vis.owed ? owedVals : []),
+        ...(vis.done ? doneVals : []),
+        ...(vis.rem  ? remVals  : []),
+      ];
+      if (!allVisible.length) return;
+
+      const dataMin   = Math.min(...allVisible);
+      const dataMax   = Math.max(...allVisible);
       const dataRange = dataMax - dataMin || 1;
-      // After (fixed):
-      const pad  = dataRange * 0.20;            // slightly more breathing room too
+      const pad       = dataRange * 0.20;
       const flooredMin = dataMin - pad;
       const minV = (dataMin < dataRange) ? Math.max(0, flooredMin) : flooredMin;
       const maxV = dataMax + pad;
@@ -728,161 +757,131 @@
       function yOf(v) { return PAD.top  + (1 - (v - minV) / (maxV - minV || 1)) * gH; }
 
       // Grid lines
-      ctx.strokeStyle = "#1e1e1e";
-      ctx.lineWidth   = 1;
+      ctx.strokeStyle = "#1e1e1e"; ctx.lineWidth = 1;
       for (let i = 0; i <= 3; i++) {
         const y = PAD.top + (i / 3) * gH;
         ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + gW, y); ctx.stroke();
         const lv = Math.round(maxV - (i / 3) * (maxV - minV));
-        ctx.fillStyle  = "#333";
-        ctx.font       = "10px sans-serif";
-        ctx.textAlign  = "right";
+        ctx.fillStyle = "#333"; ctx.font = "10px sans-serif"; ctx.textAlign = "right";
         ctx.fillText(lv + "h", PAD.left - 6, y + 4);
       }
 
-      // Shaded band: owed line on top, done on bottom — shows the "debt gap"
-      const gradBand = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
-      gradBand.addColorStop(0, "rgba(255,68,68,0.08)");
-      gradBand.addColorStop(1, "rgba(255,68,68,0.02)");
-      ctx.beginPath();
-      ctx.moveTo(xOf(times[0]), yOf(owedVals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(owedVals[i]));
-      for (let i = history.length - 1; i >= 0; i--) ctx.lineTo(xOf(times[i]), yOf(doneVals[i]));
-      ctx.closePath();
-      ctx.fillStyle = gradBand;
-      ctx.fill();
+      // Shaded band between owed and done (only when both visible)
+      if (vis.owed && vis.done) {
+        const gradBand = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
+        gradBand.addColorStop(0, "rgba(255,68,68,0.08)");
+        gradBand.addColorStop(1, "rgba(255,68,68,0.02)");
+        ctx.beginPath();
+        ctx.moveTo(xOf(times[0]), yOf(owedVals[0]));
+        for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(owedVals[i]));
+        for (let i = history.length - 1; i >= 0; i--) ctx.lineTo(xOf(times[i]), yOf(doneVals[i]));
+        ctx.closePath(); ctx.fillStyle = gradBand; ctx.fill();
+      }
 
-      // Hours owed line (red, dashed)
-      ctx.beginPath();
-      ctx.setLineDash([4, 3]);
-      ctx.moveTo(xOf(times[0]), yOf(owedVals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(owedVals[i]));
-      ctx.strokeStyle = "#ff4444";
-      ctx.lineWidth   = 1.2;
-      ctx.lineJoin    = "round";
-      ctx.stroke();
-      ctx.setLineDash([]);
+      // Owed line
+      if (vis.owed) {
+        ctx.beginPath(); ctx.setLineDash([4, 3]);
+        ctx.moveTo(xOf(times[0]), yOf(owedVals[0]));
+        for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(owedVals[i]));
+        ctx.strokeStyle = "#ff4444"; ctx.lineWidth = 1.2; ctx.lineJoin = "round";
+        ctx.stroke(); ctx.setLineDash([]);
+      }
 
-      // Hours done line (green, dashed)
-      ctx.beginPath();
-      ctx.setLineDash([4, 3]);
-      ctx.moveTo(xOf(times[0]), yOf(doneVals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(doneVals[i]));
-      ctx.strokeStyle = "#44ff88";
-      ctx.lineWidth   = 1.2;
-      ctx.lineJoin    = "round";
-      ctx.stroke();
-      ctx.setLineDash([]);
+      // Done line
+      if (vis.done) {
+        ctx.beginPath(); ctx.setLineDash([4, 3]);
+        ctx.moveTo(xOf(times[0]), yOf(doneVals[0]));
+        for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(doneVals[i]));
+        ctx.strokeStyle = "#44cc77"; ctx.lineWidth = 1.2; ctx.lineJoin = "round";
+        ctx.stroke(); ctx.setLineDash([]);
+      }
 
-      // Hours REMAINING line (bold green) with gradient fill
-      const gradRem = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
-      gradRem.addColorStop(0, "rgba(68,255,136,0.22)");
-      gradRem.addColorStop(1, "rgba(68,255,136,0)");
-      ctx.beginPath();
-      ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
-      ctx.lineTo(xOf(times[times.length - 1]), yOf(minV));
-      ctx.lineTo(xOf(times[0]),                yOf(minV));
-      ctx.closePath();
-      ctx.fillStyle = gradRem;
-      ctx.fill();
+      // Remaining line with gradient fill
+      if (vis.rem) {
+        const gradRem = ctx.createLinearGradient(0, PAD.top, 0, PAD.top + gH);
+        gradRem.addColorStop(0, "rgba(68,255,136,0.22)");
+        gradRem.addColorStop(1, "rgba(68,255,136,0)");
+        ctx.beginPath();
+        ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
+        for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
+        ctx.lineTo(xOf(times[times.length - 1]), yOf(minV));
+        ctx.lineTo(xOf(times[0]), yOf(minV));
+        ctx.closePath(); ctx.fillStyle = gradRem; ctx.fill();
 
-      ctx.beginPath();
-      ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
-      for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
-      ctx.strokeStyle = "#44ff88";
-      ctx.lineWidth   = 2;
-      ctx.lineJoin    = "round";
-      ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(xOf(times[0]), yOf(remVals[0]));
+        for (let i = 1; i < history.length; i++) ctx.lineTo(xOf(times[i]), yOf(remVals[i]));
+        ctx.strokeStyle = "#44ff88"; ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.stroke();
 
-      // Latest dot
-      const lx = xOf(times[times.length - 1]);
-      const ly = yOf(remVals[remVals.length - 1]);
-      ctx.beginPath();
-      ctx.arc(lx, ly, 4, 0, Math.PI * 2);
-      ctx.fillStyle = "#44ff88";
-      ctx.fill();
+        const lx = xOf(times[times.length - 1]), ly = yOf(remVals[remVals.length - 1]);
+        ctx.beginPath(); ctx.arc(lx, ly, 4, 0, Math.PI * 2);
+        ctx.fillStyle = "#44ff88"; ctx.fill();
+      }
 
-      // Legend
-      ctx.font       = "9px sans-serif";
-      ctx.textAlign  = "left";
+      // Legend (only visible lines)
+      ctx.font = "9px sans-serif"; ctx.textAlign = "left";
       const ly2 = PAD.top - 2;
-      ctx.strokeStyle = "#ff4444"; ctx.lineWidth = 1.2;
-      ctx.setLineDash([4, 3]);
-      ctx.beginPath(); ctx.moveTo(PAD.left, ly2); ctx.lineTo(PAD.left + 14, ly2); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = "#ff4444"; ctx.fillText("owed", PAD.left + 17, ly2 + 3);
-
-      ctx.strokeStyle = "#44ff88"; ctx.lineWidth = 1.2;
-      ctx.setLineDash([4, 3]);
-      ctx.beginPath(); ctx.moveTo(PAD.left + 52, ly2); ctx.lineTo(PAD.left + 66, ly2); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = "#44ff88"; ctx.fillText("done", PAD.left + 69, ly2 + 3);
-
-      ctx.strokeStyle = "#44ff88"; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(PAD.left + 104, ly2); ctx.lineTo(PAD.left + 118, ly2); ctx.stroke();
-      ctx.fillStyle = "#aaa"; ctx.fillText("remaining", PAD.left + 121, ly2 + 3);
+      let legendX = PAD.left;
+      if (vis.owed) {
+        ctx.strokeStyle = "#ff4444"; ctx.lineWidth = 1.2; ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(legendX, ly2); ctx.lineTo(legendX + 14, ly2); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle = "#ff4444"; ctx.fillText("owed", legendX + 17, ly2 + 3);
+        legendX += 52;
+      }
+      if (vis.done) {
+        ctx.strokeStyle = "#44cc77"; ctx.lineWidth = 1.2; ctx.setLineDash([4, 3]);
+        ctx.beginPath(); ctx.moveTo(legendX, ly2); ctx.lineTo(legendX + 14, ly2); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle = "#44cc77"; ctx.fillText("done", legendX + 17, ly2 + 3);
+        legendX += 52;
+      }
+      if (vis.rem) {
+        ctx.strokeStyle = "#44ff88"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(legendX, ly2); ctx.lineTo(legendX + 14, ly2); ctx.stroke();
+        ctx.fillStyle = "#aaa"; ctx.fillText("remaining", legendX + 17, ly2 + 3);
+      }
 
       // X-axis labels
-      ctx.fillStyle = "#333";
-      ctx.font      = "9px sans-serif";
-      ctx.textAlign = "left";
-      ctx.fillText(niceDate(new Date(minT)), PAD.left, H - 6);
-      ctx.textAlign = "right";
-      ctx.fillText(niceDate(new Date(maxT)), PAD.left + gW, H - 6);
+      ctx.fillStyle = "#333"; ctx.font = "9px sans-serif";
+      ctx.textAlign = "left";  ctx.fillText(niceDate(new Date(minT)), PAD.left, H - 6);
+      ctx.textAlign = "right"; ctx.fillText(niceDate(new Date(maxT)), PAD.left + gW, H - 6);
 
-      // Hover — per-line detection with colour
+      // Hover — only snap to visible lines
       canvas.onmousemove = function(e) {
         const rect = canvas.getBoundingClientRect();
-        const mx   = (e.clientX - rect.left) * (canvas.width  / rect.width);
-        const my   = (e.clientY - rect.top)  * (canvas.height / rect.height);
+        const mx = (e.clientX - rect.left) * (canvas.width  / rect.width);
+        const my = (e.clientY - rect.top)  * (canvas.height / rect.height);
 
         let xi = 0, minXDist = Infinity;
         for (let i = 0; i < history.length; i++) {
           const d = Math.abs(xOf(times[i]) * dpr - mx);
           if (d < minXDist) { minXDist = d; xi = i; }
         }
-
-        const p     = history[xi];
-        const yOwed = yOf(owedVals[xi]) * dpr;
-        const yDone = yOf(doneVals[xi]) * dpr;
-        const yRem  = yOf(remVals[xi])  * dpr;
-
-        const dOwed = Math.abs(my - yOwed);
-        const dDone = Math.abs(my - yDone);
-        const dRem  = Math.abs(my - yRem);
-        const minD  = Math.min(dOwed, dDone, dRem);
-
-        let label, value, color;
-        if (minD === dOwed) {
-          label = "owed";      value = formatHours(p.owed);      color = "#ff4444";
-        } else if (minD === dDone) {
-          label = "done";      value = formatHours(p.done);      color = "#44ff88";
-        } else {
-          label = "remaining"; value = formatHours(p.remaining); color = "#44ff88";
-        }
+        const p = history[xi];
+        const candidates = [];
+        if (vis.owed) candidates.push({ label: "owed",      value: formatHours(p.owed),      color: "#ff4444", yPx: yOf(owedVals[xi]) * dpr });
+        if (vis.done) candidates.push({ label: "done",      value: formatHours(p.done),      color: "#44cc77", yPx: yOf(doneVals[xi]) * dpr });
+        if (vis.rem)  candidates.push({ label: "remaining", value: formatHours(p.remaining), color: "#44ff88", yPx: yOf(remVals[xi])  * dpr });
+        if (!candidates.length) return;
+        const closest = candidates.reduce((a, b) => Math.abs(my - a.yPx) < Math.abs(my - b.yPx) ? a : b);
 
         heatTipDate.textContent      = niceDate(new Date(p.t));
-        heatTipHours.textContent     = `${value} ${label}`;
-        heatTipHours.style.color     = color;
-        heatTip.style.borderColor    = color + "55";
+        heatTipHours.textContent     = `${closest.value} ${closest.label}`;
+        heatTipHours.style.color     = closest.color;
+        heatTip.style.borderColor    = closest.color + "55";
         heatTip.style.display        = "block";
         positionTip(e);
       };
       canvas.onmouseout = () => {
-        heatTip.style.display        = "none";
-        heatTipHours.style.color     = "#44ff88";
-        heatTip.style.borderColor    = "";
+        heatTip.style.display = "none";
+        heatTipHours.style.color = "#44ff88"; heatTip.style.borderColor = "";
       };
 
       if (meta) {
-        const days  = Math.round((maxT - minT) / 86400000) || 1;
-        const start = history[0].remaining;
-        const end   = history[history.length - 1].remaining;
-        const delta = end - start;
-        const sign  = delta > 0 ? "+" : "";
-        const rangeLabel = !days ? "all time" : days === 1 ? "last 24h" : `last ${days}d`;
-        meta.textContent = `${rangeLabel} · ${history.length} pts · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ debt grew" : "↓ cleared"}`;
+        const rangeLabel = !days ? "all time" : days === 1 ? "today (IST)" : `last ${days}d`;
+        const start = history[0].remaining, end = history[history.length - 1].remaining;
+        const delta = end - start, sign = delta > 0 ? "+" : "";
+        const activeLines = [vis.owed && "owed", vis.done && "done", vis.rem && "remaining"].filter(Boolean).join(", ");
+        meta.textContent = `${rangeLabel} · ${history.length} pts · net ${sign}${formatHours(Math.abs(delta))} ${delta > 0 ? "↑ debt grew" : "↓ cleared"} · showing: ${activeLines}`;
       }
     }
 
@@ -968,7 +967,6 @@
       const delay     = Math.max(5000, refreshAt - Date.now());
       setTimeout(loadAndSchedule, delay);
     }
-
     loadAndSchedule();
 
     async function loadTodoistTasks() {
@@ -1036,14 +1034,12 @@
       if (!dot || !text) return;
       window._focusActive = !!data.active;
       if (data.active) {
-        dot.classList.add("active");
-        text.classList.add("active");
-        const dur        = data.since ? formatElapsed(data.since) : "";
+        dot.classList.add("active"); text.classList.add("active");
+        const dur = data.since ? formatElapsed(data.since) : "";
         text.textContent = dur ? `Focusing · ${dur}` : "Focusing now";
       } else {
-        dot.classList.remove("active");
-        text.classList.remove("active");
-        const ago        = data.lastSeen ? formatElapsed(data.lastSeen) : null;
+        dot.classList.remove("active"); text.classList.remove("active");
+        const ago = data.lastSeen ? formatElapsed(data.lastSeen) : null;
         text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
       }
       updateSleepNote(getIST().getHours());
