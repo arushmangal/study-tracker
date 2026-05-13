@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 158,
+  "hoursCompleted": 159,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -364,6 +364,12 @@
     {
       "date": "12 May 2026",
       "topic": "Improving the page",
+      "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "13 May 2026",
+      "topic": "HCOC and OCOC-1 Revisions",
       "hours": 1,
       "labels": []
     }
