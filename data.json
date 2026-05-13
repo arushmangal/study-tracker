@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 159,
+  "hoursCompleted": 159.37,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -371,6 +371,12 @@
       "date": "13 May 2026",
       "topic": "HCOC and OCOC-1 Revisions",
       "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "13 May 2026",
+      "topic": "AC Circuits",
+      "hours": 0.37,
       "labels": []
     }
   ]
