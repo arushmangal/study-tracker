@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 159.37,
+  "hoursCompleted": 161.04,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -377,6 +377,12 @@
       "date": "13 May 2026",
       "topic": "AC Circuits",
       "hours": 0.37,
+      "labels": []
+    },
+    {
+      "date": "14 May 2026",
+      "topic": "BITSAT Mock",
+      "hours": 1.67,
       "labels": []
     }
   ]
