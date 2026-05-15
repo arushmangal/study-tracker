@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 161.04,
+  "hoursCompleted": 162.94,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -383,6 +383,18 @@
       "date": "14 May 2026",
       "topic": "BITSAT Mock",
       "hours": 1.67,
+      "labels": []
+    },
+    {
+      "date": "15 May 2026",
+      "topic": "revisions",
+      "hours": 1.21,
+      "labels": []
+    },
+    {
+      "date": "15 May 2026",
+      "topic": "Revisions",
+      "hours": 0.69,
       "labels": []
     }
   ]
