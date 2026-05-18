@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 176.81,
+  "hoursCompleted": 178.81,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -407,6 +407,18 @@
       "date": "17 May 2026",
       "topic": "JEE Advanced",
       "hours": 12,
+      "labels": []
+    },
+    {
+      "date": "18 May 2026",
+      "topic": "Mathematical Reasoning DPP",
+      "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "18 May 2026",
+      "topic": "Mathematical Reasoning Theory and Cards Making",
+      "hours": 1.5,
       "labels": []
     }
   ]
