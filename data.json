@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 164.81,
+  "hoursCompleted": 176.81,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -401,6 +401,12 @@
       "date": "15 May 2026",
       "topic": "revisions",
       "hours": 1.87,
+      "labels": []
+    },
+    {
+      "date": "17 May 2026",
+      "topic": "JEE Advanced",
+      "hours": 12,
       "labels": []
     }
   ]
