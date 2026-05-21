@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 179.31,
+  "hoursCompleted": 185.18,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -425,6 +425,18 @@
       "date": "18 May 2026",
       "topic": "Revision of Mathematical Reasoning Cards",
       "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "19 May 2026",
+      "topic": "Mreasoning cards",
+      "hours": 0.12,
+      "labels": []
+    },
+    {
+      "date": "21 May 2026",
+      "topic": "Revision + mock test",
+      "hours": 5.75,
       "labels": []
     }
   ]
