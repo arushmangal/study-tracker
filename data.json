@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 186.01,
+  "hoursCompleted": 188.01,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -443,6 +443,12 @@
       "date": "21 May 2026",
       "topic": "Cards due today",
       "hours": 0.83,
+      "labels": []
+    },
+    {
+      "date": "25 May 2026",
+      "topic": "Microtasks",
+      "hours": 2,
       "labels": []
     }
   ]
