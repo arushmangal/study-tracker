@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 193.01,
+  "hoursCompleted": 204.51,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -455,6 +455,24 @@
       "date": "26 May 2026",
       "topic": "JEE Revisions",
       "hours": 5,
+      "labels": []
+    },
+    {
+      "date": "27 May 2026",
+      "topic": "Revision for BITSAT",
+      "hours": 4.5,
+      "labels": []
+    },
+    {
+      "date": "27 May 2026",
+      "topic": "BITSAT Exam",
+      "hours": 4,
+      "labels": []
+    },
+    {
+      "date": "27 May 2026",
+      "topic": "Tutoring",
+      "hours": 3,
       "labels": []
     }
   ]
