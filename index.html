@@ -180,7 +180,7 @@
     #row-five {
       width: 100%; max-width: 960px;
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 12px;
       align-items: start;
     }
@@ -226,7 +226,9 @@
       transition: background 0.2s, border-color 0.2s, color 0.2s; text-decoration: none;
     }
     .like-badge:hover { background: #44ff88; border-color: #44ff88; color: #000; }
-  </style>
+
+    /* Todoist */
+</style>
 </head>
 <body>
 
@@ -373,12 +375,6 @@
   <div id="row-five">
     <div class="panel">
       <div class="sessions" id="breakdown-box"></div>
-    </div>
-    <div class="panel" id="todoist-section">
-      <div class="section-label">Active tasks</div>
-      <div id="todoist-list">
-        <div class="session-item" style="color:#3a3a3a;font-size:0.82rem">Loading…</div>
-      </div>
     </div>
     <div class="panel">
       <div class="sessions">
@@ -954,64 +950,7 @@
     }
     loadAndSchedule();
 
-    async function loadTodoistTasks() {
-      try {
-        const res  = await fetch(`${WORKER_URL}?action=getTodoistTasks`);
-        const data = await res.json();
-        if (!data.ok || !data.tasks) return;
-        renderTodoistTasks(data.tasks);
-      } catch(e) {}
-    }
-
-    function renderTodoistTasks(tasks) {
-      const list = document.getElementById("todoist-list");
-      if (!tasks.length) {
-        list.innerHTML = `<div class="session-item" style="color:#3a3a3a;font-size:0.82rem">No active tasks.</div>`;
-        return;
-      }
-      const todayISO = new Date().toISOString().slice(0, 10);
-      list.innerHTML = tasks.map(t => {
-        const overdue = t.dueDate && t.dueDate < todayISO;
-        return `
-          <div class="todoist-item">
-            <div class="p-dot p-dot-${t.priority}"></div>
-            <div class="todoist-text">
-              <div class="todoist-content">${t.content.replace(/&/g,"&amp;").replace(/</g,"&lt;")}</div>
-              <div class="todoist-meta">
-                <span class="todoist-project">${t.project}</span>
-                ${t.due ? `<span class="todoist-due ${overdue ? "overdue" : ""}">${t.due}</span>` : ""}
-              </div>
-            </div>
-          </div>`;
-      }).join("");
-    }
-
-    async function syncTodoist() {
-      try {
-        const res  = await fetch(`${WORKER_URL}?action=syncTodoistCompleted`);
-        const data = await res.json();
-        if (data.synced > 0) {
-          console.log(`Todoist: synced ${data.synced} session(s), new total: ${data.newTotal}h`);
-          await loadData();
-        }
-      } catch(e) {}
-    }
-
-    loadTodoistTasks();
-    syncTodoist();
-    setInterval(loadTodoistTasks, 3 * 60 * 1000);
-    setInterval(syncTodoist,      5 * 60 * 1000);
-
-    function formatElapsed(fromISO) {
-      const diffMs = Date.now() - new Date(fromISO).getTime();
-      const totalM = Math.floor(diffMs / 60000);
-      const h      = Math.floor(totalM / 60);
-      const m      = totalM % 60;
-      if (h > 0 && m > 0) return `${h}h ${m}m`;
-      if (h > 0)          return `${h}h`;
-      if (m > 0)          return `${m}m`;
-      return "just now";
-    }
+    
 
     function renderFocusState(data) {
       const dot  = document.getElementById("focus-dot");
