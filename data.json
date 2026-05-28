@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 204.51,
+  "hoursCompleted": 211.14,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -473,6 +473,12 @@
       "date": "27 May 2026",
       "topic": "Tutoring",
       "hours": 3,
+      "labels": []
+    },
+    {
+      "date": "28 May 2026",
+      "topic": "bitsat choice list deliberation",
+      "hours": 6.63,
       "labels": []
     }
   ]
