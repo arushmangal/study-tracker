@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 223.64,
+  "hoursCompleted": 235.64,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -497,6 +497,12 @@
       "date": "29 May 2026",
       "topic": "Choice list BITSAT work",
       "hours": 5,
+      "labels": []
+    },
+    {
+      "date": "1 Jun 2026",
+      "topic": "Working",
+      "hours": 12,
       "labels": []
     }
   ]
