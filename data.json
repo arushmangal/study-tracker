@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 235.64,
+  "hoursCompleted": 241.64,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -503,6 +503,12 @@
       "date": "1 Jun 2026",
       "topic": "Working",
       "hours": 12,
+      "labels": []
+    },
+    {
+      "date": "2 Jun 2026",
+      "topic": "Working",
+      "hours": 6,
       "labels": []
     }
   ]
