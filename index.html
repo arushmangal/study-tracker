@@ -952,11 +952,42 @@
 
     
 
+    function formatElapsed(isoString) {
+      const diffMs = Date.now() - new Date(isoString).getTime();
+      if (isNaN(diffMs) || diffMs < 0) return "";
+      const totalSecs = Math.floor(diffMs / 1000);
+      const totalMins = Math.floor(totalSecs / 60);
+      const totalHrs  = Math.floor(totalMins / 60);
+      const days      = Math.floor(totalHrs  / 24);
+      if (days >= 1)       return `${days}d ${totalHrs % 24}h`;
+      if (totalHrs >= 1)   return `${totalHrs}h ${totalMins % 60}m`;
+      if (totalMins >= 1)  return `${totalMins}m`;
+      return `${totalSecs}s`;
+    }
+
+    // Ticks the focus label every second so elapsed time stays live
+    window._focusSince   = null;
+    window._focusLastSeen = null;
+    function tickFocusText() {
+      const text = document.getElementById("focus-text");
+      if (!text) return;
+      if (window._focusActive && window._focusSince) {
+        const dur = formatElapsed(window._focusSince);
+        text.textContent = dur ? `Focusing · ${dur}` : "Focusing now";
+      } else if (!window._focusActive && window._focusLastSeen) {
+        const ago = formatElapsed(window._focusLastSeen);
+        text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
+      }
+    }
+    setInterval(tickFocusText, 1000);
+
     function renderFocusState(data) {
       const dot  = document.getElementById("focus-dot");
       const text = document.getElementById("focus-text");
       if (!dot || !text) return;
-      window._focusActive = !!data.active;
+      window._focusActive   = !!data.active;
+      window._focusSince    = data.since    || null;
+      window._focusLastSeen = data.lastSeen || null;
       if (data.active) {
         dot.classList.add("active"); text.classList.add("active");
         const dur = data.since ? formatElapsed(data.since) : "";
