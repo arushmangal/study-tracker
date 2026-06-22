@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 252.64,
+  "hoursCompleted": 260.14,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -521,6 +521,12 @@
       "date": "13 Jun 2026",
       "topic": "Abdul Bari C++",
       "hours": 3,
+      "labels": []
+    },
+    {
+      "date": "22 Jun 2026",
+      "topic": "C++",
+      "hours": 7.5,
       "labels": []
     }
   ]
