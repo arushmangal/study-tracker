@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 260.14,
+  "hoursCompleted": 269.14,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -527,6 +527,24 @@
       "date": "22 Jun 2026",
       "topic": "C++",
       "hours": 7.5,
+      "labels": []
+    },
+    {
+      "date": "23 Jun 2026",
+      "topic": "Accepting provisional admission and completing formalities at DTU",
+      "hours": 6,
+      "labels": []
+    },
+    {
+      "date": "26 Jun 2026",
+      "topic": "printing counselling documents and reading through fineprint",
+      "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "26 Jun 2026",
+      "topic": "organizing tons of files on laptop and hard drives",
+      "hours": 2,
       "labels": []
     }
   ]
