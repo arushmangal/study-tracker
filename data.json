@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 269.14,
+  "hoursCompleted": 273.31,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -545,6 +545,30 @@
       "date": "26 Jun 2026",
       "topic": "organizing tons of files on laptop and hard drives",
       "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "Take out hard drive and move all BusyData",
+      "hours": 0.75,
+      "labels": []
+    },
+    {
+      "date": "23 Jun 2026",
+      "topic": "creating a golden source on pc",
+      "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "26 Jun 2026",
+      "topic": "CentraleSuperlec Documents Review",
+      "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "26 Jun 2026",
+      "topic": "JAC Counselling Reconfirmation of choices",
+      "hours": 0.42,
       "labels": []
     }
   ]
