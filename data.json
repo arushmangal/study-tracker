@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 273.31,
+  "hoursCompleted": 276.46,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -569,6 +569,52 @@
       "date": "26 Jun 2026",
       "topic": "JAC Counselling Reconfirmation of choices",
       "hours": 0.42,
+      "labels": []
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "Watch: Octal to HexaDecimal Conversion",
+      "hours": 0.1,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "Watch: Octal and HexaDecimal to Binary Conversion",
+      "hours": 0.28,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "Watch: Binary, Octal and HexaDecimal to Decimal Conversion",
+      "hours": 0.25,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "Watch: Decimal to Binary, Octal and HexaDecimal Conversion",
+      "hours": 0.15,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "Watch: Number Systems",
+      "hours": 0.37,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "setting up a proper new study system",
+      "hours": 2,
       "labels": []
     }
   ]
