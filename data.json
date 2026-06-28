@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 284.25,
+  "hoursCompleted": 292.04,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -615,6 +615,60 @@
       "date": "27 Jun 2026",
       "topic": "setting up a proper new study system",
       "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "29 Jun 2026",
+      "topic": "Watch: Setup Dev-C++ and Settings",
+      "hours": 0.2,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "29 Jun 2026",
+      "topic": "Watch: Setup CodeBlocks and Settings",
+      "hours": 0.3,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "29 Jun 2026",
+      "topic": "Watch: Practice C++ Online Compiler",
+      "hours": 0.13,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "BITS CSP Fineprints",
+      "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "29 Jun 2026",
+      "topic": "Managing external hard drives and PC hard drives",
+      "hours": 4,
+      "labels": []
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "creating a golden source on a hard drive",
+      "hours": 0.18,
+      "labels": []
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "File management external hard drives",
+      "hours": 0.65,
+      "labels": []
+    },
+    {
+      "date": "27 Jun 2026",
+      "topic": "PC to be closed up for repair",
+      "hours": 0.33,
       "labels": []
     },
     {
