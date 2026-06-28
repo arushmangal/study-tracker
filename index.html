@@ -104,12 +104,18 @@
     #focus-row  { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #1c1c1c; }
     #focus-dot  { width: 8px; height: 8px; border-radius: 50%; background: #2a2a2a; flex-shrink: 0; transition: background 0.5s ease, box-shadow 0.5s ease; }
     #focus-dot.active { background: #44ff88; box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.35); animation: focus-pulse 2.4s ease-in-out infinite; }
+    #focus-dot.onbreak { background: #ff9944; box-shadow: 0 0 0 3px rgba(255,153,68,0.15), 0 0 8px rgba(255,153,68,0.35); animation: break-pulse 2.4s ease-in-out infinite; }
     @keyframes focus-pulse {
       0%,100% { box-shadow: 0 0 0 3px rgba(68,255,136,0.15), 0 0 8px rgba(68,255,136,0.3); }
       50%      { box-shadow: 0 0 0 5px rgba(68,255,136,0.08), 0 0 14px rgba(68,255,136,0.5); }
     }
+    @keyframes break-pulse {
+      0%,100% { box-shadow: 0 0 0 3px rgba(255,153,68,0.15), 0 0 8px rgba(255,153,68,0.3); }
+      50%      { box-shadow: 0 0 0 5px rgba(255,153,68,0.08), 0 0 14px rgba(255,153,68,0.5); }
+    }
     #focus-text { font-size: 0.78rem; color: #444; transition: color 0.4s ease; }
-    #focus-text.active { color: #aaa; }
+    #focus-text.active  { color: #aaa; }
+    #focus-text.onbreak { color: #ff9944; }
 
     /* Study rhythm mini-cards */
     #study-insights { width: 100%; }
@@ -929,8 +935,22 @@
       }
 
       document.getElementById("sessions-label").textContent = "Recent sessions";
-      document.getElementById("sessions-list").innerHTML = sessions.length
-        ? [...sessions].reverse().slice(0,6).map(s => `
+
+      // Sort sessions by date descending (most recent first), regardless of physical order in data.json
+      const MONTH_ORDER = { Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12 };
+      function sessionSortKey(s) {
+        if (s.loggedAt) return new Date(s.loggedAt).getTime();
+        if (s.dateISO)  return new Date(s.dateISO).getTime();
+        if (s.date) {
+          const m = String(s.date).trim().match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+          if (m && MONTH_ORDER[m[2]]) return new Date(Number(m[3]), MONTH_ORDER[m[2]] - 1, Number(m[1]), 12, 0, 0).getTime();
+        }
+        return 0;
+      }
+      const sortedSessions = [...sessions].sort((a, b) => sessionSortKey(b) - sessionSortKey(a));
+
+      document.getElementById("sessions-list").innerHTML = sortedSessions.length
+        ? sortedSessions.slice(0,6).map(s => `
             <div class="session-item">
               <span>📖 ${s.topic}</span>
               <span class="session-hrs">${formatHours(s.hours)} · ${s.date || ""}</span>
@@ -965,16 +985,65 @@
       return `${totalSecs}s`;
     }
 
+    // ── Auto-break constants ─────────────────────────────────────────────────
+    const FOCUS_BLOCK_MS = 3 * 60 * 60 * 1000;  // 3 hours of focus
+    const BREAK_BLOCK_MS = 15 * 60 * 1000;       // 15 minutes of break
+
+    // Returns the current "phase" given that focus started at sinceMs (Unix ms).
+    // Returns { onBreak: bool, phaseStartMs, phaseEndMs, cycleElapsedMs }
+    function getFocusPhase(sinceMs) {
+      const elapsed = Date.now() - sinceMs;
+      const cycle   = FOCUS_BLOCK_MS + BREAK_BLOCK_MS;           // 3h15m per cycle
+      const posInCycle = elapsed % cycle;
+      if (posInCycle < FOCUS_BLOCK_MS) {
+        // In focus window
+        const focusStartMs = Date.now() - posInCycle;
+        return { onBreak: false, phaseStartMs: focusStartMs, phaseEndMs: focusStartMs + FOCUS_BLOCK_MS };
+      } else {
+        // In break window
+        const breakStartMs = Date.now() - (posInCycle - FOCUS_BLOCK_MS);
+        return { onBreak: true, phaseStartMs: breakStartMs, phaseEndMs: breakStartMs + BREAK_BLOCK_MS };
+      }
+    }
+
     // Ticks the focus label every second so elapsed time stays live
-    window._focusSince   = null;
+    window._focusSince    = null;
     window._focusLastSeen = null;
     function tickFocusText() {
+      const dot  = document.getElementById("focus-dot");
       const text = document.getElementById("focus-text");
-      if (!text) return;
+      if (!dot || !text) return;
+
       if (window._focusActive && window._focusSince) {
-        const dur = formatElapsed(window._focusSince);
-        text.textContent = dur ? `Focusing · ${dur}` : "Focusing now";
+        const sinceMs = new Date(window._focusSince).getTime();
+        const phase   = getFocusPhase(sinceMs);
+
+        if (phase.onBreak) {
+          // Break mode
+          dot.classList.remove("active");
+          dot.classList.add("onbreak");
+          text.classList.remove("active");
+          text.classList.add("onbreak");
+          const remaining = Math.max(0, phase.phaseEndMs - Date.now());
+          const mins = Math.floor(remaining / 60000);
+          const secs = Math.floor((remaining % 60000) / 1000);
+          text.textContent = `Break · ${mins}:${String(secs).padStart(2,"0")} left`;
+        } else {
+          // Focus mode — show time into current focus block
+          dot.classList.add("active");
+          dot.classList.remove("onbreak");
+          text.classList.add("active");
+          text.classList.remove("onbreak");
+          const elapsed = Date.now() - phase.phaseStartMs;
+          const hrs  = Math.floor(elapsed / 3600000);
+          const mins = Math.floor((elapsed % 3600000) / 60000);
+          const secs = Math.floor((elapsed % 60000) / 1000);
+          const elStr = hrs > 0 ? `${hrs}h ${String(mins).padStart(2,"0")}m` : `${mins}m ${String(secs).padStart(2,"0")}s`;
+          text.textContent = `Focusing · ${elStr}`;
+        }
       } else if (!window._focusActive && window._focusLastSeen) {
+        dot.classList.remove("active", "onbreak");
+        text.classList.remove("active", "onbreak");
         const ago = formatElapsed(window._focusLastSeen);
         text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
       }
@@ -988,12 +1057,25 @@
       window._focusActive   = !!data.active;
       window._focusSince    = data.since    || null;
       window._focusLastSeen = data.lastSeen || null;
-      if (data.active) {
-        dot.classList.add("active"); text.classList.add("active");
-        const dur = data.since ? formatElapsed(data.since) : "";
-        text.textContent = dur ? `Focusing · ${dur}` : "Focusing now";
-      } else {
-        dot.classList.remove("active"); text.classList.remove("active");
+
+      if (data.active && data.since) {
+        const sinceMs = new Date(data.since).getTime();
+        const phase   = getFocusPhase(sinceMs);
+        if (phase.onBreak) {
+          dot.classList.remove("active"); dot.classList.add("onbreak");
+          text.classList.remove("active"); text.classList.add("onbreak");
+          const remaining = Math.max(0, phase.phaseEndMs - Date.now());
+          const mins = Math.floor(remaining / 60000);
+          const secs = Math.floor((remaining % 60000) / 1000);
+          text.textContent = `Break · ${mins}:${String(secs).padStart(2,"0")} left`;
+        } else {
+          dot.classList.add("active"); dot.classList.remove("onbreak");
+          text.classList.add("active"); text.classList.remove("onbreak");
+          text.textContent = "Focusing now";
+        }
+      } else if (!data.active) {
+        dot.classList.remove("active", "onbreak");
+        text.classList.remove("active", "onbreak");
         const ago = data.lastSeen ? formatElapsed(data.lastSeen) : null;
         text.textContent = ago ? `Last seen ${ago} ago` : "Not focusing";
       }
