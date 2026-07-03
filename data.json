@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 321.31,
+  "hoursCompleted": 334.1,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -759,6 +759,24 @@
       "date": "29 Jun 2026",
       "topic": "studying c++",
       "hours": 8,
+      "labels": []
+    },
+    {
+      "date": "30 Jun 2026",
+      "topic": "c++ tutorials and git",
+      "hours": 5.97,
+      "labels": []
+    },
+    {
+      "date": "30 Jun 2026",
+      "topic": "checking up on counsellings",
+      "hours": 1,
+      "labels": []
+    },
+    {
+      "date": "29 Jun 2026",
+      "topic": "c++ tutorials and practice",
+      "hours": 5.82,
       "labels": []
     }
   ]
