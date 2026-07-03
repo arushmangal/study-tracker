@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 292.04,
+  "hoursCompleted": 321.31,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -723,6 +723,42 @@
       "date": "27 Jun 2026",
       "topic": "PC to be closed up for repair",
       "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "3 Jul 2026",
+      "topic": "Working with claude",
+      "hours": 3,
+      "labels": []
+    },
+    {
+      "date": "3 Jul 2026",
+      "topic": "brand catalogues",
+      "hours": 3.97,
+      "labels": []
+    },
+    {
+      "date": "2 Jul 2026",
+      "topic": "creative buildage website",
+      "hours": 2.95,
+      "labels": []
+    },
+    {
+      "date": "2 Jul 2026",
+      "topic": "Working on creative buildage website and catalogues",
+      "hours": 5.72,
+      "labels": []
+    },
+    {
+      "date": "1 Jun 2027",
+      "topic": "working on creative buildage website",
+      "hours": 5.63,
+      "labels": []
+    },
+    {
+      "date": "29 Jun 2026",
+      "topic": "studying c++",
+      "hours": 8,
       "labels": []
     }
   ]
