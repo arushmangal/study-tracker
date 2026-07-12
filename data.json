@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 334.1,
+  "hoursCompleted": 337.45,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -771,6 +771,98 @@
       "date": "29 Jun 2026",
       "topic": "c++ tutorials and practice",
       "hours": 5.82,
+      "labels": []
+    },
+    {
+      "date": "13 Jul 2026",
+      "topic": "Code: Area of a Triangle",
+      "hours": 0.42,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "13 Jul 2026",
+      "topic": "Watch: Demo - First Program",
+      "hours": 0.2,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "13 Jul 2026",
+      "topic": "Watch: Writing My First Program",
+      "hours": 0.45,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "13 Jul 2026",
+      "topic": "Watch: Setup Xcode",
+      "hours": 0.08,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "12 Jul 2026",
+      "topic": "Watch: Skeleton of C++ Program",
+      "hours": 0.28,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "12 Jul 2026",
+      "topic": "Watch: Debugging in Dev-C++",
+      "hours": 0.25,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "12 Jul 2026",
+      "topic": "Watch: Debugging in CodeBlocks",
+      "hours": 0.22,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "12 Jul 2026",
+      "topic": "Watch: Setup Visual Studio",
+      "hours": 0.2,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "11 Jul 2026",
+      "topic": "index management",
+      "hours": 0.08,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "10 Jul 2026",
+      "topic": "study git",
+      "hours": 3,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "10 Jul 2026",
+      "topic": "update the page to reflect im on vacation",
+      "hours": 0.17,
+      "labels": []
+    },
+    {
+      "date": "4 Jul 2026",
+      "topic": "studying git and working on website",
+      "hours": 6,
       "labels": []
     }
   ]
