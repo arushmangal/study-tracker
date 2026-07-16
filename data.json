@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 341.45,
+  "hoursCompleted": 341.72,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -870,6 +870,94 @@
       "topic": "building steady the app",
       "hours": 4,
       "labels": []
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Undoing Commits",
+      "hours": 0.03,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Cloning & Working Locally",
+      "hours": 0.03,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: GitHub Workflow for Open Source",
+      "hours": 0.03,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Branching and the GitHub Workflow",
+      "hours": 0.04,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Introduction to Git & GitHub",
+      "hours": 0.02,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Most Used Git Commands",
+      "hours": 0.03,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: 2-Step Commit",
+      "hours": 0.02,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: How Commits Work",
+      "hours": 0.02,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Merging",
+      "hours": 0.01,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Merge Conflicts",
+      "hours": 0.02,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Watch: Rebasing",
+      "hours": 0.02,
+      "labels": [
+        "light"
+      ]
     }
   ]
 }
