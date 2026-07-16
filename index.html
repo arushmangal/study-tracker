@@ -1278,6 +1278,9 @@
         <div id="admin-log-msg"></div>
         <button class="admin-btn primary" onclick="submitLogSession()">Log completed session</button>
 
+        <div id="admin-sync-msg" style="margin-top:10px;"></div>
+        <button class="admin-btn secondary" onclick="submitForceSync()">Force Todoist sync</button>
+
         <div class="admin-status">Signed in to The Ledger</div>
         <div class="admin-logout" onclick="adminLogout()">Log out</div>
       `;
@@ -1345,6 +1348,29 @@
       if (!session) return;
       window._sessionsCache = (window._sessionsCache || []).concat([session]);
       renderSessionStats(window._sessionsCache, window._lastOwed || 0, hoursCompleted);
+    }
+
+    async function submitForceSync() {
+      const msgBox = document.getElementById("admin-sync-msg");
+      msgBox.innerHTML = `<div class="admin-status">Syncing…</div>`;
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=syncTodoistCompleted`);
+        const data = await res.json();
+        if (data.ok === false) {
+          msgBox.innerHTML = `<div class="admin-error">${data.error || "Sync failed."}</div>`;
+          return;
+        }
+        if (data.synced > 0 && Array.isArray(data.sessions)) {
+          window._sessionsCache = (window._sessionsCache || []).concat(data.sessions);
+          const newTotal = data.newTotal ?? window._sessionsCache.reduce((sum, s) => sum + (Number(s.hours) || 0), 0);
+          renderSessionStats(window._sessionsCache, window._lastOwed || 0, newTotal);
+          msgBox.innerHTML = `<div class="admin-success">Synced ${data.synced} session${data.synced === 1 ? "" : "s"}.</div>`;
+        } else {
+          msgBox.innerHTML = `<div class="admin-status">${data.message || "No new completed tasks."}</div>`;
+        }
+      } catch(e) {
+        msgBox.innerHTML = `<div class="admin-error">Network error — try again.</div>`;
+      }
     }
 
     document.addEventListener("keydown", (e) => {
