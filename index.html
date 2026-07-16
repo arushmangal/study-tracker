@@ -240,6 +240,50 @@
     .like-badge:hover { background: #44ff88; border-color: #44ff88; color: #000; }
 
     /* Todoist */
+
+    /* ── The Ledger admin panel ── */
+    #admin-panel {
+      display: none; position: fixed; bottom: 20px; right: 20px; z-index: 10000;
+      width: 300px; max-width: calc(100vw - 40px);
+      background: #151515; border: 1px solid #2e2e2e; border-radius: 10px;
+      padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      font-size: 0.85rem; color: #ccc;
+    }
+    #admin-panel.open { display: block; }
+    .admin-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; font-weight: bold; color: #eee; letter-spacing: 0.3px;
+    }
+    .admin-close { cursor: pointer; color: #666; font-size: 1rem; line-height: 1; }
+    .admin-close:hover { color: #ccc; }
+    .admin-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+    .admin-field label { font-size: 0.72rem; color: #777; }
+    .admin-field input, .admin-field select {
+      background: #0f0f0f; border: 1px solid #2e2e2e; border-radius: 6px;
+      color: #eee; padding: 8px 10px; font-size: 0.85rem; font-family: inherit;
+    }
+    .admin-field input:focus, .admin-field select:focus { outline: none; border-color: #44ff88; }
+    .admin-labels { display: flex; gap: 6px; }
+    .admin-label-chip {
+      flex: 1; text-align: center; padding: 6px 0; border-radius: 6px; cursor: pointer;
+      border: 1px solid #2e2e2e; color: #888; font-size: 0.72rem;
+    }
+    .admin-label-chip.selected { border-color: #44ff88; color: #44ff88; }
+    .admin-btn {
+      width: 100%; padding: 9px 0; border-radius: 6px; border: none; cursor: pointer;
+      font-size: 0.85rem; font-weight: bold; margin-top: 4px;
+    }
+    .admin-btn.primary { background: #44ff88; color: #000; }
+    .admin-btn.primary:hover { background: #33e070; }
+    .admin-btn.secondary { background: #232323; color: #ccc; }
+    .admin-btn.secondary:hover { background: #2c2c2c; }
+    .admin-btn.toggle-on  { background: #44ff88; color: #000; }
+    .admin-btn.toggle-off { background: #ff9944; color: #000; }
+    .admin-error { color: #ff6666; font-size: 0.75rem; margin: -4px 0 8px; }
+    .admin-success { color: #44ff88; font-size: 0.75rem; margin: -4px 0 8px; }
+    .admin-status { font-size: 0.72rem; color: #666; margin-top: 10px; text-align: center; }
+    .admin-logout { font-size: 0.72rem; color: #666; text-align: center; margin-top: 10px; cursor: pointer; text-decoration: underline; }
+    .admin-logout:hover { color: #999; }
 </style>
 </head>
 <body>
@@ -264,6 +308,15 @@
   <div id="heat-tooltip">
     <div id="heat-tooltip-date"></div>
     <div id="heat-tooltip-hours"></div>
+  </div>
+
+  <!-- Hidden admin panel — opened with Ctrl+Shift+A, invisible otherwise -->
+  <div id="admin-panel">
+    <div class="admin-header">
+      <span>The Ledger — Admin</span>
+      <span class="admin-close" onclick="closeAdminPanel()">✕</span>
+    </div>
+    <div id="admin-panel-body"></div>
   </div>
 
   <!-- ROW 1: Loading disclaimer (auto-hides) -->
@@ -885,6 +938,42 @@
       }
     }
 
+    // Renders everything derived from the sessions array + owed/done totals.
+    // Shared by loadData() (fresh fetch) and applyOptimisticSession() (instant
+    // post-log update, without waiting on the GitHub raw CDN to catch up).
+    function renderSessionStats(sessions, owed, done) {
+      const remaining = Math.max(0, owed - done);
+      const pct       = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
+
+      setBig("remaining", remaining);
+      document.getElementById("done").textContent = formatHours(done);
+      document.getElementById("bar").style.width  = pct + "%";
+
+      renderInsights(sessions);
+
+      const MONTH_ORDER = { Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12 };
+      function sessionSortKey(s) {
+        if (s.loggedAt) return new Date(s.loggedAt).getTime();
+        if (s.dateISO)  return new Date(s.dateISO).getTime();
+        if (s.date) {
+          const m = String(s.date).trim().match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
+          if (m && MONTH_ORDER[m[2]]) return new Date(Number(m[3]), MONTH_ORDER[m[2]] - 1, Number(m[1]), 12, 0, 0).getTime();
+        }
+        return 0;
+      }
+      const sortedSessions = [...sessions].sort((a, b) => sessionSortKey(b) - sessionSortKey(a));
+
+      document.getElementById("sessions-list").innerHTML = sortedSessions.length
+        ? sortedSessions.slice(0,6).map(s => `
+            <div class="session-item">
+              <span>📖 ${s.topic}</span>
+              <span class="session-hrs">${formatHours(s.hours)} · ${s.date || ""}</span>
+            </div>`).join("")
+        : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
+
+      loadAndRenderHoursGraph(sessions);
+    }
+
     async function loadData() {
       let workerData     = { totalLikes: 0, totalHours: 0, breakdown: [], lastChange: null };
       let hoursCompleted = 0;
@@ -901,16 +990,14 @@
         sessions       = Array.isArray(dataResult.value.sessions) ? dataResult.value.sessions : [];
       }
 
-      const owed      = workerData.totalHours || 0;
-      const done      = hoursCompleted;
-      const remaining = Math.max(0, owed - done);
-      const pct       = owed > 0 ? Math.min(100, (done / owed) * 100) : 0;
+      const owed = workerData.totalHours || 0;
+      const done = hoursCompleted;
 
-      setBig("remaining", remaining);
+      window._sessionsCache = sessions;
+      window._lastOwed      = owed;
+
       document.getElementById("owed").textContent  = formatHours(owed);
-      document.getElementById("done").textContent  = formatHours(done);
       document.getElementById("likes").textContent = `${workerData.totalLikes || 0} total likes across ${(workerData.breakdown || []).length} comments`;
-      document.getElementById("bar").style.width   = pct + "%";
 
       const lc = workerData.lastChange;
       document.getElementById("last-change").innerHTML = lc
@@ -922,7 +1009,7 @@
         startCountdown(workerData.cachedAt);
       }
 
-      renderInsights(sessions);
+      renderSessionStats(sessions, owed, done);
 
       const breakdown = Array.isArray(workerData.breakdown) ? workerData.breakdown : [];
       const box       = document.getElementById("breakdown-box");
@@ -948,27 +1035,6 @@
       }
 
       document.getElementById("sessions-label").textContent = "Recent sessions";
-
-      // Sort sessions by date descending (most recent first), regardless of physical order in data.json
-      const MONTH_ORDER = { Jan:1,Feb:2,Mar:3,Apr:4,May:5,Jun:6,Jul:7,Aug:8,Sep:9,Oct:10,Nov:11,Dec:12 };
-      function sessionSortKey(s) {
-        if (s.loggedAt) return new Date(s.loggedAt).getTime();
-        if (s.dateISO)  return new Date(s.dateISO).getTime();
-        if (s.date) {
-          const m = String(s.date).trim().match(/^(\d{1,2})\s+([A-Za-z]{3})\s+(\d{4})$/);
-          if (m && MONTH_ORDER[m[2]]) return new Date(Number(m[3]), MONTH_ORDER[m[2]] - 1, Number(m[1]), 12, 0, 0).getTime();
-        }
-        return 0;
-      }
-      const sortedSessions = [...sessions].sort((a, b) => sessionSortKey(b) - sessionSortKey(a));
-
-      document.getElementById("sessions-list").innerHTML = sortedSessions.length
-        ? sortedSessions.slice(0,6).map(s => `
-            <div class="session-item">
-              <span>📖 ${s.topic}</span>
-              <span class="session-hrs">${formatHours(s.hours)} · ${s.date || ""}</span>
-            </div>`).join("")
-        : `<div class="session-item"><span>No sessions logged yet.</span></div>`;
 
       dismissDisclaimer();
       loadAndRenderHoursGraph(sessions);
@@ -1106,6 +1172,194 @@
     pollFocusState();
     setInterval(pollFocusState, 60 * 1000);
     setInterval(() => { if (window._focusActive) pollFocusState(); }, 30 * 1000);
+
+    // ════════════════════════════════════════════════════════════════════
+    // THE LEDGER — hidden admin panel (Ctrl+Shift+A to open, invisible otherwise)
+    // ════════════════════════════════════════════════════════════════════
+    const LEDGER_SESSION_KEY = "ledger.adminSession";
+    window._adminSelectedLabel = "";
+
+    function getValidAdminToken() {
+      let raw;
+      try { raw = JSON.parse(localStorage.getItem(LEDGER_SESSION_KEY) || "null"); } catch(e) { raw = null; }
+      if (!raw || !raw.token || !raw.expiresAt || Date.now() > raw.expiresAt) {
+        if (raw) localStorage.removeItem(LEDGER_SESSION_KEY);
+        return null;
+      }
+      return raw.token;
+    }
+
+    function setAdminSession(token, expiresAt) {
+      localStorage.setItem(LEDGER_SESSION_KEY, JSON.stringify({ token, expiresAt }));
+    }
+
+    function clearAdminSession() {
+      localStorage.removeItem(LEDGER_SESSION_KEY);
+    }
+
+    function openAdminPanel() {
+      document.getElementById("admin-panel").classList.add("open");
+      renderAdminPanel();
+    }
+
+    function closeAdminPanel() {
+      document.getElementById("admin-panel").classList.remove("open");
+    }
+
+    function toggleAdminPanel() {
+      document.getElementById("admin-panel").classList.contains("open") ? closeAdminPanel() : openAdminPanel();
+    }
+
+    function renderAdminPanel() {
+      const body  = document.getElementById("admin-panel-body");
+      const token = getValidAdminToken();
+      body.innerHTML = token ? adminLoggedInView() : adminLoginView();
+    }
+
+    function adminLoginView() {
+      return `
+        <div class="admin-field">
+          <label>Secret</label>
+          <input type="password" id="admin-secret-input" placeholder="••••••••" autocomplete="off" />
+        </div>
+        <div id="admin-login-error"></div>
+        <button class="admin-btn primary" onclick="submitAdminLogin()">Log in</button>
+      `;
+    }
+
+    async function submitAdminLogin() {
+      const input  = document.getElementById("admin-secret-input");
+      const errBox = document.getElementById("admin-login-error");
+      const secret = input.value.trim();
+      errBox.innerHTML = "";
+      if (!secret) return;
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=adminLogin&secret=${encodeURIComponent(secret)}`);
+        const data = await res.json();
+        if (!res.ok || data.ok === false) {
+          errBox.innerHTML = `<div class="admin-error">Wrong secret.</div>`;
+          return;
+        }
+        setAdminSession(data.token, data.expiresAt);
+        renderAdminPanel();
+      } catch(e) {
+        errBox.innerHTML = `<div class="admin-error">Network error — try again.</div>`;
+      }
+    }
+
+    function adminLogout() {
+      clearAdminSession();
+      renderAdminPanel();
+    }
+
+    function adminLoggedInView() {
+      const isActive = !!window._focusActive;
+      return `
+        <button class="admin-btn ${isActive ? "toggle-on" : "toggle-off"}" onclick="submitFocusToggle()">
+          ${isActive ? "🟢 Focusing — click to break" : "🟠 On break — click to focus"}
+        </button>
+
+        <div class="admin-field" style="margin-top:14px;">
+          <label>Topic</label>
+          <input type="text" id="admin-log-topic" placeholder="What did you study?" />
+        </div>
+        <div class="admin-field">
+          <label>Hours</label>
+          <input type="number" id="admin-log-hours" step="0.01" min="0.01" placeholder="e.g. 1.5" />
+        </div>
+        <div class="admin-field">
+          <label>Label</label>
+          <div class="admin-labels">
+            <div class="admin-label-chip selected" onclick="selectAdminLabel(this, '')">none</div>
+            <div class="admin-label-chip" onclick="selectAdminLabel(this, 'deep')">deep</div>
+            <div class="admin-label-chip" onclick="selectAdminLabel(this, 'light')">light</div>
+          </div>
+        </div>
+        <div id="admin-log-msg"></div>
+        <button class="admin-btn primary" onclick="submitLogSession()">Log completed session</button>
+
+        <div class="admin-status">Signed in to The Ledger</div>
+        <div class="admin-logout" onclick="adminLogout()">Log out</div>
+      `;
+    }
+
+    function selectAdminLabel(el, label) {
+      window._adminSelectedLabel = label;
+      document.querySelectorAll(".admin-label-chip").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+    }
+
+    async function submitFocusToggle() {
+      const token = getValidAdminToken();
+      if (!token) { renderAdminPanel(); return; }
+      const nextState = window._focusActive ? "off" : "on";
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=setFocusState&state=${nextState}&token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+        if (data.ok !== false) renderFocusState(data);
+      } catch(e) {}
+      renderAdminPanel();
+    }
+
+    async function submitLogSession() {
+      const token = getValidAdminToken();
+      if (!token) { renderAdminPanel(); return; }
+
+      const topicInput = document.getElementById("admin-log-topic");
+      const hoursInput = document.getElementById("admin-log-hours");
+      const msgBox     = document.getElementById("admin-log-msg");
+      const topic      = topicInput.value.trim();
+      const hours      = parseFloat(hoursInput.value);
+      const labels     = window._adminSelectedLabel ? [window._adminSelectedLabel] : [];
+
+      msgBox.innerHTML = "";
+      if (!topic)                                { msgBox.innerHTML = `<div class="admin-error">Enter a topic.</div>`; return; }
+      if (!Number.isFinite(hours) || hours <= 0) { msgBox.innerHTML = `<div class="admin-error">Enter valid hours.</div>`; return; }
+
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=logSession`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ token, topic, hours, labels })
+        });
+        const data = await res.json();
+        if (!res.ok || data.ok === false) {
+          msgBox.innerHTML = `<div class="admin-error">${data.error || "Failed to log session."}</div>`;
+          return;
+        }
+
+        msgBox.innerHTML = `<div class="admin-success">Logged — ${formatHours(hours)} added.</div>`;
+        topicInput.value = "";
+        hoursInput.value = "";
+        selectAdminLabel(document.querySelector(".admin-label-chip"), "");
+
+        applyOptimisticSession(data.session, data.hoursCompleted);
+      } catch(e) {
+        msgBox.innerHTML = `<div class="admin-error">Network error — try again.</div>`;
+      }
+    }
+
+    // Reflects a just-logged session immediately, without waiting on the
+    // ~5-minute GitHub raw CDN cache that loadData()'s normal refresh cycle tolerates.
+    function applyOptimisticSession(session, hoursCompleted) {
+      if (!session) return;
+      window._sessionsCache = (window._sessionsCache || []).concat([session]);
+      renderSessionStats(window._sessionsCache, window._lastOwed || 0, hoursCompleted);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.ctrlKey && e.shiftKey && (e.key === "A" || e.key === "a")) {
+        e.preventDefault();
+        toggleAdminPanel();
+      } else if (e.key === "Escape") {
+        closeAdminPanel();
+      } else if (e.ctrlKey && e.shiftKey && (e.key === "F" || e.key === "f")) {
+        if (getValidAdminToken()) {
+          e.preventDefault();
+          submitFocusToggle();
+        }
+      }
+    });
   </script>
 </body>
 </html>

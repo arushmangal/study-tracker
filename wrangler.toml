@@ -1,0 +1,8 @@
+name = "study-tracker-likes"
+main = "worker.js"
+compatibility_date = "2024-09-23"
+account_id = "53209b6b9e0e57259b15ee09edfa1ebf"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "2ae82be0789248f1a03d8d48aac870f7"
