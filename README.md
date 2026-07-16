@@ -2,7 +2,7 @@
 
 > A full-stack personal accountability system that converts YouTube comment likes into study hour obligations, syncs completed Todoist tasks to a GitHub-hosted session log via a Cloudflare Worker, and surfaces everything — live focus state, IST clock, 90-day heatmap, an hours-remaining trend graph, and real-time countdowns — in a single zero-dependency static page. A hidden, keybind-triggered admin panel lets the owner toggle focus/break and log completed sessions directly from the site.
 
-**Live:** [mangalarush.github.io/study-tracker](https://mangalarush.github.io/study-tracker)
+**Live:** [arushmangal.github.io/study-tracker](https://arushmangal.github.io/study-tracker)
 
 ![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-yellow)
 ![Backend](https://img.shields.io/badge/Backend-Cloudflare%20Workers-orange)
