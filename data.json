@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 337.45,
+  "hoursCompleted": 341.45,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -863,6 +863,12 @@
       "date": "4 Jul 2026",
       "topic": "studying git and working on website",
       "hours": 6,
+      "labels": []
+    },
+    {
+      "date": "15 Jul 2026",
+      "topic": "building steady the app",
+      "hours": 4,
       "labels": []
     }
   ]
