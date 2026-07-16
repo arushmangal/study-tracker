@@ -781,22 +781,44 @@ function getTargetProjectIds(projects, targetName) {
   return { allowedIds, targetName: names.join(", ") };
 }
 
+// Recognizes an optional hours + optional minutes + optional seconds sequence
+// (in that order) right after the "*" marker, in any spelling: h/hr/hrs/hour/hours,
+// m/min/mins/minute/minutes, s/sec/secs/second/seconds. Spacing between the number
+// and its unit, and between components, is optional. A decimal is only allowed on
+// whichever unit ends up being the last one present (e.g. "2.5h" and "1h30.5m" are
+// fine, but "2.5h30m" is rejected as ambiguous).
+const TASK_TIME_RE = new RegExp(
+  "\\*\\s*" +
+  "(?:(\\d+(?:\\.\\d+)?)\\s*h(?:r|rs|our|ours)?)?\\s*" +
+  "(?:(\\d+(?:\\.\\d+)?)\\s*m(?:in|ins|inute|inutes)?)?\\s*" +
+  "(?:(\\d+(?:\\.\\d+)?)\\s*s(?:ec|ecs|econd|econds)?)?" +
+  "\\b"
+);
+
 function parseTaskTime(text) {
   if (!text) return null;
   const t = text.toLowerCase();
-  let m;
 
-  m = t.match(/\*\s*(\d+(?:\.\d+)?)\s*h(?:r|rs|ours?)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in(?:utes?)?)?)?\b/);
-  if (m) {
-    const hrs  = parseFloat(m[1]);
-    const mins = m[2] ? parseFloat(m[2]) / 60 : 0;
-    return Math.round((hrs + mins) * 100) / 100;
+  const m = t.match(TASK_TIME_RE);
+  if (!m) return null;
+
+  const [, hStr, mStr, sStr] = m;
+  if (!hStr && !mStr && !sStr) return null;
+
+  const present = [hStr, mStr, sStr].filter(Boolean);
+  const lastPresent = present[present.length - 1];
+  for (const v of present) {
+    if (v !== lastPresent && v.includes(".")) return null; // ambiguous decimal on a non-final unit
   }
 
-  m = t.match(/\*\s*(\d+(?:\.\d+)?)\s*m(?:in(?:utes?)?)?\b/);
-  if (m) return Math.round((parseFloat(m[1]) / 60) * 100) / 100;
+  const hrs  = hStr ? parseFloat(hStr) : 0;
+  const mins = mStr ? parseFloat(mStr) : 0;
+  const secs = sStr ? parseFloat(sStr) : 0;
 
-  return null;
+  const totalHours = hrs + mins / 60 + secs / 3600;
+  if (totalHours <= 0) return null;
+
+  return Math.round(totalHours * 100) / 100;
 }
 
 async function commitSessionsBatch(env, sessions) {
