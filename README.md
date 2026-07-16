@@ -22,6 +22,8 @@ This one isn't.
 
 The result is a live accountability contract between me and anyone who visits. If you liked a comment, you contributed to the debt. If the hours aren't climbing, the deficit is public.
 
+What started as a way to force myself to stop bingeing YouTube turned into something people actually engaged with — the likes kept coming, the debt kept climbing, and the whole thing gained more traction than I ever expected. The contract still works exactly the same way: public, verifiable, impossible to fudge.
+
 ---
 
 ## How It All Fits Together
@@ -304,6 +306,10 @@ This shows a full-screen animated overlay. Re-comment to restore the live page. 
 ## Motivation
 
 I built this because I wanted accountability that I couldn't fudge. The hours owed come from public YouTube likes — a number I don't control. The hours completed come from Todoist — a tool I already use daily — synced automatically or logged instantly through a hidden admin panel only I can reach. The live focus dot means anyone can visit and see whether studying is actually happening right now.
+
+It worked better than I expected. The people liking my comments played a real part in helping me pull out of a YouTube-bingeing habit, and I'm genuinely grateful this whole thing gained the traction it did.
+
+I got into my dream university and start freshman year this August — the tracker isn't stopping there. It'll keep going, just pointed at real coursework instead of exam prep.
 
 Every part of this started as a real problem I had. The code exists because I needed it to.
 
