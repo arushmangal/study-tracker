@@ -318,6 +318,11 @@
       transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s ease; text-decoration: none;
     }
     .like-badge:hover { background: var(--accent); border-color: var(--accent); color: #f7ecd8; transform: translateY(-1px); }
+    .like-badge.stale {
+      background: var(--panel-2); border-color: var(--border-strong); color: var(--text-mute);
+      cursor: default;
+    }
+    .stale-note { color: var(--text-mute); font-style: italic; }
 
     .like-cta {
       font-size: 0.72rem; color: var(--text-mute); margin-bottom: 8px; line-height: 1.5;
@@ -1130,7 +1135,12 @@
           </div>
           <div id="breakdown-list" style="display:${isOpen ? "block" : "none"}">
             <div class="like-cta">👍 Click a comment below to open it on YouTube — <strong>liking it adds to what I owe.</strong></div>
-            ${sorted.map(b => `
+            ${sorted.map(b => b.error ? `
+              <div class="session-item">
+                <span class="like-badge stale" title="This comment can no longer be found on YouTube — its ${b.likes} likes are locked in, but new likes here won't count anymore.">🔒 +${b.hoursPerLike}h</span>
+                <span>💬 ${b.label} <span class="stale-note">(comment unavailable — hours locked in)</span></span>
+                <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
+              </div>` : `
               <div class="session-item">
                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer" class="like-badge" title="Like this comment to add ${b.hoursPerLike}h to my study debt">👍 +${b.hoursPerLike}h</a>
                 <a href="${b.commentUrl}" target="_blank" rel="noopener noreferrer">💬 ${b.label}</a>

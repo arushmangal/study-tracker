@@ -53,7 +53,7 @@ export default {
     // ─────────────────────────────────────────────────────────────────────────
 
     const action = url.searchParams.get("action");
-    if (action && action !== "auditComments") {
+    if (action) {
       try {
         return await handleTasks(request, url, env, action);
       } catch(e) {
@@ -72,7 +72,7 @@ export default {
       { videoId: "OO14VSx74MU", commentId: "Ugx2M-E6c3ebpBY1hdl4AaABAg", hoursPerLike: 2,   label: "Radical Living - 2 Hours German WW2 Officer",              commentUrl: "https://www.youtube.com/watch?v=OO14VSx74MU&lc=Ugx2M-E6c3ebpBY1hdl4AaABAg" },
       { videoId: "3RGEo2Kohb8", commentId: "Ugz_A4uhz1mLxFzZwDx4AaABAg", hoursPerLike: 4,   label: "TwoSetViolin - 4 Hours of Asian Mum",                      commentUrl: "https://www.youtube.com/watch?v=3RGEo2Kohb8&lc=Ugz_A4uhz1mLxFzZwDx4AaABAg" },
       { videoId: "-dik8SwrOEQ", commentId: "UgyvFqAUR_flh1QcSPd4AaABAg", hoursPerLike: 1,   label: "TwoSetViolin - 1 Hour of Asian Mum Cooking",               commentUrl: "https://www.youtube.com/watch?v=-dik8SwrOEQ&lc=UgyvFqAUR_flh1QcSPd4AaABAg" },
-      { videoId: "Gd1J8B3ncJo", commentId: "UgzD8Gc7hGr22oUMPvp4AaABAg", hoursPerLike: 4,   label: "Radical Living - 4 Hours German WW2 Officer",              commentUrl: "https://www.youtube.com/watch?v=Gd1J8B3ncJo&lc=UgzD8Gc7hGr22oUMPvj4AaABAg" },
+      { videoId: "Gd1J8B3ncJo", commentId: "UgzD8Gc7hGr22oUMPvp4AaABAg", hoursPerLike: 4,   label: "Radical Living - 4 Hours German WW2 Officer",              commentUrl: "https://www.youtube.com/watch?v=Gd1J8B3ncJo&lc=UgzD8Gc7hGr22oUMPvp4AaABAg" },
       { videoId: "Ui7Hb4cvamY", commentId: "UgzSxlqQz8njr1O58AV4AaABAg", hoursPerLike: 1,   label: "Cinematic Focus - Oppenheimer Soundtrack",                 commentUrl: "https://www.youtube.com/watch?v=Ui7Hb4cvamY&lc=UgzSxlqQz8njr1O58AV4AaABAg" },
       { videoId: "IZGlY3jcnWg", commentId: "UgxyaS7xRsZkkdJ7qxt4AaABAg", hoursPerLike: 2,   label: "The Focus Warden - 2 Hours Soviet WW2 Officer",            commentUrl: "https://www.youtube.com/watch?v=IZGlY3jcnWg&lc=UgxyaS7xRsZkkdJ7qxt4AaABAg" },
       { videoId: "0WpItD25lvo", commentId: "Ugzij5gbqwh8mhgxM9h4AaABAg", hoursPerLike: 1,   label: "The Focus Warden - German Soldier Helps You Study",        commentUrl: "https://www.youtube.com/watch?v=0WpItD25lvo&lc=Ugzij5gbqwh8mhgxM9h4AaABAg" },
@@ -86,36 +86,6 @@ export default {
       { videoId: "J00ICfdH7s0", commentId: "Ugyf34xSfedbaQgqrXt4AaABAg", hoursPerLike: 2.5, label: "Ray Hon - Study With Me 2.5hrs",                            commentUrl: "https://www.youtube.com/watch?v=J00ICfdH7s0&lc=Ugyf34xSfedbaQgqrXt4AaABAg" },
       { videoId: "yHd3uxqKaF4", commentId: "Ugx523JxhkDEqfd6C5B4AaABAg", hoursPerLike: 3,   label: "Ray Hon - Study With Me 3hrs",                             commentUrl: "https://www.youtube.com/watch?v=yHd3uxqKaF4&lc=Ugx523JxhkDEqfd6C5B4AaABAg" },
     ];
-
-    // Temporary diagnostic action — checks each configured comment against the YouTube Data API
-    // directly (one at a time, no >=10h display filter) to see whether it's still public.
-    // Also probes both candidate ids for the "Radical Living - 4 Hours" entry, whose commentId
-    // field doesn't match the lc= id embedded in its own commentUrl (data bug, not YouTube's doing).
-    if (action === "auditComments") {
-      const probes = [
-        ...COMMENTS,
-        { label: "Radical Living - 4 Hours (probe: commentId field)", commentId: "UgzD8Gc7hGr22oUMPvp4AaABAg" },
-      ];
-      const auditResults = [];
-      for (const c of probes) {
-        try {
-          const res  = await fetch(`https://www.googleapis.com/youtube/v3/comments?part=snippet&id=${c.commentId}&key=${env.YOUTUBE_API_KEY}`);
-          const data = await res.json();
-          if (data.error) {
-            auditResults.push({ label: c.label, commentId: c.commentId, status: "api_error", reason: data.error.errors?.[0]?.reason || data.error.message });
-          } else if (!(data.items || []).length) {
-            auditResults.push({ label: c.label, commentId: c.commentId, status: "not_found" });
-          } else {
-            auditResults.push({ label: c.label, commentId: c.commentId, status: "found", likeCount: data.items[0].snippet.likeCount });
-          }
-        } catch (e) {
-          auditResults.push({ label: c.label, commentId: c.commentId, status: "fetch_error", reason: e.message });
-        }
-      }
-      return new Response(JSON.stringify({ auditResults }, null, 2), {
-        headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" }
-      });
-    }
 
     let cacheEntry = null;
     try { cacheEntry = await env.KV.get("cacheV2", { type: "json" }); } catch (e) {}
