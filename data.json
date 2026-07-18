@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 341.72,
+  "hoursCompleted": 343.4,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -957,6 +957,38 @@
       "hours": 0.02,
       "labels": [
         "light"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Code: Sum of First n Natural Number",
+      "hours": 0.42,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Code: Calculate Distance Between 2 Points",
+      "hours": 0.42,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Code: Calculate Volume of a Cylinder",
+      "hours": 0.42,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "17 Jul 2026",
+      "topic": "Code: Calculate Distance",
+      "hours": 0.42,
+      "labels": [
+        "deep"
       ]
     }
   ]
