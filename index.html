@@ -1137,8 +1137,8 @@
             <div class="like-cta">👍 Click a comment below to open it on YouTube — <strong>liking it adds to what I owe.</strong></div>
             ${sorted.map(b => b.error ? `
               <div class="session-item">
-                <span class="like-badge stale" title="This comment can no longer be found on YouTube — its ${b.likes} likes are locked in, but new likes here won't count anymore.">🔒 +${b.hoursPerLike}h</span>
-                <span>💬 ${b.label} <span class="stale-note">(comment unavailable — hours locked in)</span></span>
+                <span class="like-badge stale" title="This comment can no longer be found on YouTube — new likes here won't count anymore.">🔒 +${b.hoursPerLike}h</span>
+                <span>💬 ${b.label} <span class="stale-note">(comment unavailable)</span></span>
                 <span class="likes-tag">${b.likes} likes · ${formatHours(b.hours)}</span>
               </div>` : `
               <div class="session-item">
