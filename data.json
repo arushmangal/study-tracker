@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 343.4,
+  "hoursCompleted": 347.73,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -990,6 +990,20 @@
       "labels": [
         "deep"
       ]
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Watch: Why Data Types",
+      "hours": 0.33,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "18 Jul 2026",
+      "topic": "researching how to apply for masters after bachelors",
+      "hours": 4,
+      "labels": []
     }
   ]
 }
