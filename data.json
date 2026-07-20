@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 351.23,
+  "hoursCompleted": 354.23,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1009,6 +1009,14 @@
       "date": "20 Jul 2026",
       "topic": "Watch: Primitive Data Types",
       "hours": 0.5,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Creating Steady the app",
+      "hours": 3,
       "labels": [
         "deep"
       ]
