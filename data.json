@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 347.73,
+  "hoursCompleted": 348.23,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1004,6 +1004,14 @@
       "topic": "researching how to apply for masters after bachelors",
       "hours": 4,
       "labels": []
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Watch: Primitive Data Types",
+      "hours": 0.5,
+      "labels": [
+        "deep"
+      ]
     }
   ]
 }
