@@ -224,6 +224,13 @@ export default {
       JSON.stringify(payload),
       { headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*", "Cache-Control": "no-store" } }
     );
+  },
+
+  // Cron Trigger (see wrangler.toml) — this is what actually makes syncing "automatic".
+  // Previously syncTodoistCompleted only ever ran when the admin panel's "Force Todoist
+  // sync" button was clicked; nothing invoked it on its own.
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(runTodoistSync(env));
   }
 };
 
@@ -650,111 +657,118 @@ async function handleTasks(request, url, env, action) {
   }
 
   if (action === "syncTodoistCompleted") {
-    if (!env.TODOIST_TOKEN) return ok({ synced: 0, message: "TODOIST_TOKEN not set" });
-    if (!env.GITHUB_TOKEN)  return ok({ synced: 0, message: "GITHUB_TOKEN not set"  });
-
-    try {
-      const lock = await env.KV.get("todoist-sync-lock");
-      if (lock) return ok({ synced: 0, message: "sync already in progress" });
-      await env.KV.put("todoist-sync-lock", "1", { expirationTtl: 60 });
-    } catch(e) {}
-
-    try {
-      const ah = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
-      const allowedIds = new Set();
-
-      const lastSyncRaw = await env.KV.get("todoist-last-sync");
-      const since       = lastSyncRaw || new Date(Date.now() - 86400000).toISOString();
-      const until       = new Date().toISOString();
-
-      let allDone = [];
-      let cursor  = null;
-      do {
-        const base    = `https://api.todoist.com/api/v1/tasks/completed/by_completion_date?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&limit=200`;
-        const doneUrl = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
-        const doneRes  = await fetch(doneUrl, { headers: ah });
-        const doneText = await doneRes.text();
-        let doneData;
-        try { doneData = JSON.parse(doneText); }
-        catch(e) {
-          await env.KV.delete("todoist-sync-lock").catch(() => {});
-          return ok({ synced: 0, message: "completed API parse error: " + doneText.slice(0, 200) });
-        }
-        if (doneData.error || doneData.detail) {
-          await env.KV.delete("todoist-sync-lock").catch(() => {});
-          return ok({ synced: 0, message: "completed API error: " + JSON.stringify(doneData).slice(0, 200) });
-        }
-        const batch = doneData.results || doneData.items || [];
-        allDone = allDone.concat(batch);
-        cursor  = doneData.next_cursor || null;
-      } while (cursor);
-
-      const processedRaw = await env.KV.get("todoist-processed");
-      const processed    = new Set(processedRaw ? JSON.parse(processedRaw) : []);
-      const newItems = allDone.filter(t => !processed.has(String(t.id)));
-
-      if (!newItems.length) {
-        await env.KV.put("todoist-last-sync", new Date().toISOString());
-        try { await env.KV.delete("todoist-sync-lock"); } catch(e) {}
-        return ok({ synced: 0, message: "no new completed tasks" });
-      }
-
-      const MONTHS   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      const sessions = [];
-
-      for (const item of newItems) {
-        const taskId = String(item.id);
-        processed.add(taskId);
-
-        let hours = parseTaskTime(item.description || "");
-
-        if (hours === null) {
-          try {
-            const commRes  = await fetch(`https://api.todoist.com/api/v1/comments?task_id=${taskId}`, { headers: ah });
-            const commData = await commRes.json();
-            const comments = commData.results || commData.items || (Array.isArray(commData) ? commData : []);
-            for (const c of comments) {
-              const p = parseTaskTime(c.content || "");
-              if (p !== null) { hours = p; break; }
-            }
-          } catch(e) {}
-        }
-
-        if (hours === null) continue;
-
-        const dueDateStr  = item.due?.date || item.due_date || null;
-        const completedAt = item.completed_at || item.date_completed;
-        let date;
-        if (dueDateStr) {
-          const [dy, dm, dd] = dueDateStr.slice(0, 10).split("-").map(Number);
-          date = `${dd} ${MONTHS[dm - 1]} ${dy}`;
-        } else {
-          if (!completedAt) continue;
-          const ist = new Date(new Date(completedAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-          date = `${ist.getDate()} ${MONTHS[ist.getMonth()]} ${ist.getFullYear()}`;
-        }
-        sessions.push({ date, topic: item.content, hours, labels: item.labels || [] });
-      }
-
-      await env.KV.put("todoist-processed", JSON.stringify([...processed].slice(-1000)));
-      await env.KV.put("todoist-last-sync", new Date().toISOString());
-
-      if (!sessions.length) {
-        try { await env.KV.delete("todoist-sync-lock"); } catch(e) {}
-        return ok({ synced: 0, message: "tasks found but no * prefixed time in description/comments" });
-      }
-
-      const result = await commitSessionsBatch(env, sessions);
-      try { await env.KV.delete("todoist-sync-lock"); } catch(e) {}
-      return ok({ synced: sessions.length, sessions, ...result });
-
-    } catch(e) {
-      try { await env.KV.delete("todoist-sync-lock"); } catch(_) {}
-      return err("sync failed: " + e.message);
-    }
+    const result = await runTodoistSync(env);
+    return result.ok ? ok(result) : err(result.error);
   }
 
   return err("Unknown action");
+}
+
+// Core Todoist→GitHub sync, shared by the manual "Force Todoist sync" admin
+// action and the scheduled() Cron Trigger below. Returns a plain result object
+// (not a Response) so both callers can use it their own way.
+async function runTodoistSync(env) {
+  if (!env.TODOIST_TOKEN) return { ok: true, synced: 0, message: "TODOIST_TOKEN not set" };
+  if (!env.GITHUB_TOKEN)  return { ok: true, synced: 0, message: "GITHUB_TOKEN not set"  };
+
+  try {
+    const lock = await env.KV.get("todoist-sync-lock");
+    if (lock) return { ok: true, synced: 0, message: "sync already in progress" };
+    await env.KV.put("todoist-sync-lock", "1", { expirationTtl: 60 });
+  } catch(e) {}
+
+  try {
+    const ah = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+
+    const lastSyncRaw = await env.KV.get("todoist-last-sync");
+    const since       = lastSyncRaw || new Date(Date.now() - 86400000).toISOString();
+    const until       = new Date().toISOString();
+
+    let allDone = [];
+    let cursor  = null;
+    do {
+      const base    = `https://api.todoist.com/api/v1/tasks/completed/by_completion_date?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&limit=200`;
+      const doneUrl = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
+      const doneRes  = await fetch(doneUrl, { headers: ah });
+      const doneText = await doneRes.text();
+      let doneData;
+      try { doneData = JSON.parse(doneText); }
+      catch(e) {
+        await env.KV.delete("todoist-sync-lock").catch(() => {});
+        return { ok: true, synced: 0, message: "completed API parse error: " + doneText.slice(0, 200) };
+      }
+      if (doneData.error || doneData.detail) {
+        await env.KV.delete("todoist-sync-lock").catch(() => {});
+        return { ok: true, synced: 0, message: "completed API error: " + JSON.stringify(doneData).slice(0, 200) };
+      }
+      const batch = doneData.results || doneData.items || [];
+      allDone = allDone.concat(batch);
+      cursor  = doneData.next_cursor || null;
+    } while (cursor);
+
+    const processedRaw = await env.KV.get("todoist-processed");
+    const processed    = new Set(processedRaw ? JSON.parse(processedRaw) : []);
+    const newItems = allDone.filter(t => !processed.has(String(t.id)));
+
+    if (!newItems.length) {
+      await env.KV.put("todoist-last-sync", new Date().toISOString());
+      try { await env.KV.delete("todoist-sync-lock"); } catch(e) {}
+      return { ok: true, synced: 0, message: "no new completed tasks" };
+    }
+
+    const MONTHS   = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    const sessions = [];
+
+    for (const item of newItems) {
+      const taskId = String(item.id);
+      processed.add(taskId);
+
+      let hours = parseTaskTime(item.description || "");
+
+      if (hours === null) {
+        try {
+          const commRes  = await fetch(`https://api.todoist.com/api/v1/comments?task_id=${taskId}`, { headers: ah });
+          const commData = await commRes.json();
+          const comments = commData.results || commData.items || (Array.isArray(commData) ? commData : []);
+          for (const c of comments) {
+            const p = parseTaskTime(c.content || "");
+            if (p !== null) { hours = p; break; }
+          }
+        } catch(e) {}
+      }
+
+      if (hours === null) continue;
+
+      const dueDateStr  = item.due?.date || item.due_date || null;
+      const completedAt = item.completed_at || item.date_completed;
+      let date;
+      if (dueDateStr) {
+        const [dy, dm, dd] = dueDateStr.slice(0, 10).split("-").map(Number);
+        date = `${dd} ${MONTHS[dm - 1]} ${dy}`;
+      } else {
+        if (!completedAt) continue;
+        const ist = new Date(new Date(completedAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+        date = `${ist.getDate()} ${MONTHS[ist.getMonth()]} ${ist.getFullYear()}`;
+      }
+      sessions.push({ date, topic: item.content, hours, labels: item.labels || [] });
+    }
+
+    await env.KV.put("todoist-processed", JSON.stringify([...processed].slice(-1000)));
+    await env.KV.put("todoist-last-sync", new Date().toISOString());
+
+    if (!sessions.length) {
+      try { await env.KV.delete("todoist-sync-lock"); } catch(e) {}
+      return { ok: true, synced: 0, message: "tasks found but no * prefixed time in description/comments" };
+    }
+
+    const result = await commitSessionsBatch(env, sessions);
+    try { await env.KV.delete("todoist-sync-lock"); } catch(e) {}
+    return { ok: true, synced: sessions.length, sessions, ...result };
+
+  } catch(e) {
+    try { await env.KV.delete("todoist-sync-lock"); } catch(_) {}
+    return { ok: false, error: "sync failed: " + e.message };
+  }
 }
 
 
