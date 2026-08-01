@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 359.43,
+  "hoursCompleted": 360.53,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1108,6 +1108,38 @@
       "labels": [
         "review",
         "steady"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Practice Problem: Roots of Quadratic Equations",
+      "hours": 0.23,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Code: Finding Roots of a Quadratic Equation",
+      "hours": 0.42,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Practice Problem: Sum of First N Natural Numbers",
+      "hours": 0.2,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Program using Expression",
+      "hours": 0.25,
+      "labels": [
+        "deep"
       ]
     }
   ]
