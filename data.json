@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 354.23,
+  "hoursCompleted": 359.43,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1027,6 +1027,87 @@
       "hours": 3,
       "labels": [
         "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Operator Precedence & Expressions",
+      "hours": 0.55,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Arithmetic Operators and Expressions",
+      "hours": 0.37,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Variables",
+      "hours": 0.28,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "make a good looking timetable today",
+      "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "register for courses at BITS Pilani",
+      "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "21 Jul 2026",
+      "topic": "Review: Anki - Data Type Ranges and Modifier Matrix",
+      "hours": 0.17,
+      "labels": [
+        "review",
+        "steady"
+      ]
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Review: Anki - ASCII Codes",
+      "hours": 0.08,
+      "labels": [
+        "review",
+        "steady"
+      ]
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Review: Primitive Data Types",
+      "hours": 0.5,
+      "labels": [
+        "review",
+        "steady"
+      ]
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Review: Why Data Types",
+      "hours": 0.33,
+      "labels": [
+        "review",
+        "steady"
+      ]
+    },
+    {
+      "date": "20 Jul 2026",
+      "topic": "Review: Anki - Data Type Ranges and Modifier Matrix",
+      "hours": 0.42,
+      "labels": [
+        "review",
+        "steady"
       ]
     }
   ]
