@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 367.05,
+  "hoursCompleted": 367.88,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1174,6 +1174,18 @@
       "date": "3 Aug 2026",
       "topic": "Attend Physics Lab",
       "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "2 Aug 2026",
+      "topic": "Download E Books",
+      "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "complete timetable",
+      "hours": 0.33,
       "labels": []
     }
   ]
