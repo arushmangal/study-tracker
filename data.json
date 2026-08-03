@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 361.22,
+  "hoursCompleted": 367.05,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1157,6 +1157,24 @@
       "labels": [
         "deep"
       ]
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "BIO U101 Class",
+      "hours": 0.83,
+      "labels": []
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "Pre Reading for BIO U101",
+      "hours": 3,
+      "labels": []
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "Attend Physics Lab",
+      "hours": 2,
+      "labels": []
     }
   ]
 }
