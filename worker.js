@@ -47,7 +47,15 @@ export default {
           return await handleTasks(request, url, env, "syncTodoistCompleted");
         }
 
-        return err("Unknown command. Valid: focus-on, focus-off, sync");
+        if (command === "backfill-recurring") {
+          // One-off recovery for recurring-task completions dropped by the old
+          // id-only dedup (see runTodoistSync). Dry-run unless ?commit=1.
+          const commit = url.searchParams.get("commit") === "1";
+          const result = await backfillRecurringCompletions(env, commit);
+          return result.ok ? ok(result) : err(result.error);
+        }
+
+        return err("Unknown command. Valid: focus-on, focus-off, sync, backfill-recurring");
       }
     }
     // ─────────────────────────────────────────────────────────────────────────
@@ -706,9 +714,13 @@ async function runTodoistSync(env) {
       cursor  = doneData.next_cursor || null;
     } while (cursor);
 
+    // Keyed by id+completedAt (not just id) because recurring tasks reuse the
+    // same task id for every occurrence — dedup on id alone would only ever
+    // let the first-ever completion of a recurring task through.
     const processedRaw = await env.KV.get("todoist-processed");
     const processed    = new Set(processedRaw ? JSON.parse(processedRaw) : []);
-    const newItems = allDone.filter(t => !processed.has(String(t.id)));
+    const dedupeKey     = t => `${t.id}:${t.completed_at || t.date_completed}`;
+    const newItems = allDone.filter(t => !processed.has(dedupeKey(t)));
 
     if (!newItems.length) {
       await env.KV.put("todoist-last-sync", new Date().toISOString());
@@ -721,7 +733,7 @@ async function runTodoistSync(env) {
 
     for (const item of newItems) {
       const taskId = String(item.id);
-      processed.add(taskId);
+      processed.add(dedupeKey(item));
 
       let hours = parseTaskTime(item.description || "");
 
@@ -769,6 +781,119 @@ async function runTodoistSync(env) {
     try { await env.KV.delete("todoist-sync-lock"); } catch(_) {}
     return { ok: false, error: "sync failed: " + e.message };
   }
+}
+
+// One-off recovery for recurring-task completions silently dropped by the old
+// id-only dedup in runTodoistSync (a recurring task keeps the same task id
+// across every occurrence, so only its first-ever completion ever got synced).
+// Scans completed tasks back to the project's start date, keeps only recurring
+// ones, and skips anything that already matches an existing data.json session
+// (by date+topic+hours) so already-recorded completions aren't duplicated.
+// Dry-run by default; pass commit=true to actually write to data.json.
+async function backfillRecurringCompletions(env, commit) {
+  if (!env.TODOIST_TOKEN) return { ok: true, wouldAdd: 0, message: "TODOIST_TOKEN not set" };
+  if (!env.GITHUB_TOKEN)  return { ok: true, wouldAdd: 0, message: "GITHUB_TOKEN not set"  };
+
+  const ah        = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+  const rangeEnd  = new Date();
+  let   chunkFrom = new Date("2026-03-28T00:00:00Z"); // earliest session in data.json
+
+  let allDone = [];
+  // Todoist's completed-tasks API rejects any since/until span over 3 months,
+  // so walk the full window in <3-month chunks.
+  while (chunkFrom < rangeEnd) {
+    let chunkTo = new Date(chunkFrom);
+    chunkTo.setUTCDate(chunkTo.getUTCDate() + 80);
+    if (chunkTo > rangeEnd) chunkTo = rangeEnd;
+
+    const since = chunkFrom.toISOString();
+    const until = chunkTo.toISOString();
+
+    let cursor = null;
+    do {
+      const base    = `https://api.todoist.com/api/v1/tasks/completed/by_completion_date?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&limit=200`;
+      const doneUrl = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
+      const doneRes  = await fetch(doneUrl, { headers: ah });
+      const doneText = await doneRes.text();
+      let doneData;
+      try { doneData = JSON.parse(doneText); }
+      catch(e) { return { ok: false, error: "completed API parse error: " + doneText.slice(0, 200) }; }
+      if (doneData.error || doneData.detail) {
+        return { ok: false, error: "completed API error: " + JSON.stringify(doneData).slice(0, 200) };
+      }
+      const batch = doneData.results || doneData.items || [];
+      allDone = allDone.concat(batch);
+      cursor  = doneData.next_cursor || null;
+    } while (cursor);
+
+    chunkFrom = chunkTo;
+  }
+
+  const recurring = allDone.filter(t => t.due?.is_recurring);
+
+  const MONTHS     = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const candidates = [];
+  for (const item of recurring) {
+    let hours = parseTaskTime(item.description || "");
+
+    if (hours === null) {
+      try {
+        const commRes  = await fetch(`https://api.todoist.com/api/v1/comments?task_id=${item.id}`, { headers: ah });
+        const commData = await commRes.json();
+        const comments = commData.results || commData.items || (Array.isArray(commData) ? commData : []);
+        for (const c of comments) {
+          const p = parseTaskTime(c.content || "");
+          if (p !== null) { hours = p; break; }
+        }
+      } catch(e) {}
+    }
+
+    if (hours === null) continue;
+
+    const dueDateStr  = item.due?.date || item.due_date || null;
+    const completedAt = item.completed_at || item.date_completed;
+    let date;
+    if (dueDateStr) {
+      const [dy, dm, dd] = dueDateStr.slice(0, 10).split("-").map(Number);
+      date = `${dd} ${MONTHS[dm - 1]} ${dy}`;
+    } else {
+      if (!completedAt) continue;
+      const ist = new Date(new Date(completedAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      date = `${ist.getDate()} ${MONTHS[ist.getMonth()]} ${ist.getFullYear()}`;
+    }
+    candidates.push({ date, topic: item.content, hours, labels: item.labels || [] });
+  }
+
+  const ghHeaders = {
+    Authorization: `token ${env.GITHUB_TOKEN}`,
+    "User-Agent":  "study-tracker-worker",
+    Accept:        "application/vnd.github.v3+json"
+  };
+  const getRes   = await fetch(
+    "https://api.github.com/repos/arushmangal/study-tracker/contents/data.json",
+    { headers: ghHeaders }
+  );
+  const fileData = await getRes.json();
+  if (!fileData.content) return { ok: false, error: "GitHub read failed: " + JSON.stringify(fileData).slice(0, 200) };
+  const current = JSON.parse(atob(fileData.content.replace(/\n/g, "")));
+
+  const sig      = s => `${s.date}|${s.topic}|${s.hours}`;
+  const existing = new Set(current.sessions.map(sig));
+
+  const toAdd = [];
+  for (const c of candidates) {
+    const key = sig(c);
+    if (existing.has(key)) continue;
+    existing.add(key); // guard against dupes within this same batch
+    toAdd.push(c);
+  }
+
+  if (!commit || !toAdd.length) {
+    return { ok: true, dryRun: !commit, scanned: allDone.length, recurringFound: recurring.length, wouldAdd: toAdd.length, sessions: toAdd };
+  }
+
+  const result = await commitSessionsBatch(env, toAdd);
+  return { ok: true, dryRun: false, added: toAdd.length, sessions: toAdd, ...result };
 }
 
 
