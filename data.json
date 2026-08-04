@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 367.88,
+  "hoursCompleted": 368.71,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1186,6 +1186,18 @@
       "date": "3 Aug 2026",
       "topic": "complete timetable",
       "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "campbell notes",
+      "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "slides notes bio",
+      "hours": 0.5,
       "labels": []
     }
   ]
