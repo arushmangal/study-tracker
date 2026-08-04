@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 360.53,
+  "hoursCompleted": 368.71,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1141,6 +1141,64 @@
       "labels": [
         "deep"
       ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Watch: Demo - Expressions",
+      "hours": 0.27,
+      "labels": [
+        "light"
+      ]
+    },
+    {
+      "date": "1 Aug 2026",
+      "topic": "Code: Calculate Simple Interest",
+      "hours": 0.42,
+      "labels": [
+        "deep"
+      ]
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "BIO U101 Class",
+      "hours": 0.83,
+      "labels": []
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "Pre Reading for BIO U101",
+      "hours": 3,
+      "labels": []
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "Attend Physics Lab",
+      "hours": 2,
+      "labels": []
+    },
+    {
+      "date": "2 Aug 2026",
+      "topic": "Download E Books",
+      "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "3 Aug 2026",
+      "topic": "complete timetable",
+      "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "campbell notes",
+      "hours": 0.33,
+      "labels": []
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "slides notes bio",
+      "hours": 0.5,
+      "labels": []
     }
   ]
 }
