@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 368.71,
+  "hoursCompleted": 369.46,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1198,6 +1198,12 @@
       "date": "4 Aug 2026",
       "topic": "slides notes bio",
       "hours": 0.5,
+      "labels": []
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "fixing bugs on the ledger",
+      "hours": 0.75,
       "labels": []
     }
   ]
