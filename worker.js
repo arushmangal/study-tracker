@@ -794,27 +794,40 @@ async function backfillRecurringCompletions(env, commit) {
   if (!env.TODOIST_TOKEN) return { ok: true, wouldAdd: 0, message: "TODOIST_TOKEN not set" };
   if (!env.GITHUB_TOKEN)  return { ok: true, wouldAdd: 0, message: "GITHUB_TOKEN not set"  };
 
-  const ah    = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
-  const since = "2026-03-28T00:00:00Z"; // earliest session in data.json
-  const until = new Date().toISOString();
+  const ah        = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+  const rangeEnd  = new Date();
+  let   chunkFrom = new Date("2026-03-28T00:00:00Z"); // earliest session in data.json
 
   let allDone = [];
-  let cursor  = null;
-  do {
-    const base    = `https://api.todoist.com/api/v1/tasks/completed/by_completion_date?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&limit=200`;
-    const doneUrl = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
-    const doneRes  = await fetch(doneUrl, { headers: ah });
-    const doneText = await doneRes.text();
-    let doneData;
-    try { doneData = JSON.parse(doneText); }
-    catch(e) { return { ok: false, error: "completed API parse error: " + doneText.slice(0, 200) }; }
-    if (doneData.error || doneData.detail) {
-      return { ok: false, error: "completed API error: " + JSON.stringify(doneData).slice(0, 200) };
-    }
-    const batch = doneData.results || doneData.items || [];
-    allDone = allDone.concat(batch);
-    cursor  = doneData.next_cursor || null;
-  } while (cursor);
+  // Todoist's completed-tasks API rejects any since/until span over 3 months,
+  // so walk the full window in <3-month chunks.
+  while (chunkFrom < rangeEnd) {
+    let chunkTo = new Date(chunkFrom);
+    chunkTo.setUTCDate(chunkTo.getUTCDate() + 80);
+    if (chunkTo > rangeEnd) chunkTo = rangeEnd;
+
+    const since = chunkFrom.toISOString();
+    const until = chunkTo.toISOString();
+
+    let cursor = null;
+    do {
+      const base    = `https://api.todoist.com/api/v1/tasks/completed/by_completion_date?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}&limit=200`;
+      const doneUrl = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
+      const doneRes  = await fetch(doneUrl, { headers: ah });
+      const doneText = await doneRes.text();
+      let doneData;
+      try { doneData = JSON.parse(doneText); }
+      catch(e) { return { ok: false, error: "completed API parse error: " + doneText.slice(0, 200) }; }
+      if (doneData.error || doneData.detail) {
+        return { ok: false, error: "completed API error: " + JSON.stringify(doneData).slice(0, 200) };
+      }
+      const batch = doneData.results || doneData.items || [];
+      allDone = allDone.concat(batch);
+      cursor  = doneData.next_cursor || null;
+    } while (cursor);
+
+    chunkFrom = chunkTo;
+  }
 
   const recurring = allDone.filter(t => t.due?.is_recurring);
 
