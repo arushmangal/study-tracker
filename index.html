@@ -56,7 +56,6 @@
       --graph-grid: #cbb98d;
 
       /* notice banners */
-      --info: #6b4c30; --info-bg: #ddc99e; --info-border: #bfa060;
       --gratitude: #4d6234; --gratitude-bg: #d4d9a8; --gratitude-border: #a8b571;
       --load: #8a5c14; --load-bg: #f0dfae; --load-border: #8a5c14;
 
@@ -135,13 +134,6 @@
       padding: 12px 16px; font-size: 0.85rem; color: var(--load);
       text-align: center; transition: opacity 1s ease;
     }
-    #vacation-notice {
-      width: 100%; max-width: 720px;
-      background: var(--info-bg); border: 1px solid var(--info-border); border-radius: var(--r-lg);
-      padding: 12px 16px; font-size: 0.85rem; color: var(--info);
-      text-align: center; line-height: 1.5;
-    }
-
     /* Row 2: hero — centred, alone */
     #hero-row {
       width: 100%; max-width: 480px;
@@ -375,6 +367,13 @@
     .admin-success { color: var(--accent); font-size: 0.75rem; margin: -4px 0 8px; }
     .admin-status { font-size: 0.72rem; color: var(--text-mute); margin-top: 10px; text-align: center; }
     .admin-logout { font-size: 0.72rem; color: var(--text-mute); text-align: center; margin-top: 10px; cursor: pointer; text-decoration: underline; }
+    .admin-class-list { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; max-height: 220px; overflow-y: auto; }
+    .admin-class-row {
+      display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--r-sm);
+      border: 1px solid var(--border-strong); font-size: 0.75rem; color: var(--text-dim); cursor: pointer;
+    }
+    .admin-class-row input { flex-shrink: 0; }
+    .admin-class-row .cls-date { color: var(--text-mute); flex-shrink: 0; }
     .admin-logout:hover { color: var(--text-dim); }
 </style>
 </head>
@@ -417,14 +416,6 @@
   <div id="loading-disclaimer">
     ⏳ If the page doesn't show any hours, please wait 5–10 seconds —
     I'm a beginner at development, so it takes time for the page to load!
-  </div>
-
-  <!-- ROW 1a: Vacation notice — centred, alone -->
-  <div id="vacation-notice">
-    🎓 <strong>New chapter incoming!</strong><br>
-    I just got into my dream university and start freshman year this <strong>August</strong> —
-    updates may slow down for a bit, but this tracker isn't stopping. It'll keep following
-    me straight into real coursework.
   </div>
 
   <!-- ROW 1b: Gratitude note — centred, alone -->
@@ -1398,6 +1389,10 @@
         <div id="admin-sync-msg" style="margin-top:10px;"></div>
         <button class="admin-btn secondary" onclick="submitForceSync()">Force Todoist sync</button>
 
+        <div id="admin-class-msg" style="margin-top:14px;"></div>
+        <div id="admin-class-body"></div>
+        <button class="admin-btn secondary" onclick="loadWeekClasses()">Load this week's classes</button>
+
         <div class="admin-status">Signed in to The Ledger</div>
         <div class="admin-logout" onclick="adminLogout()">Log out</div>
       `;
@@ -1484,6 +1479,124 @@
           msgBox.innerHTML = `<div class="admin-success">Synced ${data.synced} session${data.synced === 1 ? "" : "s"}.</div>`;
         } else {
           msgBox.innerHTML = `<div class="admin-status">${data.message || "No new completed tasks."}</div>`;
+        }
+      } catch(e) {
+        msgBox.innerHTML = `<div class="admin-error">Network error — try again.</div>`;
+      }
+    }
+
+    // Weekday-recurring class attendance: Todoist's completed-tasks API doesn't
+    // reliably return completions for these tasks (confirmed by extensive
+    // testing — see worker.js comments near getClassSchedule), so instead of
+    // detecting completions automatically, this reads the live schedule and
+    // lets you confirm attendance for the current week directly.
+    async function loadWeekClasses() {
+      const token = getValidAdminToken();
+      if (!token) { renderAdminPanel(); return; }
+
+      const msgBox  = document.getElementById("admin-class-msg");
+      const bodyBox = document.getElementById("admin-class-body");
+      msgBox.innerHTML  = `<div class="admin-status">Loading schedule…</div>`;
+      bodyBox.innerHTML = "";
+
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=getClassSchedule&token=${encodeURIComponent(token)}`);
+        const data = await res.json();
+        if (!res.ok || data.ok === false) {
+          msgBox.innerHTML = `<div class="admin-error">${data.error || "Failed to load schedule."}</div>`;
+          return;
+        }
+
+        const items = computeWeekClassItems(data.schedule || []);
+        window._weekClassItems = items;
+
+        if (!items.length) {
+          msgBox.innerHTML = "";
+          bodyBox.innerHTML = `<div class="admin-status">No classes scheduled yet this week.</div>`;
+          return;
+        }
+
+        msgBox.innerHTML = "";
+        bodyBox.innerHTML = `
+          <div class="admin-class-list">
+            ${items.map((it, i) => `
+              <label class="admin-class-row">
+                <input type="checkbox" id="class-check-${i}" checked />
+                <span class="cls-date">${it.date}</span>
+                <span>${it.topic} (${formatHours(it.hours)})</span>
+              </label>
+            `).join("")}
+          </div>
+          <button class="admin-btn primary" onclick="submitWeekClasses()">Log checked classes</button>
+        `;
+      } catch(e) {
+        msgBox.innerHTML = `<div class="admin-error">Network error — try again.</div>`;
+      }
+    }
+
+    // Expands the recurring class schedule into actual dated instances from
+    // the Monday of the current week through today.
+    function computeWeekClassItems(schedule) {
+      const DAY_CODES = ["sun","mon","tue","wed","thu","fri","sat"];
+      const MONTHS    = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const diffToMonday = today.getDay() === 0 ? 6 : today.getDay() - 1;
+      const monday = new Date(today);
+      monday.setDate(today.getDate() - diffToMonday);
+
+      const items = [];
+      for (let d = new Date(monday); d <= today; d.setDate(d.getDate() + 1)) {
+        const code = DAY_CODES[d.getDay()];
+        for (const entry of schedule) {
+          if (!entry.weekdays.includes(code)) continue;
+          items.push({
+            date:    `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`,
+            topic:   entry.label,
+            hours:   entry.hours,
+            sortKey: d.getTime()
+          });
+        }
+      }
+      items.sort((a, b) => a.sortKey - b.sortKey);
+      return items;
+    }
+
+    async function submitWeekClasses() {
+      const token = getValidAdminToken();
+      if (!token) { renderAdminPanel(); return; }
+
+      const items = window._weekClassItems || [];
+      const msgBox = document.getElementById("admin-class-msg");
+      const sessions = items
+        .filter((it, i) => document.getElementById(`class-check-${i}`)?.checked)
+        .map(it => ({ date: it.date, topic: it.topic, hours: it.hours, labels: [] }));
+
+      if (!sessions.length) {
+        msgBox.innerHTML = `<div class="admin-error">Nothing checked.</div>`;
+        return;
+      }
+
+      msgBox.innerHTML = `<div class="admin-status">Logging…</div>`;
+      try {
+        const res  = await fetch(`${WORKER_URL}?action=addSessions`, {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify({ token, sessions })
+        });
+        const data = await res.json();
+        if (!res.ok || data.ok === false) {
+          msgBox.innerHTML = `<div class="admin-error">${data.error || "Failed to log sessions."}</div>`;
+          return;
+        }
+
+        msgBox.innerHTML = `<div class="admin-success">Logged ${data.added} session${data.added === 1 ? "" : "s"} (${sessions.length - data.added} already recorded).</div>`;
+        document.getElementById("admin-class-body").innerHTML = "";
+        if (data.sessions?.length) {
+          window._sessionsCache = (window._sessionsCache || []).concat(data.sessions);
+          const newTotal = data.newTotal ?? window._sessionsCache.reduce((sum, s) => sum + (Number(s.hours) || 0), 0);
+          renderSessionStats(window._sessionsCache, window._lastOwed || 0, newTotal);
         }
       } catch(e) {
         msgBox.innerHTML = `<div class="admin-error">Network error — try again.</div>`;

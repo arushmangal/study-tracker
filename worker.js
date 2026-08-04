@@ -478,6 +478,22 @@ async function handleTasks(request, url, env, action) {
     return ok({ hoursCompleted: result.newTotal, session });
   }
 
+  if (action === "getClassSchedule") {
+    const authed = await checkAdmin({ secret: url.searchParams.get("secret"), token: url.searchParams.get("token") }, env);
+    if (!authed) return err("Unauthorized", 401);
+    const result = await getClassSchedule(env);
+    return result.ok ? ok(result) : err(result.error);
+  }
+
+  if (action === "addSessions") {
+    let body = {};
+    try { body = await request.json(); } catch(e) {}
+    const authed = await checkAdmin({ token: body.token }, env);
+    if (!authed) return err("Unauthorized", 401);
+    const result = await addSessions(env, body.sessions || []);
+    return result.ok ? ok(result) : err(result.error);
+  }
+
   if (action === "getHoursHistory") {
     let history = [];
     try { history = JSON.parse(await env.KV.get("hours-history") || "[]"); } catch(e) {}
