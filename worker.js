@@ -55,7 +55,44 @@ export default {
           return result.ok ? ok(result) : err(result.error);
         }
 
-        return err("Unknown command. Valid: focus-on, focus-off, sync, backfill-recurring");
+        if (command === "audit-today") {
+          // Read-only: raw dump of every completed task in the last 36h.
+          const until = new Date();
+          const since = new Date(until.getTime() - 36 * 3600 * 1000);
+          const result = await auditRange(env, since.toISOString(), until.toISOString());
+          return result.ok ? ok(result) : err(result.error);
+        }
+
+        if (command === "audit-project") {
+          // Read-only: ?project=<name substring>&days=<n, default 3>
+          const projectQuery = url.searchParams.get("project") || "";
+          const days  = Number(url.searchParams.get("days")) || 3;
+          const until = new Date();
+          const since = new Date(until.getTime() - days * 24 * 3600 * 1000);
+          const result = await auditProject(env, projectQuery, since.toISOString(), until.toISOString());
+          return result.ok ? ok(result) : err(result.error);
+        }
+
+        if (command === "audit-activity") {
+          // Read-only: ?task=<task id, optional>
+          const taskId = url.searchParams.get("task") || null;
+          const result = await auditActivity(env, taskId);
+          return result.ok ? ok(result) : err(result.error);
+        }
+
+        if (command === "class-schedule") {
+          const result = await getClassSchedule(env);
+          return result.ok ? ok(result) : err(result.error);
+        }
+
+        if (command === "add-sessions") {
+          let body;
+          try { body = await request.json(); } catch(e) { return err("invalid JSON body"); }
+          const result = await addSessions(env, body.sessions || []);
+          return result.ok ? ok(result) : err(result.error);
+        }
+
+        return err("Unknown command. Valid: focus-on, focus-off, sync, backfill-recurring, audit-today, audit-project, audit-activity, class-schedule, add-sessions");
       }
     }
     // ─────────────────────────────────────────────────────────────────────────
@@ -831,8 +868,9 @@ async function backfillRecurringCompletions(env, commit) {
 
   const recurring = allDone.filter(t => t.due?.is_recurring);
 
-  const MONTHS     = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const candidates = [];
+  const MONTHS       = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const candidates   = [];
+  const skippedNoHours = [];
   for (const item of recurring) {
     let hours = parseTaskTime(item.description || "");
 
@@ -848,7 +886,10 @@ async function backfillRecurringCompletions(env, commit) {
       } catch(e) {}
     }
 
-    if (hours === null) continue;
+    if (hours === null) {
+      skippedNoHours.push({ content: item.content, completedAt: item.completed_at || item.date_completed });
+      continue;
+    }
 
     const dueDateStr  = item.due?.date || item.due_date || null;
     const completedAt = item.completed_at || item.date_completed;
@@ -881,19 +922,246 @@ async function backfillRecurringCompletions(env, commit) {
   const existing = new Set(current.sessions.map(sig));
 
   const toAdd = [];
+  const alreadyRecorded = [];
   for (const c of candidates) {
     const key = sig(c);
-    if (existing.has(key)) continue;
+    if (existing.has(key)) { alreadyRecorded.push(c); continue; }
     existing.add(key); // guard against dupes within this same batch
     toAdd.push(c);
   }
 
   if (!commit || !toAdd.length) {
-    return { ok: true, dryRun: !commit, scanned: allDone.length, recurringFound: recurring.length, wouldAdd: toAdd.length, sessions: toAdd };
+    return {
+      ok: true, dryRun: !commit,
+      scanned: allDone.length, recurringFound: recurring.length,
+      wouldAdd: toAdd.length, sessions: toAdd,
+      skippedNoHours: skippedNoHours.length, skippedNoHoursSample: skippedNoHours.slice(0, 20),
+      alreadyRecorded: alreadyRecorded.length
+    };
   }
 
   const result = await commitSessionsBatch(env, toAdd);
   return { ok: true, dryRun: false, added: toAdd.length, sessions: toAdd, ...result };
+}
+
+// Read-only diagnostic: dumps every completed task in [since, until] with the
+// raw `due` object, computed hours, and computed session date, so a specific
+// missing/misdated sync can be traced without guessing.
+async function auditRange(env, sinceISO, untilISO) {
+  if (!env.TODOIST_TOKEN) return { ok: true, message: "TODOIST_TOKEN not set" };
+  const ah = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+
+  let allDone = [];
+  let cursor  = null;
+  do {
+    const base    = `https://api.todoist.com/api/v1/tasks/completed/by_completion_date?since=${encodeURIComponent(sinceISO)}&until=${encodeURIComponent(untilISO)}&limit=200`;
+    const doneUrl = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
+    const doneRes  = await fetch(doneUrl, { headers: ah });
+    const doneText = await doneRes.text();
+    let doneData;
+    try { doneData = JSON.parse(doneText); }
+    catch(e) { return { ok: false, error: "parse error: " + doneText.slice(0, 200) }; }
+    if (doneData.error || doneData.detail) return { ok: false, error: JSON.stringify(doneData).slice(0, 300) };
+    const batch = doneData.results || doneData.items || [];
+    allDone = allDone.concat(batch);
+    cursor  = doneData.next_cursor || null;
+  } while (cursor);
+
+  const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const items = allDone.map(item => {
+    const hours       = parseTaskTime(item.description || "");
+    const dueDateStr  = item.due?.date || item.due_date || null;
+    const completedAt = item.completed_at || item.date_completed;
+    let computedDate  = null;
+    if (dueDateStr) {
+      const [dy, dm, dd] = dueDateStr.slice(0, 10).split("-").map(Number);
+      computedDate = `${dd} ${MONTHS[dm - 1]} ${dy}`;
+    } else if (completedAt) {
+      const ist = new Date(new Date(completedAt).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      computedDate = `${ist.getDate()} ${MONTHS[ist.getMonth()]} ${ist.getFullYear()}`;
+    }
+    return {
+      id: item.id, content: item.content, completedAt,
+      due: item.due || null, isRecurring: !!item.due?.is_recurring,
+      description: item.description || null, hoursFromDescription: hours,
+      computedDate
+    };
+  });
+
+  return { ok: true, count: items.length, items };
+}
+
+// Read-only diagnostic: scopes the completed-tasks query to one project (by
+// name substring), tries both by_completion_date and by_due_date, and also
+// lists the project's currently-active tasks. Used to check whether a task
+// missing from the global completed-tasks scan shows up once queried
+// project-scoped, or via the due-date-indexed endpoint instead.
+async function auditProject(env, projectQuery, sinceISO, untilISO) {
+  if (!env.TODOIST_TOKEN) return { ok: true, message: "TODOIST_TOKEN not set" };
+  const ah = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+
+  const projRes  = await fetch("https://api.todoist.com/api/v1/projects", { headers: ah });
+  const projData = await projRes.json();
+  const projects = Array.isArray(projData) ? projData : (projData.results || []);
+  const match = projects.find(p => p.name.toLowerCase().includes((projectQuery || "").toLowerCase()));
+  if (!match) return { ok: false, error: "no project matching: " + projectQuery, projects: projects.map(p => p.name) };
+
+  async function fetchAll(endpoint) {
+    let all    = [];
+    let cursor = null;
+    do {
+      const base = `https://api.todoist.com/api/v1/tasks/completed/${endpoint}?project_id=${match.id}&since=${encodeURIComponent(sinceISO)}&until=${encodeURIComponent(untilISO)}&limit=200`;
+      const url2 = cursor ? `${base}&cursor=${encodeURIComponent(cursor)}` : base;
+      const res  = await fetch(url2, { headers: ah });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch(e) { return { error: "parse error: " + text.slice(0, 200) }; }
+      if (data.error || data.detail) return { error: JSON.stringify(data).slice(0, 300) };
+      const batch = data.results || data.items || [];
+      all = all.concat(batch);
+      cursor = data.next_cursor || null;
+    } while (cursor);
+    return { items: all };
+  }
+
+  const byCompletion = await fetchAll("by_completion_date");
+  const byDue         = await fetchAll("by_due_date");
+
+  const activeRes  = await fetch(`https://api.todoist.com/api/v1/tasks?project_id=${match.id}`, { headers: ah });
+  const activeData = await activeRes.json();
+  const active     = Array.isArray(activeData) ? activeData : (activeData.results || []);
+
+  const slim = t => ({ id: t.id, content: t.content, completed_at: t.completed_at || t.date_completed, due: t.due, description: t.description });
+
+  return {
+    ok: true,
+    project: { id: match.id, name: match.name },
+    byCompletionDate: byCompletion.error ? { error: byCompletion.error } : { count: byCompletion.items.length, items: byCompletion.items.map(slim) },
+    byDueDate:        byDue.error        ? { error: byDue.error }        : { count: byDue.items.length, items: byDue.items.map(slim) },
+    activeTasks: active.map(t => ({ id: t.id, content: t.content, due: t.due, checked: t.checked }))
+  };
+}
+
+// Read-only diagnostic: hits Todoist's older Sync API activity log
+// (sync/v9/activity/get), the same feed that powers the in-app Activity Log
+// UI, to check whether it surfaces "completed" events that the newer REST
+// completed-tasks endpoints are missing for time-scheduled recurring tasks.
+async function auditActivity(env, taskId) {
+  if (!env.TODOIST_TOKEN) return { ok: true, message: "TODOIST_TOKEN not set" };
+  const ah = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+
+  const params = new URLSearchParams({ object_type: "item", event_type: "completed", limit: "30" });
+  if (taskId) params.set("object_id", taskId);
+
+  const res  = await fetch(`https://api.todoist.com/api/v1/activity/get?${params.toString()}`, { headers: ah });
+  const text = await res.text();
+  let data;
+  try { data = JSON.parse(text); }
+  catch(e) { return { ok: false, error: "parse error: " + text.slice(0, 300) }; }
+  if (data.error) return { ok: false, error: JSON.stringify(data).slice(0, 300) };
+
+  return { ok: true, count: (data.events || []).length, events: data.events || data };
+}
+
+// Read-only: scans every active task for the "Attend X ... · start–end · location"
+// naming convention used by the class-schedule tasks, and returns each one's
+// label, project, recurrence weekdays (parsed from due.string, e.g. "every tue, thu"),
+// and duration in hours (parsed from the embedded time range). Used by the
+// manual weekly class-logging workflow, which sidesteps Todoist's completed-tasks
+// API gap for these specific recurring tasks by working from the live schedule
+// instead of trying to detect completions automatically.
+async function getClassSchedule(env) {
+  if (!env.TODOIST_TOKEN) return { ok: true, message: "TODOIST_TOKEN not set", schedule: [] };
+  const ah = { Authorization: `Bearer ${env.TODOIST_TOKEN}` };
+
+  const projRes  = await fetch("https://api.todoist.com/api/v1/projects", { headers: ah });
+  const projData = await projRes.json();
+  const projects = Array.isArray(projData) ? projData : (projData.results || []);
+  const projectMap = {};
+  for (const p of projects) projectMap[p.id] = p.name;
+
+  let allTasks = [];
+  let cursor   = null;
+  do {
+    const taskUrl = cursor
+      ? `https://api.todoist.com/api/v1/tasks?cursor=${encodeURIComponent(cursor)}`
+      : `https://api.todoist.com/api/v1/tasks`;
+    const taskRes  = await fetch(taskUrl, { headers: ah });
+    const taskData = await taskRes.json();
+    const batch    = Array.isArray(taskData) ? taskData : (taskData.results || []);
+    allTasks = allTasks.concat(batch);
+    cursor   = taskData.next_cursor || null;
+  } while (cursor);
+
+  const PATTERN = /^(Attend .+?)\s*·\s*(\d{1,2}):(\d{2})\s*[–-]\s*(\d{1,2}):(\d{2})/i;
+  const schedule = [];
+  for (const t of allTasks) {
+    const m = (t.content || "").match(PATTERN);
+    if (!m) continue;
+    const [, label, sh, sm, eh, em] = m;
+    const startMin = (Number(sh) % 12) * 60 + Number(sm);
+    let   endMin   = (Number(eh) % 12) * 60 + Number(em);
+    if (endMin <= startMin) endMin += 12 * 60; // crossed the 12 o'clock boundary
+    const hours = Math.round(((endMin - startMin) / 60) * 100) / 100;
+
+    const dueStr  = t.due?.string || "";
+    const wdMatch = dueStr.match(/^every\s+(.+)$/i);
+    let weekdays  = [];
+    if (wdMatch) {
+      const body = wdMatch[1].toLowerCase();
+      weekdays = body === "day"
+        ? ["mon","tue","wed","thu","fri","sat","sun"]
+        : body.split(",").map(s => s.trim().slice(0, 3)).filter(Boolean);
+    }
+
+    schedule.push({
+      taskId: t.id, content: t.content, label,
+      project: projectMap[t.project_id] || "?",
+      dueString: dueStr, weekdays, hours,
+      isRecurring: !!t.due?.is_recurring
+    });
+  }
+
+  return { ok: true, count: schedule.length, schedule };
+}
+
+// Accepts a list of {date, topic, hours, labels?} sessions supplied directly
+// by the caller (e.g. the weekly class-logging skill), dedups against
+// existing data.json entries by date+topic+hours, and commits the rest.
+async function addSessions(env, sessions) {
+  if (!env.GITHUB_TOKEN) return { ok: false, error: "GITHUB_TOKEN not set" };
+  if (!Array.isArray(sessions) || !sessions.length) return { ok: true, added: 0, sessions: [] };
+
+  const ghHeaders = {
+    Authorization: `token ${env.GITHUB_TOKEN}`,
+    "User-Agent":  "study-tracker-worker",
+    Accept:        "application/vnd.github.v3+json"
+  };
+  const getRes   = await fetch(
+    "https://api.github.com/repos/arushmangal/study-tracker/contents/data.json",
+    { headers: ghHeaders }
+  );
+  const fileData = await getRes.json();
+  if (!fileData.content) return { ok: false, error: "GitHub read failed: " + JSON.stringify(fileData).slice(0, 200) };
+  const current = JSON.parse(atob(fileData.content.replace(/\n/g, "")));
+
+  const sig      = s => `${s.date}|${s.topic}|${s.hours}`;
+  const existing = new Set(current.sessions.map(sig));
+
+  const toAdd = [];
+  for (const s of sessions) {
+    if (!s.date || !s.topic || typeof s.hours !== "number") continue;
+    const clean = { date: s.date, topic: s.topic, hours: s.hours, labels: s.labels || [] };
+    const key = sig(clean);
+    if (existing.has(key)) continue;
+    existing.add(key);
+    toAdd.push(clean);
+  }
+
+  if (!toAdd.length) return { ok: true, added: 0, sessions: [] };
+
+  const result = await commitSessionsBatch(env, toAdd);
+  return { ok: true, added: toAdd.length, sessions: toAdd, ...result };
 }
 
 
