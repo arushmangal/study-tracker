@@ -1,5 +1,5 @@
 {
-  "hoursCompleted": 379.52,
+  "hoursCompleted": 381.18,
   "sessions": [
     {
       "date": "28 Mar 2026",
@@ -1208,6 +1208,30 @@
     },
     {
       "date": "4 Aug 2026",
+      "topic": "Attend PHY U101 Tutorial ÃÂÃÂÃÂÃÂ· 8:00ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ8:50am ÃÂÃÂÃÂÃÂ· NAB 6104",
+      "hours": 0.83,
+      "labels": [
+        "tuts"
+      ]
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "Attend BITS U103 Lecture ÃÂÃÂ· 2:00ÃÂ¢ÃÂÃÂ2:50pm ÃÂÃÂ· LTC 5102",
+      "hours": 0.83,
+      "labels": [
+        "lectures"
+      ]
+    },
+    {
+      "date": "4 Aug 2026",
+      "topic": "Attend PHY U101 Lecture ÃÂÃÂ· 9:00ÃÂ¢ÃÂÃÂ9:50am ÃÂÃÂ· LTC 5102",
+      "hours": 0.83,
+      "labels": [
+        "lectures"
+      ]
+    },
+    {
+      "date": "4 Aug 2026",
       "topic": "Attend PHY U101 Tutorial ÃÂÃÂ· 8:00ÃÂ¢ÃÂÃÂ8:50am ÃÂÃÂ· NAB 6104",
       "hours": 0.83,
       "labels": [
@@ -1215,32 +1239,8 @@
       ]
     },
     {
-      "date": "4 Aug 2026",
-      "topic": "Attend BITS U103 Lecture ÃÂ· 2:00Ã¢ÂÂ2:50pm ÃÂ· LTC 5102",
-      "hours": 0.83,
-      "labels": [
-        "lectures"
-      ]
-    },
-    {
-      "date": "4 Aug 2026",
-      "topic": "Attend PHY U101 Lecture ÃÂ· 9:00Ã¢ÂÂ9:50am ÃÂ· LTC 5102",
-      "hours": 0.83,
-      "labels": [
-        "lectures"
-      ]
-    },
-    {
-      "date": "4 Aug 2026",
-      "topic": "Attend PHY U101 Tutorial ÃÂ· 8:00Ã¢ÂÂ8:50am ÃÂ· NAB 6104",
-      "hours": 0.83,
-      "labels": [
-        "tuts"
-      ]
-    },
-    {
       "date": "3 Aug 2026",
-      "topic": "Attend PHY U110 Lab ÃÂ· 8:00Ã¢ÂÂ9:50am ÃÂ· Faculty Div II 2247",
+      "topic": "Attend PHY U110 Lab ÃÂÃÂ· 8:00ÃÂ¢ÃÂÃÂ9:50am ÃÂÃÂ· Faculty Div II 2247",
       "hours": 1.83,
       "labels": [
         "labs"
@@ -1248,7 +1248,7 @@
     },
     {
       "date": "4 Aug 2026",
-      "topic": "Attend BIO U101 Lab ÃÂ· 3:00Ã¢ÂÂ4:50pm ÃÂ· Faculty Div II 2206",
+      "topic": "Attend BIO U101 Lab ÃÂÃÂ· 3:00ÃÂ¢ÃÂÃÂ4:50pm ÃÂÃÂ· Faculty Div II 2206",
       "hours": 1.83,
       "labels": [
         "labs"
@@ -1256,7 +1256,7 @@
     },
     {
       "date": "4 Aug 2026",
-      "topic": "Attend MATH U101 Lecture ÃÂ· 10:00Ã¢ÂÂ11:00am ÃÂ· LTC 5102",
+      "topic": "Attend MATH U101 Lecture ÃÂÃÂ· 10:00ÃÂ¢ÃÂÃÂ11:00am ÃÂÃÂ· LTC 5102",
       "hours": 1,
       "labels": [
         "lectures"
@@ -1264,7 +1264,7 @@
     },
     {
       "date": "4 Aug 2026",
-      "topic": "Attend CHEM U101 Lecture ÃÂ· 11:00Ã¢ÂÂ11:50am ÃÂ· LTC 5102",
+      "topic": "Attend CHEM U101 Lecture ÃÂÃÂ· 11:00ÃÂ¢ÃÂÃÂ11:50am ÃÂÃÂ· LTC 5102",
       "hours": 0.83,
       "labels": [
         "lectures"
@@ -1281,6 +1281,22 @@
       "topic": "Enger notes",
       "hours": 0.25,
       "labels": []
+    },
+    {
+      "date": "5 Aug 2026",
+      "topic": "Attend BIO U101 Lecture · 11:00–11:50am · LTC 5102",
+      "hours": 0.83,
+      "labels": [
+        "lectures"
+      ]
+    },
+    {
+      "date": "5 Aug 2026",
+      "topic": "Attend CHEM U101 Tutorial · 8:00–8:50am · NAB 6153",
+      "hours": 0.83,
+      "labels": [
+        "tuts"
+      ]
     }
   ]
 }
